@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>All-in-One Engineer's Toolkit | Math, Measurement & Conversions</title>
+  <meta name="description" content="All-in-One Engineer’s Toolkit for quick access to Arithmetic, Algebra, Geometry, Statistics, Trigonometry, Calculus, Measurement, and Number Theory tools.">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">All-in-One Engineer’s Toolkit</h1>
+    <h2 class="subtitle">Math, Measurement, Conversions & More — in One Click</h2>
+
+    <div class="card-grid">
+
+      <!-- Arithmetic -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Arithmetic and Basic Math" 
+           onclick="goToChapter('arithmetic')" 
+           onkeypress="if(event.key==='Enter'){goToChapter('arithmetic')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/2278/2278992.png" alt="Arithmetic Icon" loading="lazy" />
+        <h2>Arithmetic &<br>Basic Math</h2>
+      </div>
+
+      <!-- Statistics -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Probability and Statistics" 
+           onclick="goToChapter('statistics')" 
+           onkeypress="if(event.key==='Enter'){goToChapter('statistics')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="Statistics Icon" loading="lazy" />
+        <h2>Probability & Statistics</h2>
+      </div>
+
+      <!-- Measurement / Converters -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Measurement and Converters" 
+           onclick="goToChapter('measurement')" 
+           onkeypress="if(event.key==='Enter'){goToChapter('measurement')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/2910/2910763.png" alt="Measurement Icon" loading="lazy" />
+        <h2>Measurement / Converters</h2>
+      </div>
+
+      <!-- Number Theory -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Number Theory" 
+           onclick="goToChapter('numtheory')" 
+           onkeypress="if(event.key==='Enter'){goToChapter('numtheory')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/1230/1230715.png" alt="Number Theory Icon" loading="lazy" />
+        <h2>Number<br>Theory</h2>
+      </div>
+
+      <!-- Algebra -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Algebra" 
+           onclick="goToChapter('algebra')" 
+           onkeypress="if(event.key==='Enter'){goToChapter('algebra')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/2543/2543671.png" alt="Algebra Icon" loading="lazy" />
+        <h2>Algebra</h2>
+      </div>
+
+      <!-- Geometry -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Geometry" 
+           onclick="goToChapter('geometry')" 
+           onkeypress="if(event.key==='Enter'){goToChapter('geometry')}">
+        <img src="geometry.jpeg" alt="Geometry Icon" loading="lazy" />
+        <h2>Geometry</h2>
+      </div>
+
+      <!-- Trigonometry -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Trigonometry" 
+           onclick="goToChapter('trigonometry')" 
+           onkeypress="if(event.key==='Enter'){goToChapter('trigonometry')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/1046/1046784.png" alt="Trigonometry Icon" loading="lazy" />
+        <h2>Trigonometry</h2>
+      </div>
+
+      <!-- Calculus -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Calculus" 
+           onclick="goToChapter('calculus')" 
+           onkeypress="if(event.key==='Enter'){goToChapter('calculus')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/2910/2910761.png" alt="Calculus Icon" loading="lazy" />
+        <h2>Calculus</h2>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="footer">
+  <p>© 2025 Engineer's Toolkit — Crafted with ❤️ by <span class="author-name">Engr. Fermina</span></p>
+</footer>
+
+  <script>
+    function goToChapter(name) {
+      window.location.href = `${name}.html`;
+    }
+  </script>
+</body>
+</html>
