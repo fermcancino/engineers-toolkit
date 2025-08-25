@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trigonometry Tools</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="chapter">
+  <div class="container">
+    <h1 class="title">🧠 Trigonometry Tools</h1>
+    <div class="card-grid">
+
+      <!-- Trigonometric Calculator -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Basic Trig Calculator"
+           onclick="goToChapter('trig-function')"
+           onkeypress="if(event.key==='Enter'){goToChapter('trig-function')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/1523/1523446.png" alt="Trig Calculator Icon" loading="lazy" />
+        <h2>Trigonometric Calculator</h2>
+      </div>
+      
+      <!-- Triangle Solver -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Triangle Solver"
+           onclick="goToChapter('triangle-solver')"
+           onkeypress="if(event.key==='Enter'){goToChapter('triangle-solver')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/4154/4154515.png" alt="Triangle Solver Icon" loading="lazy" />
+        <h2>Triangle<br>Solver</h2>
+      </div>
+
+      <!-- Equations Solver & Checker -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Equations Solver & Checker"
+           onclick="goToChapter('equations-solver')"
+           onkeypress="if(event.key==='Enter'){goToChapter('equations-solver')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/4721/4721725.png" alt="Equations Solver Icon" loading="lazy" />
+        <h2>Equations Solver & Checker</h2>
+      </div>
+
+      <!-- Angle & Unit Circle -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Angle & Unit Circle"
+           onclick="goToChapter('angle-unit')"
+           onkeypress="if(event.key==='Enter'){goToChapter('angle-unit')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/2979/2979772.png" alt="Unit Circle Icon" loading="lazy" />
+        <h2>Angle & Unit Circle</h2>
+      </div>
+
+    </div>
+  </div>
+  <footer class="footer">
+  <p>© 2025 Engineer's Toolkit — Crafted with ❤️ by <span class="author-name">Engr. Fermina</span></p>
+  </footer>
+
+  <script>
+    function goToChapter(name) {
+      window.location.href = `${name}.html`;
+    }
+  </script>
+</body>
+</html>

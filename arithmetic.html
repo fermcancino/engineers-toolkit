@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Arithmetic Tools</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="chapter">
+  <div class="container">
+    <h1 class="title">🧮 Arithmetic & Basic Math Tools</h1>
+    <div class="card-grid">
+
+      <!-- ARITHMETIC -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Arithmetic Operation"
+           onclick="goToChapter('simple-calculator')"
+           onkeypress="if(event.key==='Enter'){goToChapter('simple-calculator')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/591/591776.png" alt="Arithmetic Operation Icon" loading="lazy" />
+        <h2>Arithmetic Operation</h2>
+      </div>
+
+      <!-- FRACTION -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Fraction Operation"
+           onclick="goToChapter('fraction-operation')"
+           onkeypress="if(event.key==='Enter'){goToChapter('fraction-operation')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/1011/1011863.png" alt="Fraction Operation Icon" loading="lazy" />
+        <h2>Fraction Operation</h2>
+      </div>
+      
+      <!-- RATIO & PROPORTION -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Ratio and Proportion"
+           onclick="goToChapter('ratio-proportion')"
+           onkeypress="if(event.key==='Enter'){goToChapter('ratio-proportion')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/2232/2232688.png" alt="Ratio & Proportion Icon" loading="lazy" />
+        <h2>Ratio & Proportion</h2>
+      </div>
+
+      <!-- NUMBER CHECKER -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Number Checker"
+           onclick="goToChapter('number-checker')"
+           onkeypress="if(event.key==='Enter'){goToChapter('number-checker')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/753/753345.png" alt="Number Checker Icon" loading="lazy" />
+        <h2>Number<br>Checker</h2>
+      </div>
+      
+      <!-- DECIMAL, PERCENTAGE, RATIO -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Decimal, Ratio, Percentage"
+           onclick="goToChapter('decimal-ratio')"
+           onkeypress="if(event.key==='Enter'){goToChapter('decimal-ratio')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/1302/1302021.png" alt="Decimal, Ratio, Percentage Icon" loading="lazy" />
+        <h2>Decimal, Ratio, Percentage</h2>
+      </div>
+
+      <!-- RANDOM NUMBER GENERATOR -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Random Number Generator"
+           onclick="goToChapter('random-number')"
+           onkeypress="if(event.key==='Enter'){goToChapter('random-number')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/5484/5484631.png" alt="Random Number Generator Icon" loading="lazy" />
+        <h2>Random Number Generator</h2>
+      </div>
+
+      <!-- PLACE VALUE -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Place Value"
+           onclick="goToChapter('place-value')"
+           onkeypress="if(event.key==='Enter'){goToChapter('place-value')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/1400/1400280.png" alt="Place Value Icon" loading="lazy" />
+        <h2>Place<br>Value</h2>
+      </div>
+
+    </div>
+  </div>
+  <footer class="footer">
+  <p>© 2025 Engineer's Toolkit — Crafted with ❤️ by <span class="author-name">Engr. Fermina</span></p>
+  </footer>
+
+  <script>
+    function goToChapter(name) {
+      window.location.href = `${name}.html`;
+    }
+  </script>
+</body>
+</html>

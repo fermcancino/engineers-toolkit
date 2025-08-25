@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculus Calculator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+      transition: background 0.3s, color 0.3s;
+    }
+    body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #1e1e1e;
+  color: #fff;
+  margin: 0;
+  padding: 0;
+}
+
+    .light {
+      background: #e0e0e0;
+      color: #333;
+    }
+
+    /* Topbar */
+    .topbar {
+  width: 100%;
+  max-width: 450px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 15px 20px;
+  margin-bottom: 20px; 
+  font-size: 1.5em;
+  font-weight: bold;
+  background: linear-gradient(135deg, #3a3a3a, #1e1e1e);
+  color: #fff;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  letter-spacing: 1px;
+}
+
+    .light .topbar {
+      background: linear-gradient(135deg, #f1f1f1, #d8d8d8);
+      color: #222;
+    }
+
+    /* Theme Toggle */
+    .switch {
+      width: 50px;
+      height: 28px;
+      background: #555;  
+      box-shadow: 0 2px 6px rgba(255,255,255,0.15);            
+      border-radius: 30px;
+      position: relative;
+      transition: background 0.3s ease;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+
+    .slider {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translateX(0); 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    body.light .switch {
+  background: #f0f0f0;           
+  border: 1px solid #bbb;        
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15); 
+}
+
+
+    body.light .switch .slider {
+      transform: translateX(20px); 
+    }
+
+    /* Carousel */
+    .carousel-container {
+  width: 90%;
+  max-width: 420px;
+  height: 460px;
+  perspective: 1200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin: 20px auto;
+}
+    .carousel {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.8s;
+      transform: translateZ(-200px);
+    }
+    .card {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 30px;
+      background: #2a2a2a;
+      box-shadow: 8px 8px 18px rgba(0, 0, 0, 0.6), -8px -8px 18px rgba(70, 70, 70, 0.4), inset 1px 1px 2px rgba(255, 255, 255, 0.05);
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      backface-visibility: hidden;
+      opacity: 0.4;
+      transition: opacity 0.4s ease;
+    }
+    .card.active {
+      opacity: 1;
+    }
+    .light .card {
+      background: #e0e0e0;
+      box-shadow: 8px 8px 18px #b8b9be, -8px -8px 18px #ffffff, inset 1px 1px 2px rgba(255, 255, 255, 0.6);
+    }
+    .card h1 {
+      font-size: 1.3em;
+      margin-bottom: 20px;
+      text-align: center;
+      font-family: 'Poppins', sans-serif;
+      letter-spacing: 1px;
+    }
+
+    /* Inputs */
+    .input-group {
+      margin: 5px 0;
+      width: 100%;
+      position: relative;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      font-size: 1.1em;
+      text-align: center;
+      border: none;
+      outline: none;
+      border-radius: 15px;
+      margin-bottom: 5px;
+      box-shadow: inset 4px 4px 6px #141414, inset -4px -4px 6px #3a3a3a;
+      background: #3a3a3a;
+      color: #fff;
+    }
+    input::placeholder {
+      color: #aaa;
+      font-size: 0.9em;
+    }
+    .light input {
+      background: #f3f3f3;
+      color: #222;
+      box-shadow: inset 4px 4px 6px #b8b9be, inset -4px -4px 6px #ffffff;
+    }
+    input:focus {
+  
+  box-shadow: 0 0 6px #00c6ff, inset 0 0 2px #00f2fe;
+}
+
+    /* Result Field */
+    .result-field {
+      border-radius: 25px;
+      color: black;
+      font-weight: bold;
+      border: 1px solid #00c6ff;
+      box-shadow: 0 0 7px #00bcd4;
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+    .light .result-field {
+      box-shadow: 0 0 7px #00bcd4;
+    }
+
+    /* Buttons */
+    .buttons-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      width: 100%;
+    }
+    button {
+      flex: 1;
+      padding: 12px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      background: #2a2a2a;
+      color: inherit;
+      box-shadow: 4px 4px 6px #141414, -4px -4px 6px #3a3a3a;
+      transition: transform 0.2s;
+    }
+    .light button {
+      background: #e0e0e0;
+      box-shadow: 4px 4px 6px #b8b9be, -4px -4px 6px #ffffff;
+    }
+    button:active {
+      animation: bounce 0.8s cubic-bezier(0.28, 0.84, 0.42, 1.1) forwards;
+      box-shadow:
+        0 0 12px rgba(79, 172, 254, 0.9),
+        inset 3px 3px 6px rgba(0, 0, 0, 0.6),
+        inset -3px -3px 6px rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+    .btn-clr:active {
+      box-shadow:
+        0 0 12px rgba(255, 128, 128, 0.9),
+        inset 3px 3px 6px rgba(0, 0, 0, 0.6),
+        inset -3px -3px 6px rgba(255, 128, 128, 0.2) !important;
+      animation: bounce 0.8s cubic-bezier(0.28, 0.84, 0.42, 1.1) forwards;
+    }
+    @keyframes bounce3D {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    /* Controls */
+    .controls {
+  position: absolute;
+  bottom: -60px; 
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+    .controls button {
+      width: 60px;
+      height: 55px;
+      border-radius: 50%;
+      font-size: 1.2em;
+    }
+    .controls button:active {
+  animation: bounce 0.8s cubic-bezier(0.28, 0.84, 0.42, 1.1) forwards;
+  box-shadow:
+    0 0 12px rgba(0, 255, 128, 0.9),
+    inset 3px 3px 6px rgba(0, 0, 0, 0.6),
+    inset -3px -3px 6px rgba(0, 255, 128, 0.2);
+}
+
+@keyframes bounce {
+  0%   { transform: translateY(0) scale(1); }
+  30%  { transform: translateY(-8px) scale(1.05); }
+  50%  { transform: translateY(2px) scale(0.98); }
+  70%  { transform: translateY(-4px) scale(1.02); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+
+    /* Error & Flash */
+    .input-error {
+      border: 2px solid #ff6b6b !important;
+      box-shadow: 0 0 8px rgba(255, 107, 107, 0.8);
+    }
+    .error-message {
+      color: #ff6b6b;
+      font-size: 0.85em;
+      margin-top: 4px;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .show-error { opacity: 1; }
+    .shake { animation: shake 0.3s; }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+    .result-flash {
+      font-weight: bold;
+      color: white;
+      box-shadow: 0 0 12px rgba(0, 198, 255, 0.9), 0 0 18px rgba(26, 255, 140, 0.7);
+      animation: bounce3D 0.4s ease forwards;
+    }
+    .light .result-flash {
+      box-shadow: 0 0 12px rgba(0, 198, 255, 0.9), 0 0 18px rgba(26, 255, 140, 0.7);
+    }
+    .line {
+      width: 100%;
+      height: 2px;
+      background: white;
+    }
+    .light .line {
+      background: black;
+    }
+
+    .footer {
+  margin: 50px 20px 0 20px; 
+  text-align: center;
+  font-size: 0.9rem;
+  padding: 1rem 0;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+    body.light .footer {
+      color: #444444;
+    }
+
+    .footer .author-name:hover {
+      font-size: 1.1rem;
+      color: #a0fff0;
+      text-shadow: 
+        0 0 2px #a0fff0aa,
+        0 0 4px #80e0d0bb,
+       0 0 6px #60c0b088;
+      animation: footerGlow 2.5s ease-in-out infinite;
+      transition: all 0.3s ease-in-out;
+    }
+    body.light .footer .author-name:hover { 
+  color: #005f8a; 
+  text-shadow: 
+    0 0 4px rgba(0, 119, 182, 0.4),   
+    0 0 8px rgba(0, 95, 138, 0.3),
+    0 0 12px rgba(0, 68, 102, 0.25);
+}
+
+  </style>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nerdamer/1.1.13/nerdamer.core.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nerdamer/1.1.13/Algebra.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nerdamer/1.1.13/Calculus.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nerdamer/1.1.13/Solve.js"></script>
+</head>
+<body>
+  <div class="topbar">
+  <div>Calculus Calculator</div>
+   <div class="theme-toggle" onclick="toggleTheme()">
+     <div class="switch">
+      <div class="slider"></div>
+     </div>
+   </div>
+  </div>
+
+
+  <div class="carousel-container">
+    <div class="carousel" id="carousel">
+
+      <!-- Card 1: Derivative Calculator -->
+      <div class="card">
+        <h1>Derivative Calculator</h1>
+        <div class="input-group">
+          <input type="text" id="derivativeFunc" placeholder="Enter function (e.g., x^3 + 2x)">
+          <div class="error-message" id="derivative-error"></div>
+        </div>
+        <div class="input-group">
+          <input type="text" id="derivativePoint" placeholder="Point (optional)">
+        </div>
+        <div class="line"></div>
+        <div class="input-group">
+          <input type="text" id="derivativeResult" class="result-field" placeholder="Result" readonly>
+        </div>
+        <div class="buttons-row">
+          <button onclick="calculateDerivative()">Compute</button>
+          <button class="btn-clr" onclick="clearDerivative()">Clear</button>
+        </div>
+      </div>
+
+      <!-- Card 2: Integral Calculator -->
+      <div class="card">
+        <h1>Integral Calculator</h1>
+        <div class="input-group">
+          <input type="text" id="integralFunc" placeholder="Enter function (e.g., x^2)">
+          <div class="error-message" id="integral-error"></div>
+        </div>
+        <div class="input-group">
+          <input type="text" id="lowerLimit" placeholder="Lower limit (optional)">
+        </div>
+        <div class="input-group">
+          <input type="text" id="upperLimit" placeholder="Upper limit (optional)">
+        </div>
+        <div class="line"></div>
+        <div class="input-group">
+          <input type="text" id="integralResult" class="result-field" placeholder="Result" readonly>
+        </div>
+        <div class="buttons-row">
+          <button onclick="calculateIntegral()">Compute</button>
+          <button class="btn-clr" onclick="clearIntegral()">Clear</button>
+        </div>
+      </div>
+
+      <!-- Card 3: Limit Calculator -->
+      <div class="card">
+        <h1>Limit Calculator</h1>
+        <div class="input-group">
+          <input type="text" id="limitFunc" placeholder="Enter function (e.g., (sin(x))/x)">
+          <div class="error-message" id="limit-error"></div>
+        </div>
+        <div class="input-group">
+          <input type="text" id="limitPoint" placeholder="Limit as x → (e.g., 0)">
+        </div>
+        <div class="line"></div>
+        <div class="input-group">
+          <input type="text" id="limitResult" class="result-field" placeholder="Result" readonly>
+        </div>
+        <div class="buttons-row">
+          <button onclick="calculateLimit()">Compute</button>
+          <button class="btn-clr" onclick="clearLimit()">Clear</button>
+        </div>
+      </div>
+
+      <!-- Card 4: Series Expansion Calculator -->
+      <div class="card">
+        <h1>Series Expansion</h1>
+        <div class="input-group">
+          <input type="text" id="seriesFunc" placeholder="Enter function (e.g., e^x)">
+          <div class="error-message" id="series-error"></div>
+        </div>
+        <div class="input-group">
+          <input type="text" id="seriesPoint" placeholder="Expansion at x0 (default 0)">
+        </div>
+        <div class="input-group">
+          <input type="text" id="seriesOrder" placeholder="Order (e.g., 5)">
+        </div>
+        <div class="line"></div>
+        <div class="input-group">
+          <input type="text" id="seriesResult" class="result-field" placeholder="Result" readonly>
+        </div>
+        <div class="buttons-row">
+          <button onclick="calculateSeries()">Compute</button>
+          <button class="btn-clr" onclick="clearSeries()">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carousel Controls -->
+    <div class="controls">
+      <button onclick="prevCard()">‹</button>
+      <button onclick="nextCard()">›</button>
+    </div>
+  </div>
+
+  <footer class="footer">
+   <p>© 2025 Engineer's Toolkit — Crafted with ❤️ by <span class="author-name">Engr. Fermina</span></p>
+  </footer>
+
+<script>
+// 3D Carousel
+function updateCarouselLayout(){
+  const carousel=document.getElementById('carousel');
+  const cards=document.querySelectorAll('.card');
+  const numCards=cards.length;
+  const cardWidth=carousel.offsetWidth;
+  const translateZ=Math.round((cardWidth/2)/Math.tan(Math.PI/numCards));
+  const angleStep=360/numCards;
+  let currentIndex=window.carouselData?window.carouselData.currentIndex:0;
+  cards.forEach((card,index)=>{card.style.transform=`rotateY(${index*angleStep}deg) translateZ(${translateZ}px)`;});
+  window.carouselData={translateZ,angleStep,currentIndex,total:numCards};
+  const newAngle=-currentIndex*angleStep;
+  carousel.style.transform=`translateZ(-${translateZ}px) rotateY(${newAngle}deg)`;
+  cards.forEach((card,i)=>{card.classList.toggle('active',i===currentIndex);});
+}
+function nextCard(){rotateToIndex(window.carouselData.currentIndex+1);}
+function prevCard(){rotateToIndex(window.carouselData.currentIndex-1);}
+function rotateToIndex(index){
+  const {translateZ,angleStep,total}=window.carouselData;
+  window.carouselData.currentIndex=(index+total)%total;
+  const newAngle=-window.carouselData.currentIndex*angleStep;
+  document.getElementById('carousel').style.transform=`translateZ(-${translateZ}px) rotateY(${newAngle}deg)`;
+  const cards=document.querySelectorAll('.card');
+  cards.forEach((card,i)=>{card.classList.toggle('active',i===window.carouselData.currentIndex);});
+}
+window.addEventListener('load',updateCarouselLayout);
+window.addEventListener('resize',updateCarouselLayout);
+
+// Theme Toggle
+function toggleTheme() {
+  document.body.classList.toggle("light");
+}
+
+// Error Helper
+function showError(inputId,msgId,msg){
+  const input=document.getElementById(inputId),error=document.getElementById(msgId);
+  input.classList.add('shake','input-error'); error.textContent=msg; error.classList.add('show-error');
+  setTimeout(()=>{input.classList.remove('shake');},600);
+  setTimeout(()=>{input.classList.remove('input-error');error.classList.remove('show-error');},2000);
+}
+
+// Flash
+function emphasizeResult(fieldId){
+  let field=document.getElementById(fieldId);
+  field.classList.remove("result-flash");
+  void field.offsetWidth;
+  field.classList.add("result-flash");
+}
+
+// 1. Derivative
+function calculateDerivative() {
+  let funcInput = document.getElementById("derivativeFunc");
+  let pointInput = document.getElementById("derivativePoint");
+  let resultField = document.getElementById("derivativeResult");
+
+  let func = funcInput.value.trim();
+  let point = pointInput.value.trim();
+
+  // === Validation ===
+  if (!func) {
+    showError("derivativeFunc", "derivative-error", "Enter a function (e.g. x^2+3x)");
+    return;
+  }
+
+  try {
+    // === Preprocess input ===
+    func = func.replace(/ln\(/g, "log("); // ln(x) → log(x)
+    func = func.replace(/e\^([^)]+)/g, "exp($1)"); // e^x → exp(x)
+
+    // === Derivative calculation ===
+    let derivative = math.derivative(func, "x").toString();
+
+    if (point) {
+      let value = math.evaluate(derivative, { x: parseFloat(point) });
+      resultField.value = `${derivative} ≈ ${value}`;
+    } else {
+      resultField.value = derivative;
+    }
+
+    emphasizeResult("derivativeResult");
+  } catch (e) {
+    showError("derivativeFunc", "derivative-error", "Invalid function format");
+  }
+}
+
+function clearDerivative() {
+  ["derivativeFunc", "derivativePoint", "derivativeResult"].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById("derivativeResult").classList.remove("result-flash");
+}
+
+//2. Integral
+function calculateIntegral(){
+  let func = document.getElementById("integralFunc").value.trim();
+  let a = document.getElementById("lowerLimit").value.trim();
+  let b = document.getElementById("upperLimit").value.trim();
+
+  if(!func){
+    showError("integralFunc","integral-error","Function required");
+    return;
+  }
+
+  try {
+    if(a && b){
+      // definite integral (numeric)
+      let f = x => math.evaluate(func, {x});
+      let n = 2000, h = (parseFloat(b) - parseFloat(a)) / n, sum = 0;
+      for(let i=0;i<=n;i++){
+        let x = parseFloat(a) + i*h;
+        sum += f(x) * (i===0 || i===n ? 0.5 : 1);
+      }
+      let result = sum * h;
+      document.getElementById("integralResult").value = `≈ ${result}`;
+    } else {
+  // Indefinite integral branch
+try {
+    if (typeof nerdamer !== "undefined") {
+        // 1. Normalize input
+        let expr = func
+          .replace(/\bln\(/g, "log(") // ln(x) → log(x)
+          .replace(/e\^([^)]+)/g, "exp($1)") // e^x → exp(x)
+          .replace(/√\(/g, "sqrt(")
+          .replace(/([\d\w]+)²/g, "$1^2") // handle x², 3x² etc
+          .replace(/\s+/g,'') // remove spaces
+
+        // 2. Call nerdamer integrate properly
+        let result = nerdamer.integrate(expr, 'x').toString();
+
+        // 3. Optional: prettify (add + C)
+        document.getElementById("integralResult").value = result + ' + C';
+    } else {
+        document.getElementById("integralResult").value = `∫(${func}) dx + C`;
+    }
+} catch(err) {
+    console.error(err);
+    document.getElementById("integralResult").value = `∫(${func}) dx + C`;
+ }
+}
+
+    emphasizeResult("integralResult");
+
+  } catch(e) {
+    showError("integralFunc","integral-error","Invalid function");
+  }
+}
+
+function clearIntegral(){
+  ["integralFunc","lowerLimit","upperLimit","integralResult"].forEach(id=>document.getElementById(id).value='');
+  document.getElementById("integralResult").classList.remove("result-flash");
+}
+
+// 3. Limit Calculator 
+function calculateLimit(){
+  let func = document.getElementById("limitFunc").value.trim();
+  let point = document.getElementById("limitPoint").value.trim();
+  
+  if(!func){
+    showError("limitFunc","limit-error","Function required");
+    return;
+  }
+  if(!point){
+    showError("limitPoint","limit-error","Point required");
+    return;
+  }
+
+  try {
+    let x0 = parseFloat(point);
+
+    // Evaluate close to the point using small epsilon
+    let epsilon = 1e-6;
+    let left = math.evaluate(func, {x: x0 - epsilon});
+    let right = math.evaluate(func, {x: x0 + epsilon});
+
+    let result;
+    if (Math.abs(left - right) < 1e-6) {
+      result = (left + right) / 2;
+    } else {
+      result = `Does not exist (Left: ${left}, Right: ${right})`;
+    }
+
+    document.getElementById("limitResult").value = result;
+    emphasizeResult("limitResult");
+  } catch(e) {
+    showError("limitFunc","limit-error","Invalid function");
+  }
+}
+
+function clearLimit(){
+  ["limitFunc","limitPoint","limitResult"].forEach(id => document.getElementById(id).value='');
+  document.getElementById("limitResult").classList.remove("result-flash");
+}
+
+// 4. Series Expansion 
+function calculateSeries(){
+  let func=document.getElementById("seriesFunc").value.trim();
+  let point=document.getElementById("seriesPoint").value.trim() || "0";
+  let order=document.getElementById("seriesOrder").value.trim();
+
+  if(!func){
+    showError("seriesFunc","series-error","Function required");
+    return;
+  }
+  if(!order){
+    showError("seriesOrder","series-error","Order required");
+    return;
+  }
+
+  try{
+    point = parseFloat(point);
+    order = parseInt(order);
+
+    let expansion = [];
+
+    for(let n=0; n<=order; n++){
+      // compute nth derivative
+      let derivative = math.parse(func);
+      for(let k=0; k<n; k++){
+        derivative = math.derivative(derivative, 'x');
+      }
+
+      // evaluate at point
+      let value = derivative.evaluate({x:point});
+      let coeff = value / math.factorial(n);
+
+      if (Math.abs(coeff) < 1e-12) continue; // skip tiny terms
+
+      // round coefficient
+      let c = parseFloat(coeff.toFixed(5));
+
+      // pretty term
+      let term = "";
+
+      // sign handling
+      if(expansion.length > 0){
+        term += (c >= 0 ? " + " : " - ");
+      } else if(c < 0){
+        term += "-";
+      }
+
+      // absolute coefficient
+      let absC = Math.abs(c);
+
+      if(n === 0){
+        term += absC;
+      } else {
+        if(absC !== 1) term += absC; // omit 1
+        if(point === 0){
+          term += "x";
+          if(n > 1) term += "^" + n;
+        } else {
+          term += "(x-" + point + ")";
+          if(n > 1) term += "^" + n;
+        }
+      }
+
+      expansion.push(term);
+    }
+
+    document.getElementById("seriesResult").value = expansion.join("");
+    emphasizeResult("seriesResult");
+
+  } catch(e){
+    showError("seriesFunc","series-error","Invalid function");
+  }
+}
+
+function clearSeries(){
+  ["seriesFunc","seriesPoint","seriesOrder","seriesResult"]
+    .forEach(id=>document.getElementById(id).value='');
+  document.getElementById("seriesResult").classList.remove("result-flash");
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Geometry Tools</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="chapter">
+  <div class="container">
+    <h1 class="title">📐 Geometry Tools</h1>
+    <div class="card-grid">
+
+      <!-- AREA -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Area"
+           onclick="goToChapter('area-calculator')"
+           onkeypress="if(event.key==='Enter'){goToChapter('area-calculator')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/862/862857.png" alt="Area Icon" loading="lazy" />
+        <h2>Area</h2>
+      </div>
+
+      <!-- PERIMETER -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Perimeter"
+           onclick="goToChapter('perimeter-calculator')"
+           onkeypress="if(event.key==='Enter'){goToChapter('perimeter-calculator')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/4825/4825044.png" alt="Perimeter Icon" loading="lazy" />
+        <h2>Perimeter</h2>
+      </div>
+
+      <!-- VOLUME -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Volume"
+           onclick="goToChapter('volume-calculator')"
+           onkeypress="if(event.key==='Enter'){goToChapter('volume-calculator')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/5280/5280289.png" alt="Volume Icon" loading="lazy" />
+        <h2>Volume</h2>
+      </div>
+
+      <!-- SURFACE AREA -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Surface Area"
+           onclick="goToChapter('surface-area')"
+           onkeypress="if(event.key==='Enter'){goToChapter('surface-area')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/6615/6615455.png" alt="Surface Area Icon" loading="lazy" />
+        <h2>Surface Area</h2>
+      </div>
+
+    </div>
+  </div>
+  <footer class="footer">
+  <p>© 2025 Engineer's Toolkit — Crafted with ❤️ by <span class="author-name">Engr. Fermina</span></p>
+  </footer>
+
+  <script>
+    function goToChapter(name) {
+      window.location.href = `${name}.html`;
+    }
+  </script>
+</body>
+</html>

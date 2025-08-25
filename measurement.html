@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Measurement & Converters</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="chapter">
+  <div class="container">
+    <h1 class="title">📏 Measurement & Converter Tools</h1>
+    <div class="card-grid">
+
+      <!-- Numerical Conversions -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Numerical Conversions"
+           onclick="goToChapter('numerical-conversions')"
+           onkeypress="if(event.key==='Enter'){goToChapter('numerical-conversions')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/2702/2702122.png" alt="Numerical Conversions Icon" loading="lazy" />
+        <h2>Numerical Conversions</h2>
+      </div>
+
+      <!-- Derived Measurements -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Derived Measurements"
+           onclick="goToChapter('derived-measurements')"
+           onkeypress="if(event.key==='Enter'){goToChapter('derived-measurements')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/927/927667.png" alt="Derived Measurements Icon" loading="lazy" />
+        <h2>Derived Measurements</h2>
+      </div>
+      
+      <!-- Fundamental Physical Measurements -->
+      <div class="glass-card" role="button" tabindex="0" aria-label="Fundamental Physical Measurements"
+           onclick="goToChapter('physical-measurements')"
+           onkeypress="if(event.key==='Enter'){goToChapter('physical-measurements')}">
+        <img src="https://cdn-icons-png.flaticon.com/512/685/685816.png" alt="Fundamental Physical Measurements Icon" loading="lazy" />
+        <h2>Fundamental Physical Measurements</h2>
+      </div>
+
+    </div>
+  </div>
+  <footer class="footer">
+  <p>© 2025 Engineer's Toolkit — Crafted with ❤️ by <span class="author-name">Engr. Fermina</span></p>
+  </footer>
+
+  <script>
+    function goToChapter(name) {
+      window.location.href = `${name}.html`;
+    }
+  </script>
+</body>
+</html>

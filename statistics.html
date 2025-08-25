@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Probability & Statistics 3D Carousel</title>
+  <style>
+    *{
+        padding:0;
+        box-sizing:border-box;
+        font-family:'Poppins',sans-serif;
+    }
+    body{
+      background:linear-gradient(135deg,#0f2027,#203a43);
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      min-height:100vh;
+      overflow-x:hidden;
+      padding-top:20px;
+    }
+    body.light{
+        background:linear-gradient(135deg,#f3f9ff,#ffffff);
+        color:#111;
+    }
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      width:100%;
+      max-width:500px;
+      padding:10px 20px;
+      margin-top: 50px;
+    }
+    .title{
+      font-size:1.7rem;
+      font-weight:bold;
+    }
+    
+    /* Theme Toggle */
+    .switch {
+      width: 50px;
+      height: 28px;
+      background: #555;              
+      border-radius: 30px;
+      position: relative;
+      transition: background 0.3s ease;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+
+    .slider {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translateX(0); 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    body.light .switch {
+      background: #cccccc; 
+      border: 1px solid #e0e0e0; 
+    }
+
+    body.light .switch .slider {
+      transform: translateX(20px); 
+    }
+
+    main#carousel{
+      margin-top:20px;
+      width:100vw;
+      height:500px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transform-style:preserve-3d;
+      perspective:900px;
+      --items:10;--position:1;pointer-events:none;
+    }
+    .item{
+      display:flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position:absolute;
+      width:370px;
+      height:500px;
+      padding:20px;
+      border-radius:20px;
+      background:rgba(255,255,255,0.08);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 
+        0 8px 25px rgba(0, 0, 0, 0.2),
+        inset -2px -2px 6px rgba(255, 255, 255, 0.2),
+        inset 3px 3px 8px rgba(0, 0, 0, 0.4);
+      --r:calc(var(--position) - var(--offset));
+      --abs:max(calc(var(--r)*-1),var(--r));
+      transition:all 0.3s ease;
+      transform: translateZ(1px) rotateY(calc(-12deg * var(--r))) translateX(calc(-360px * var(--r))) scale(calc(1 - (0.15 * var(--abs))));
+      z-index:calc((var(--position) - var(--abs)));
+      color:#e0f7ff;
+      pointer-events:auto;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      text-align:center;
+      backface-visibility: hidden;
+    }
+    h3{
+        font-size:1.3rem;
+        margin-bottom:10px;
+        background:linear-gradient(45deg,#00f2fe,#4facfe);
+        -webkit-background-clip:text;
+        -webkit-text-fill-color:transparent;
+    }
+    body.light h3{
+        background:linear-gradient(45deg,#0072ff,#00c6ff);
+        -webkit-background-clip:text;
+        -webkit-text-fill-color:transparent;
+    }
+    input{
+      width:90%;
+      margin:6px auto;
+      padding:10px;
+      border-radius:12px;
+      border:none;
+      background:rgba(255,255,255,0.1);
+      color:inherit;
+      font-size:1rem;
+      text-align:center;
+      box-shadow:inset 2px 2px 4px rgba(0,0,0,0.5),inset -2px -2px 4px rgba(255,255,255,0.05);
+    }
+    input:focus {
+      outline: none;
+      box-shadow: 0 0 5px #00bcd4;
+      transform: scale(1.03);
+    }
+    body.light input:focus {
+      outline: none;
+      box-shadow: 0 0 8px rgba(0, 200, 255, 0.6); 
+    }
+    body.light input{ 
+      background:rgba(0,0,0,0.05);
+      color:#111;
+    }
+    .input-row {
+      display: flex;
+      gap: 10px;
+      width: 90%;
+      margin: 6px auto;
+    }
+    .input-row input {
+      flex: 1;
+    }
+    
+    .error-shake {
+      border: 1px solid #ff4d4d;
+      color:#ff6b6b;
+      background:rgba(255,0,0,0.05);
+      box-shadow: 0 0 8px rgba(255, 77, 77, 0.8), 0 0 15px rgba(255, 0, 0, 0.4);
+      animation: shake 0.3s;
+    }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+    .button-row{
+      display:flex;
+      justify-content:space-between;
+      width:90%;
+      gap:12px;
+      margin:10px 0;
+    }
+    .calc-btn,.clear-btn{
+      flex:1;
+      padding:12px;
+      border:none;
+      border-radius:14px;
+      font-size:1rem;
+      font-weight:bold;
+      cursor:pointer;
+      color:inherit;
+      background:rgba(255,255,255,0.08);
+      backdrop-filter:blur(10px);
+      box-shadow:inset 3px 3px 6px rgba(0,0,0,0.6),inset -3px -3px 6px rgba(255,255,255,0.1);
+      transition: all 0.3s ease;
+    }
+
+    .calc-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(0, 123, 255, 0.6); 
+    }
+
+    .clear-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(255, 50, 50, 0.6); 
+    }
+
+    body.light .calc-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(0, 123, 255, 0.8); 
+    }
+
+    body.light .clear-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(255, 50, 50, 0.8); 
+    }
+
+    .calc-btn:active,
+    body.light .calc-btn:active {
+      animation: bounce-blue 0.6s ease;
+    }
+
+    .clear-btn:active,
+    body.light .clear-btn:active {
+      animation: bounce-red 0.6s ease;
+    }
+    body.light .clear-btn,
+    body.light .calc-btn {
+      color:#111;
+    }
+
+    @keyframes bounce-blue {
+      0%   { transform: scale(1); background-color: #007bff; }
+      30%  { transform: scale(1.12); background-color: #339cff; }
+      50%  { transform: scale(0.95); background-color: #007bff; }
+      70%  { transform: scale(1.05); background-color: #339cff; }
+      100% { transform: scale(1); background-color: inherit; }
+    }
+
+    @keyframes bounce-red {
+      0%   { transform: scale(1); background-color: #ff3333; }
+      30%  { transform: scale(1.12); background-color: #ff6666; }
+      50%  { transform: scale(0.95); background-color: #ff3333; }
+      70%  { transform: scale(1.05); background-color: #ff6666; }
+      100% { transform: scale(1); background-color: inherit; }
+    }
+
+    .results{
+      margin-top:10px;
+      margin-bottom:15px;
+      padding:10px;
+      width:90%;
+      border-radius:12px;
+      background:rgba(255,255,255,0.1);
+      color:inherit;
+      box-shadow:inset 2px 2px 6px rgba(0,0,0,0.4),inset -2px -2px 6px rgba(255,255,255,0.05);
+      font-size:.95rem;
+      flex:1;
+      min-height: 120px;
+      max-height: 200px;
+      overflow-y: auto;
+      text-align: left;
+    }
+    body.light .results {
+      background: rgba(0,0,0,0.05); 
+      color: #111;
+      box-shadow: inset 2px 2px 6px rgba(0,0,0,0.1),
+              inset -2px -2px 6px rgba(255,255,255,0.5);
+    }
+    .results strong:first-of-type {
+      display: block;
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid rgba(0, 188, 212, 0.6);
+    }
+    body.light .results strong:first-of-type {
+      border-bottom-color: rgba(0, 123, 255, 0.6);
+    }
+    .results strong{
+      font-weight:bold;
+      display:block;
+      margin-bottom:4px;
+    }
+
+    .radio-container{
+      margin-top:20px;
+      display:flex;
+      gap:12px;
+    }
+    input[type=radio]{
+      appearance:none;
+      width:10px;
+      height:10px;
+      background:rgba(255,255,255,0.3);
+      border-radius:50%;
+      cursor:pointer;transition:.3s;
+    }
+    input[type=radio]:checked{
+      background:#00f2fe;
+      box-shadow:0 0 10px #00f2fe;
+    }
+    .footer {
+      text-align: center;
+      font-size: 1rem;
+      margin-top: 1rem;
+      color: rgba(255, 255, 255, 0.6);
+      padding: 1rem 0;
+    }
+    body.light .footer {
+      color: #444444;
+    }
+
+    .footer .author-name:hover {
+      font-size: 1.1rem;
+      color: #a0fff0;
+      text-shadow: 
+        0 0 2px #a0fff0aa,
+        0 0 4px #80e0d0bb,
+       0 0 6px #60c0b088;
+      animation: footerGlow 2.5s ease-in-out infinite;
+      transition: all 0.3s ease-in-out;
+    }
+    body.light .footer .author-name:hover { 
+      color: #0077b6;
+      text-shadow: 
+        0 0 2px #0077b6aa,
+        0 0 4px #005f8abb,
+        0 0 6px #00446688;
+    }
+
+    @keyframes footerGlow {
+      0%, 100% { text-shadow: 0 0 2px #00ffe0aa, 0 0 6px #00d8c0bb, 0 0 12px #00d8c088; }
+      50%      { text-shadow: 0 0 4px #00ffe0bb, 0 0 12px #00d8c0cc, 0 0 18px #00d8c0aa; }
+    }
+
+    /* Card offsets */
+    .item:nth-of-type(1){--offset:1;} .item:nth-of-type(2){--offset:2;} .item:nth-of-type(3){--offset:3;}
+    .item:nth-of-type(4){--offset:4;} .item:nth-of-type(5){--offset:5;} .item:nth-of-type(6){--offset:6;}
+    .item:nth-of-type(7){--offset:7;} .item:nth-of-type(8){--offset:8;} .item:nth-of-type(9){--offset:9;}
+    .item:nth-of-type(10){--offset:10;}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="title">Probability & Statistics</div>
+     <div class="theme-toggle" onclick="toggleTheme()">
+     <div class="switch">
+     <div class="slider"></div>
+    </div>
+  </div>
+
+  </div>
+
+  <main id="carousel">
+    <!-- 1 Sample SD -->
+    <div class="item">
+      <h3>Sample<br>Standard Deviation</h3>
+      <input type="text" id="sampleSD" placeholder="e.g., 2,4,6,8">
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcSampleSD()">Calculate</button>
+        <button class="clear-btn" onclick="clearField('sampleSD','sampleSDRes')">Clear</button>
+      </div>
+      <div class="results" id="sampleSDRes"></div>
+    </div>
+
+    <!-- 2 Population SD -->
+    <div class="item">
+      <h3>Population<br>Standard Deviation</h3>
+      <input type="text" id="popSD" placeholder="e.g., 2,4,6,8">
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcPopSD()">Calculate</button>
+        <button class="clear-btn" onclick="clearField('popSD','popSDRes')">Clear</button>
+      </div>
+      <div class="results" id="popSDRes"></div>
+    </div>
+
+    <!-- 3 Mean Median Mode -->
+    <div class="item">
+      <h3>Mean, Median, Mode<br>& Range</h3>
+      <input type="text" id="mmm" placeholder="e.g., 2,4,6,8">
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcMMM()">Calculate</button>
+        <button class="clear-btn" onclick="clearField('mmm','mmmRes')">Clear</button>
+      </div>
+      <div class="results" id="mmmRes"></div>
+    </div>
+
+    <!-- 4 Quartiles & IQR -->
+    <div class="item">
+      <h3>Quartiles & IQR</h3>
+      <input type="text" id="iqr" placeholder="e.g., 2,4,6,8,10">
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcIQR()">Calculate</button>
+        <button class="clear-btn" onclick="clearField('iqr','iqrRes')">Clear</button>
+      </div>
+      <div class="results" id="iqrRes"></div>
+    </div>
+
+    <!-- 5 Variance -->
+    <div class="item">
+      <h3>Variance</h3>
+      <input type="text" id="var" placeholder="e.g., 2,4,6,8">
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcVariance()">Calculate</button>
+        <button class="clear-btn" onclick="clearField('var','varRes')">Clear</button>
+      </div>
+      <div class="results" id="varRes"></div>
+    </div>
+
+    <!-- 6 Z Score -->
+    <div class="item">
+  <h3>Z-Score</h3>
+  <div class="input-row">
+    <input type="text" id="zVal" placeholder="Value (x)">
+    <input type="text" id="zMean" placeholder="Mean (μ)">
+  </div>
+  <input type="text" id="zSD" placeholder="Std Dev (σ)">
+  <div class="button-row">
+    <button class="calc-btn" onclick="calcZ()">Calculate</button>
+    <button class="clear-btn" onclick="clearField(['zVal','zMean','zSD'],'zRes')">Clear</button>
+  </div>
+  <div class="results" id="zRes"></div>
+</div>
+
+    <!-- 7 Coefficient of Variation -->
+    <div class="item">
+      <h3>Coefficient of Variation</h3>
+      <input type="text" id="cvMean" placeholder="Mean">
+      <input type="text" id="cvSD" placeholder="Std Dev">
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcCV()">Calculate</button>
+        <button class="clear-btn" onclick="clearField(['cvMean','cvSD'],'cvRes')">Clear</button>
+      </div>
+      <div class="results" id="cvRes"></div>
+    </div>
+
+    <!-- 8 Probability -->
+    <div class="item">
+      <h3>Probability (Single Event)</h3>
+      <input type="text" id="probFav" placeholder="Favorable outcomes">
+      <input type="text" id="probTot" placeholder="Total outcomes">
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcProb()">Calculate</button>
+        <button class="clear-btn" onclick="clearField(['probFav','probTot'],'probRes')">Clear</button>
+      </div>
+      <div class="results" id="probRes"></div>
+    </div>
+
+    <!-- 9 Combination & Permutation -->
+    <div class="item">
+      <h3>Combination & Permutation</h3>
+      <input type="text" id="nVal" placeholder="n">
+      <input type="text" id="rVal" placeholder="r">
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcCombPerm()">Calculate</button>
+        <button class="clear-btn" onclick="clearField(['nVal','rVal'],'combRes')">Clear</button>
+      </div>
+      <div class="results" id="combRes"></div>
+    </div>
+
+    <!-- 10 Expected Value -->
+    <div class="item">
+      <h3>Expected Value</h3>
+      <input type="text" id="xVals" placeholder="x values (e.g., 1,2,3)">
+      <input type="text" id="pVals" placeholder="p values (e.g., 0.2,0.3,0.5)">
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcEV()">Calculate</button>
+        <button class="clear-btn" onclick="clearField(['xVals','pVals'],'evRes')">Clear</button>
+      </div>
+      <div class="results" id="evRes"></div>
+    </div>
+  </main>
+
+  <div class="radio-container">
+    <input type="radio" name="pos" checked>
+    <input type="radio" name="pos">
+    <input type="radio" name="pos">
+    <input type="radio" name="pos">
+    <input type="radio" name="pos">
+    <input type="radio" name="pos">
+    <input type="radio" name="pos">
+    <input type="radio" name="pos">
+    <input type="radio" name="pos">
+    <input type="radio" name="pos">
+  </div>
+
+  <footer class="footer">
+  <p>© 2025 Engineer's Toolkit — Crafted with ❤️ by <span class="author-name">Engr. Fermina</span></p>
+  </footer>
+
+  <script>
+    const carousel=document.getElementById("carousel");
+    const radios=document.querySelectorAll("input[type=radio]");
+    radios.forEach((radio,idx)=>{radio.addEventListener("change",()=>{carousel.style.setProperty("--position",idx+1);});});
+    
+    function toggleTheme() {
+     document.body.classList.toggle("light");
+    }
+
+    function clearField(ids,resId){
+      if(!Array.isArray(ids))ids=[ids];
+      ids.forEach(id=>document.getElementById(id).value="");
+      document.getElementById(resId).innerHTML="";
+    }
+    
+  function showErrors(ids, message) {
+    if (!Array.isArray(ids)) ids = [ids];
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      let oldVal = el.value;
+      el.value = "";
+      el.placeholder = message;
+      el.classList.add("error-shake");
+      el.style.border = "2px solid #ff9999";
+      setTimeout(() => {
+        el.value = oldVal;
+        el.placeholder = "";
+        el.classList.remove("error-shake");
+        el.style.border = "";
+      }, 1500);
+    });
+  }
+
+  function parseNums(id) {
+    return document.getElementById(id).value
+      .split(",")
+      .map(x => parseFloat(x.trim()))
+      .filter(x => !isNaN(x));
+  }
+
+  // Sample Standard Deviation
+  function calcSampleSD() {
+    let nums = parseNums("sampleSD");
+    if (nums.length < 2) {
+      showErrors("sampleSD", "Need ≥2 numbers");
+      return;
+    }
+    let mean = nums.reduce((a, b) => a + b, 0) / nums.length;
+    let sq = nums.map(n => Math.pow(n - mean, 2));
+    let sd = Math.sqrt(sq.reduce((a, b) => a + b, 0) / (nums.length - 1));
+    document.getElementById("sampleSDRes").innerHTML =
+      `<strong style="font-size:1.2rem;">Sample SD = ${sd.toFixed(4)}</strong>
+       <strong>Step 1:</strong> Mean = ${mean.toFixed(4)}<br>
+       <strong>Step 2:</strong> Deviations² = [${sq.map(v => v.toFixed(4)).join(", ")}]<br>
+       <strong>Step 3:</strong> Formula: √(Σ(x-mean)²/(n-1))<br>
+       <strong>Step 4:</strong> SD = ${sd.toFixed(4)}`;
+  }
+
+  // Population Standard Deviation
+  function calcPopSD() {
+    let nums = parseNums("popSD");
+    if (nums.length < 1) {
+      showErrors("popSD", "Enter numbers");
+      return;
+    }
+    let mean = nums.reduce((a, b) => a + b, 0) / nums.length;
+    let sq = nums.map(n => Math.pow(n - mean, 2));
+    let sd = Math.sqrt(sq.reduce((a, b) => a + b, 0) / nums.length);
+    document.getElementById("popSDRes").innerHTML =
+      `<strong style="font-size:1.2rem;">Population SD = ${sd.toFixed(4)}</strong>
+       <strong>Step 1:</strong> Mean = ${mean.toFixed(4)}<br>
+       <strong>Step 2:</strong> Deviations² = [${sq.map(v => v.toFixed(4)).join(", ")}]<br>
+       <strong>Step 3:</strong> Formula: √(Σ(x-mean)²/n)<br>
+       <strong>Step 4:</strong> SD = ${sd.toFixed(4)}`;
+  }
+
+  // Mean, Median, Mode, Range
+  function calcMMM() {
+    let nums = parseNums("mmm");
+    if (nums.length < 1) {
+      showErrors("mmm", "Enter numbers");
+      return;
+    }
+    nums.sort((a, b) => a - b);
+    let mean = nums.reduce((a, b) => a + b, 0) / nums.length;
+    let mid = Math.floor(nums.length / 2);
+    let median = nums.length % 2 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
+    let freq = {};
+    nums.forEach(n => freq[n] = (freq[n] || 0) + 1);
+    let maxF = Math.max(...Object.values(freq));
+    let mode = Object.keys(freq).filter(n => freq[n] == maxF).join(", ");
+    let range = Math.max(...nums) - Math.min(...nums);
+    document.getElementById("mmmRes").innerHTML =
+      `<strong style="font-size:1.2rem;">Mean = ${mean.toFixed(4)}, <br> Median = ${median}, <br> Mode = ${mode}, <br> Range = ${range}</strong>
+       <strong>Step 1:</strong> Sorted: [${nums.join(", ")}]<br>
+       <strong>Step 2:</strong> Mean = ${mean.toFixed(4)}<br>
+       <strong>Step 3:</strong> Median = ${median}<br>
+       <strong>Step 4:</strong> Mode = ${mode}<br>
+       <strong>Step 5:</strong> Range = Max - Min = ${range}`;
+  }
+
+  // Quartiles & IQR
+  function median(arr) {
+    let m = Math.floor(arr.length / 2);
+    return arr.length % 2 ? arr[m] : (arr[m - 1] + arr[m]) / 2;
+  }
+  function calcIQR() {
+    let nums = parseNums("iqr");
+    if (nums.length < 4) {
+      showErrors("iqr", "Need ≥4 numbers");
+      return;
+    }
+    nums.sort((a, b) => a - b);
+    let mid = Math.floor(nums.length / 2);
+    let lower = nums.slice(0, mid);
+    let upper = nums.length % 2 === 0 ? nums.slice(mid) : nums.slice(mid + 1);
+    let q1 = median(lower);
+    let q3 = median(upper);
+    let iqr = q3 - q1;
+    document.getElementById("iqrRes").innerHTML =
+      `<strong style="font-size:1.2rem;">IQR = ${iqr}</strong>
+       <strong>Step 1:</strong> Sorted: [${nums.join(", ")}]<br>
+       <strong>Step 2:</strong> Q1 = ${q1}, Q3 = ${q3}<br>
+       <strong>Step 3:</strong> IQR = Q3 - Q1 = ${iqr}`;
+  }
+
+  // Variance
+  function calcVariance() {
+  let nums = parseNums("var");
+  if (nums.length < 1) {
+    showErrors("var", "Enter numbers");
+    return;
+  }
+
+  // Step 1: Calculate mean
+  let mean = nums.reduce((a, b) => a + b, 0) / nums.length;
+
+  // Step 2: Calculate deviations and squared deviations
+  let deviations = nums.map(n => n - mean);
+  let sq = deviations.map(d => Math.pow(d, 2));
+
+  // Step 3: Sum of squared deviations
+  let sumSq = sq.reduce((a, b) => a + b, 0);
+
+  // Step 4: Variances
+  let popVar = sumSq / nums.length;
+  let sampVar = sumSq / (nums.length - 1);
+
+  // Step-by-step solution
+  document.getElementById("varRes").innerHTML =
+    `<strong style="font-size:1.2rem;">Population Variance = ${popVar.toFixed(3)}, <br> Sample Variance = ${sampVar.toFixed(3)}</strong>
+     <strong>Step 1:</strong> Numbers = [${nums.join(", ")}]<br>
+     <strong>Step 2:</strong> Mean = ${mean.toFixed(4)}<br>
+     <strong>Step 3:</strong> Deviations = [${deviations.map(d => d.toFixed(4)).join(", ")}]<br>
+     <strong>Step 4:</strong> Squared Deviations = [${sq.map(v => v.toFixed(4)).join(", ")}]<br>
+     <strong>Step 5:</strong> Sum of Squared Deviations = ${sumSq.toFixed(4)}<br>
+     <strong>Step 6:</strong> Population Variance = Sum / N = ${sumSq.toFixed(4)} / ${nums.length} = ${popVar.toFixed(4)}<br>
+     <strong>Step 7:</strong> Sample Variance = Sum / (N - 1) = ${sumSq.toFixed(4)} / ${nums.length - 1} = ${sampVar.toFixed(4)}`;
+}
+
+  // Z-score
+  function calcZ() {
+    let x = parseFloat(document.getElementById("zVal").value);
+    let mean = parseFloat(document.getElementById("zMean").value);
+    let sd = parseFloat(document.getElementById("zSD").value);
+    if (isNaN(x) || isNaN(mean) || isNaN(sd)) {
+      showErrors(["zVal", "zMean", "zSD"], "Enter values");
+      return;
+    }
+    if (sd === 0) {
+      showErrors("zSD", "SD ≠ 0");
+      return;
+    }
+    let z = (x - mean) / sd;
+    document.getElementById("zRes").innerHTML =
+      `<strong style="font-size:1.2rem;">Z = ${z.toFixed(4)}</strong>
+       <strong>Step 1:</strong> Given x = ${x}, μ = ${mean}, σ = ${sd}<br>
+       <strong>Step 2:</strong> Formula: (x - μ)/σ<br>
+       <strong>Step 3:</strong> Z = (${x} - ${mean}) / ${sd} = ${z.toFixed(4)}`;
+  }
+
+  // Coefficient of Variation
+  function calcCV() {
+    let mean = parseFloat(document.getElementById("cvMean").value);
+    let sd = parseFloat(document.getElementById("cvSD").value);
+    if (isNaN(mean) || isNaN(sd)) {
+      showErrors(["cvMean", "cvSD"], "Enter values");
+      return;
+    }
+    if (mean === 0) {
+      showErrors("cvMean", "Mean ≠ 0");
+      return;
+    }
+    let cv = (sd / mean) * 100;
+    document.getElementById("cvRes").innerHTML =
+      `<strong style="font-size:1.2rem;">CV = ${cv.toFixed(2)}%</strong>
+       <strong>Step 1:</strong> Given μ = ${mean}, σ = ${sd}<br>
+       <strong>Step 2:</strong> Formula: (σ / μ) × 100%<br>
+       <strong>Step 3:</strong> CV = (${sd}/${mean})×100 = ${cv.toFixed(2)}%`;
+  }
+
+  // Probability
+  function calcProb() {
+    let fav = parseFloat(document.getElementById("probFav").value);
+    let tot = parseFloat(document.getElementById("probTot").value);
+    if (isNaN(fav) || isNaN(tot)) {
+      showErrors(["probFav", "probTot"], "Enter values");
+      return;
+    }
+    if (tot <= 0) {
+      showErrors("probTot", "Total > 0");
+      return;
+    }
+    if (fav < 0 || fav > tot) {
+      showErrors("probFav", "0 ≤ Fav ≤ Total");
+      return;
+    }
+    let p = fav / tot;
+    document.getElementById("probRes").innerHTML =
+      `<strong style="font-size:1.2rem;">P = ${p.toFixed(4)}</strong>
+       <strong>Step 1:</strong> Favorable = ${fav}, Total = ${tot}<br>
+       <strong>Step 2:</strong> Formula: P = Favorable / Total<br>
+       <strong>Step 3:</strong> P = ${fav}/${tot} = ${p.toFixed(4)}`;
+  }
+
+  // Combination & Permutation
+  function factorial(n) { return n <= 1 ? 1 : n * factorial(n - 1); }
+  function calcCombPerm() {
+    let n = parseInt(document.getElementById("nVal").value);
+    let r = parseInt(document.getElementById("rVal").value);
+    if (isNaN(n) || isNaN(r)) {
+      showErrors(["nVal", "rVal"], "Enter numbers");
+      return;
+    }
+    if (n < 0 || r < 0) {
+      showErrors(["nVal", "rVal"], "No negatives");
+      return;
+    }
+    if (r > n) {
+      showErrors(["nVal", "rVal"], "r ≤ n");
+      return;
+    }
+    if (n < 3) {
+      showErrors("nVal", "n ≥ 3");
+      return;
+    }
+    let perm = factorial(n) / factorial(n - r);
+    let comb = factorial(n) / (factorial(r) * factorial(n - r));
+    document.getElementById("combRes").innerHTML =
+      `<strong style="font-size:1.2rem;">P = ${perm} , <br> C = ${comb}</strong>
+       <strong>Step 1:</strong> n = ${n}, r = ${r}<br>
+       <strong>Step 2:</strong> P(n,r) = n!/(n-r)! = ${perm}<br>
+       <strong>Step 3:</strong> C(n,r) = n!/(r!(n-r)!) = ${comb}`;
+  }
+
+  // Expected Value
+  function calcEV() {
+    let xVals = parseNums("xVals");
+    let pVals = parseNums("pVals");
+    if (xVals.length === 0 || pVals.length === 0) {
+      showErrors(["xVals", "pVals"], "Enter values");
+      return;
+    }
+    if (xVals.length !== pVals.length) {
+      showErrors(["xVals", "pVals"], "Length mismatch");
+      return;
+    }
+    let pSum = pVals.reduce((a, b) => a + b, 0);
+    if (Math.abs(pSum - 1) > 0.001) {
+      showErrors("pVals", "Prob sum ≠ 1");
+      return;
+    }
+    let products = xVals.map((x, i) => x * pVals[i]);
+    let ev = products.reduce((sum, val) => sum + val, 0);
+    document.getElementById("evRes").innerHTML =
+  `<strong style="font-size:1.2rem;">EV = ${ev.toFixed(4)}</strong>
+   <strong>Step 1:</strong> X = [${xVals.join(", ")}], P = [${pVals.join(", ")}]<br>
+   <strong>Step 2:</strong> Multiply each x×P(x):<br>
+   <table border="1" cellpadding="5" style="border-collapse:collapse;">
+     <tr><th>X</th><th>P(x)</th><th>x×P(x)</th></tr>
+     ${xVals.map((x, i) => `<tr><td>${x}</td><td>${pVals[i]}</td><td>${products[i].toFixed(4)}</td></tr>`).join("")}
+   </table>
+   <br><strong>Step 3:</strong> Σ[x×P(x)] = ${ev.toFixed(4)}`;
+  }
+</script>
+</body>
+</html>
