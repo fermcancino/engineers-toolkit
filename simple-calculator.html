@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple Calculator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #1e1e2f, #141421);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      width: 100%;
+      max-width: 400px;
+      margin: 20px auto 10px;
+      background: linear-gradient(90deg, #4facfe, #00f2fe);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 10px;
+    }
+
+    .title {
+      font-size: 1.5rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Theme Toggle */
+    .switch {
+      width: 50px;
+      height: 28px;
+      background: #555;              
+      border-radius: 30px;
+      position: relative;
+      transition: background 0.3s ease;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+
+    .slider {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translateX(0); 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    body.light .switch {
+      background: linear-gradient(90deg, #4facfe, #00f2fe); 
+      border: 1px solid rgba(0, 0, 0, 0.1); 
+      box-shadow:
+       0 2px 6px rgba(0, 0, 0, 0.15), 
+       inset 1px 1px 3px rgba(255, 255, 255, 0.4); 
+      transition: all 0.3s ease-in-out;
+    }
+
+    body.light .switch .slider {
+      transform: translateX(20px); 
+    }
+
+    .calculator-container {
+      width: 100%;
+      max-width: 400px;
+      margin: 10px auto;
+      padding: 10px;
+    }
+
+    .calculator {
+      background-color: #1c1c2c;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    #display {
+      width: 100%;
+      padding: 12px;
+      font-size: 1.6rem;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ffffff22;
+      background-color: rgba(255, 255, 255, 0.06);
+      color: #ffffffcc;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    #display.error {
+      border: 2px solid #ff8080;
+      box-shadow: 
+        0 0 8px rgba(255, 0, 0, 0.6),   
+        0 0 16px rgba(255, 64, 64, 0.5),
+        0 0 30px rgba(255, 128, 128, 0.4);
+      animation: shake 0.3s ease;
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      50% { transform: translateX(4px); }
+      75% { transform: translateX(-4px); }
+      100% { transform: translateX(0); }
+    }
+
+    .buttons .row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .buttons button {
+      flex: 1;
+      margin: 4px;
+      padding: 15px 0;
+      font-size: 1.3rem;
+      border-radius: 10px;
+      background: #2a2a3a;
+      color: white;
+      box-shadow: inset -3px -3px 6px #353545, inset 3px 3px 6px #1a1a28;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.1s ease;
+    }
+
+    .buttons button:hover {
+      background-color: #3f3f3f;
+      transform: scale(0.95);
+      box-shadow: inset 2px 2px 4px #121220, inset -2px -2px 4px #3a3a50;
+    }
+
+    .buttons button:active {
+      transform: scale(0.95);
+    }
+
+    /* Light mode */
+    body.light {
+      background: linear-gradient(to bottom, #f0f0f4, #ffffff);
+      color: #1e1e2f;
+    }
+
+    body.light .top-bar {
+      background: linear-gradient(90deg, #ffd194, #70e1f5);
+      color: #1e1e2f;
+    }
+
+    body.light .theme-toggle {
+      color: #1e1e2f;
+    }
+
+    body.light .calculator {
+      background: #fdfdfd;
+      color: #1e1e2f;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    body.light #display {
+      background-color: #ffffff;
+      color: #1e1e2f;
+      border: 1px solid #ccc;
+    }
+
+    body.light #display.error {
+      border: 2px solid #ff8080;
+    }
+
+    body.light .buttons button {
+      background: #e0e0e5;
+      color: #1e1e2f;
+      box-shadow: inset -4px -4px 7px #ffffff, inset 4px 4px 7px #c8c8cc;
+    }
+
+    body.light .buttons button:hover {
+      background-color: #d0d0d5;
+      box-shadow: inset 2px 2px 5px #c5c5c5, inset -2px -2px 5px #ffffff;
+      transform: scale(0.97);
+    }
+
+    @media (min-width: 500px) {
+      #display {
+        font-size: 1.8rem;
+      }
+
+      .buttons button {
+        font-size: 1.4rem;
+        padding: 16px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-bar">
+      <h2 class="title">Simple Calculator</h2>
+      <div class="theme-toggle" onclick="toggleTheme()">
+      <div class="switch">
+      <div class="slider"></div>
+     </div>
+    </div>
+   </div>
+
+    <main class="calculator-container">
+      <div class="calculator">
+        <input type="text" id="display" autocomplete="off" />
+
+        <div class="buttons">
+          <div class="row">
+            <button onclick="clearDisplay()">C</button>
+            <button onclick="squareRoot()">√</button>
+            <button onclick="appendValue('%')">%</button>
+            <button onclick="appendValue('/')">/</button>
+          </div>
+          <div class="row">
+            <button onclick="appendValue('7')">7</button>
+            <button onclick="appendValue('8')">8</button>
+            <button onclick="appendValue('9')">9</button>
+            <button onclick="appendValue('*')">*</button>
+          </div>
+          <div class="row">
+            <button onclick="appendValue('4')">4</button>
+            <button onclick="appendValue('5')">5</button>
+            <button onclick="appendValue('6')">6</button>
+            <button onclick="appendValue('-')">-</button>
+          </div>
+          <div class="row">
+            <button onclick="appendValue('1')">1</button>
+            <button onclick="appendValue('2')">2</button>
+            <button onclick="appendValue('3')">3</button>
+            <button onclick="appendValue('+')">+</button>
+          </div>
+          <div class="row">
+            <button onclick="appendValue('.')">.</button>
+            <button onclick="appendValue('0')">0</button>
+            <button onclick="backspace()">⌫</button>
+            <button onclick="calculate()">=</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+
+    function toggleTheme() {
+     document.body.classList.toggle("light");
+    }
+
+    function appendValue(value) {
+      if (display.value === "Error") {
+        display.value = "";
+        display.classList.remove("error");
+      }
+
+      const current = display.value;
+      const lastChar = current.slice(-1);
+      const secondLastChar = current.slice(-2, -1);
+      const operators = ["+", "-", "*", "/", "%"];
+
+      if (!/[\d.+\-*/%]/.test(value)) return;
+
+      if (value === ".") {
+        const parts = current.split(/[\+\-\*\/%]/);
+        if (parts[parts.length - 1].includes(".")) {
+          showError();
+          return;
+        }
+      }
+
+      if (
+        operators.includes(secondLastChar) &&
+        operators.includes(lastChar) &&
+        operators.includes(value)
+      ) return;
+
+      if (operators.includes(lastChar) && operators.includes(value)) {
+        if (
+          ["*", "/", "%", "+", "-"].includes(lastChar) &&
+          ["+", "-"].includes(value)
+        ) {
+          display.value += value;
+          return;
+        } else {
+          display.value = current.slice(0, -1) + value;
+          return;
+        }
+      }
+
+      display.value += value;
+    }
+
+    function clearDisplay() {
+      display.value = "";
+      display.classList.remove("error");
+    }
+
+    function backspace() {
+      if (display.value === "Error") {
+        display.value = "";
+        display.classList.remove("error");
+        return;
+      }
+      display.value = display.value.slice(0, -1);
+    }
+
+    function squareRoot() {
+      try {
+        const value = parseFloat(display.value);
+        if (!isNaN(value)) {
+          const result = Math.sqrt(value);
+          display.value = parseFloat(result.toFixed(10)).toString();
+        } else {
+          showError();
+        }
+      } catch {
+        showError();
+      }
+    }
+
+    function calculate() {
+      const expression = evalPercent(display.value);
+      try {
+        let result = eval(expression);
+        if (!isNaN(result)) {
+          display.value = parseFloat(result.toFixed(10)).toString();
+        } else {
+          showError();
+        }
+      } catch {
+        showError();
+      }
+    }
+
+    function evalPercent(expr) {
+      return expr.replace(/(\d+(\.\d+)?)%(?!\d)/g, (_, num) => `(${num}/100)`);
+    }
+
+    function showError() {
+      display.classList.add("error");
+      setTimeout(() => {
+        display.classList.remove("error");
+        display.value = "";
+      }, 1500);
+    }
+  </script>
+</body>
+</html>
