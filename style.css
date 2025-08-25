@@ -312,7 +312,6 @@ body.chapter .glass-card:focus {
 .footer {
   text-align: center;
   font-size: 1rem;
-  margin-top: 1rem;
   color: rgba(255, 255, 255, 0.6);
   padding: 1rem 0;
 }
@@ -388,4 +387,5 @@ body.chapter .card-grid > .glass-card :last-child:nth-child(odd) {
     justify-self: center;
   }
 }
+
 
