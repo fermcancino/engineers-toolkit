@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Decimal Ratio Proportion Converter</title>
+  <style>
+    :root {
+      --error-color: #ff8080;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: linear-gradient(to bottom, #1e1e2f, #141421);
+      color: white;
+      padding: 1rem;
+      transition: background 0.3s, color 0.3s;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    body.light {
+      background: linear-gradient(to bottom, #f0f0f4, #ffffff);
+      color: #1e1e2f;
+    }
+
+    .container {
+      width: clamp(280px, 95%, 400px);
+      margin: auto;
+      padding: 1.5rem;
+      background: #1c1c2c;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+      transition: background 0.3s;
+    }
+
+    body.light .container {
+      background: #ffffff;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    }
+
+
+    #inputBox {
+      width: 100%;
+      font-size: 1.5rem;
+      padding: 10px;
+      border-radius: 10px;
+      border: 2px solid transparent;
+      outline: none;
+      background: #292944;
+      color: white;
+      text-align: center;
+      transition: border 0.3s, background 0.3s;
+    }
+
+    #inputBox::placeholder {
+      font-size: 1rem;
+      opacity: 0.7;
+    }
+
+    .result {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid #ffffff22;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 1.1rem;
+      color: #ffffffcc;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.light .result {
+      background: #f9f9fc;
+      border: 1px solid #ddd;
+      color: #333;
+    }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    .keypad button,
+    .double-row button,
+    .action-row button {
+      padding: 1rem;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 12px;
+      background: #2a2a3a;
+      color: white;
+      box-shadow: inset -3px -3px 6px #353545, inset 3px 3px 6px #1a1a28;
+      transition: 0.1s;
+      cursor: pointer;
+    }
+
+    .keypad button:active,
+    .action-row button:active,
+    .double-row button:active {
+      animation: bounce 0.3s ease;
+      transform: scale(0.95);
+      box-shadow: inset 2px 2px 4px #121220, inset -2px -2px 4px #3a3a50;
+    }
+
+    body.light .keypad button:active,
+    body.light .action-row button:active,
+    body.light .double-row button:active {
+      animation: bounce 0.3s ease;
+      transform: scale(0.95);
+      box-shadow: inset 3px 3px 6px #d1d1d1, inset -3px -3px 6px #ffffff;
+    }
+    @keyframes bounce {
+     0%, 100% { transform: scale(1); }
+     50% { transform: scale(1.12); }
+    }
+    .keypad button:hover,
+    .double-row button:hover,
+    .action-row button:hover {
+      transform: scale(1.05);
+      animation: bounce 0.3s ease;
+    }
+
+    body.light .keypad button,
+    body.light .double-row button,
+    body.light .action-row button {
+      background: #e6e9ef;
+      color: #222;
+      box-shadow: inset -3px -3px 5px #ffffff, inset 3px 3px 5px #c5c5c5;
+    }
+
+    body.light #inputBox::placeholder {
+      color: #666;
+    }
+
+    body.light #inputBox {
+      background: #f4f4f8;
+      color: #1e1e2f;
+      border: 2px solid #ccc;
+    }
+
+    .double-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-top: 10px;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .action-row button {
+      flex: 1;
+      font-size: 1rem;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      color: white;
+      transition: background 0.3s;
+    }
+
+    .action-row button:first-child:active,
+    body.light .action-row button:first-child:active {
+      box-shadow: 0 0 12px rgba(79, 172, 254, 0.8), 0 6px 18px rgba(79, 172, 254, 0.4);
+      transform: scale(1.05);
+      animation: bounce 0.3s ease;
+      font-weight: bold;
+    }
+
+    .action-row button:last-child:active,
+    body.light .action-row button:last-child:active {
+      box-shadow: 0 0 12px rgba(255, 90, 90, 0.8), 0 6px 18px rgba(255, 90, 90, 0.4);
+      transform: scale(1.05);
+      animation: bounce 0.3s ease;
+      font-weight: bold;
+    }
+
+    .header {
+      display: flex;
+      justify-content: center;  
+      align-items: center;
+      gap: 2rem;                
+      margin-bottom: 2rem;       
+    }
+    .header h2 {
+      margin: 0;                
+      font-size: 1.4rem;
+      line-height: 1.3;
+    }
+
+    /* Theme Toggle */
+    .switch {
+      width: 50px;
+      height: 28px;
+      background: #555;              
+      border-radius: 30px;
+      position: relative;
+      transition: background 0.3s ease;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+    .slider {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translateX(0); 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    body.light .switch {
+      background: #cccccc; 
+      border: 1px solid #e0e0e0; 
+    }
+
+    body.light .switch .slider {
+      transform: translateX(20px); 
+    }
+
+    .shake {
+      animation: shake 0.4s ease;
+    }
+
+    .result-error {
+      border: 2px solid var(--error-color) !important;
+      background: rgba(255, 0, 0, 0.15) !important;
+      color: #ff5555 !important;
+      box-shadow: 
+        0 0 8px rgba(255, 0, 0, 0.6),   
+        0 0 16px rgba(255, 64, 64, 0.5),
+        0 0 30px rgba(255, 128, 128, 0.4);
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+    }
+
+    @media (max-width: 480px) {
+      .keypad button, .action-row button {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="container">
+    <div class="header">
+      <h2>Decimal, Ratio &<br>Proportion Converter</h2>
+      <div id="themeToggle" class="switch">
+      <div class="slider"></div>
+     </div>
+    </div>
+
+    <input id="inputBox" type="text" placeholder="Enter decimal, %, or ratio"/>
+    <div id="result" class="result">Result will appear here</div>
+
+    <div class="action-row">
+      <button onclick="autoConvert()">Convert</button>
+      <button onclick="clearAll()">Clear</button>
+    </div>
+
+    <div class="keypad">
+      <button onclick="insert('7')">7</button>
+      <button onclick="insert('8')">8</button>
+      <button onclick="insert('9')">9</button>
+      <button onclick="insert('4')">4</button>
+      <button onclick="insert('5')">5</button>
+      <button onclick="insert('6')">6</button>
+      <button onclick="insert('1')">1</button>
+      <button onclick="insert('2')">2</button>
+      <button onclick="insert('3')">3</button>
+      <button onclick="insert('0')">0</button>
+      <button onclick="insert('.')">.</button>
+      <button onclick="backspace()">⌫</button>
+    </div>
+
+    <div class="double-row">
+      <button onclick="insert('%')">%</button>
+      <button onclick="insert(':')">:</button>
+    </div>
+  </div>
+
+  <script>
+    const inputBox = document.getElementById('inputBox');
+    const resultBox = document.getElementById('result');
+    const themeToggle = document.getElementById("themeToggle");
+    document.addEventListener("keydown", (event) => {
+  const key = event.key;
+
+  // Numbers
+  if (/^[0-9]$/.test(key)) {
+    event.preventDefault();
+    insert(key);
+    return;
+  }
+
+  // Decimal point
+  if (key === ".") {
+    event.preventDefault();
+    insert(".");
+    return;
+  }
+
+  // Percentage
+  if (key === "%") {
+    event.preventDefault();
+    insert("%");
+    return;
+  }
+
+  // Colon for ratio
+  if (key === ":") {
+    event.preventDefault();
+    insert(":");
+    return;
+  }
+
+  // Backspace
+  if (key === "Backspace") {
+    event.preventDefault();
+    backspace();
+    return;
+  }
+
+  // Clear (Escape key)
+  if (key === "Escape") {
+    event.preventDefault();
+    clearAll();
+    return;
+  }
+
+  // Enter = convert
+  if (key === "Enter") {
+    event.preventDefault();
+    autoConvert();
+    return;
+  }
+
+  // Arrow keys
+  if (key === "ArrowLeft") {
+    event.preventDefault();
+    inputBox.setSelectionRange(
+      inputBox.selectionStart - 1,
+      inputBox.selectionStart - 1
+    );
+    return;
+  }
+  if (key === "ArrowRight") {
+    event.preventDefault();
+    inputBox.setSelectionRange(
+      inputBox.selectionStart + 1,
+      inputBox.selectionStart + 1
+    );
+    return;
+  }
+});
+  
+
+function insert(val) {
+  inputBox.classList.remove("shake", "result-error");
+
+  // Prevent duplicates
+  if (val === '.' && inputBox.value.includes('.')) return;
+  if (val === '%' && inputBox.value.includes('%')) return;
+  if (val === ':' && inputBox.value.includes(':')) return;
+
+  const start = inputBox.selectionStart;
+  const end = inputBox.selectionEnd;
+  const text = inputBox.value;
+
+  // Insert at caret
+  inputBox.value = text.slice(0, start) + val + text.slice(end);
+
+  // Move caret after inserted char
+  inputBox.setSelectionRange(start + val.length, start + val.length);
+
+  inputBox.focus();
+}
+
+
+function backspace() {
+  const start = inputBox.selectionStart;
+  const end = inputBox.selectionEnd;
+
+  if (start === end && start > 0) {
+    // Delete one char before caret
+    inputBox.value =
+      inputBox.value.slice(0, start - 1) + inputBox.value.slice(end);
+    inputBox.setSelectionRange(start - 1, start - 1);
+  } else {
+    // Delete selection
+    inputBox.value =
+      inputBox.value.slice(0, start) + inputBox.value.slice(end);
+    inputBox.setSelectionRange(start, start);
+  }
+
+  inputBox.focus();
+}
+
+
+    function clearAll() {
+      inputBox.value = '';
+      resultBox.innerHTML = 'Result will appear here';
+      inputBox.classList.remove('shake', 'result-error');
+    }
+
+    function showError(msg = "Result = Error") {
+      resultBox.textContent = msg;
+      inputBox.classList.add("shake", "result-error");
+      resultBox.classList.add("shake", "result-error");
+
+      setTimeout(() => {
+        inputBox.classList.remove("shake", "result-error");
+        resultBox.classList.remove("shake", "result-error");
+      }, 1000);
+    }
+
+    function autoConvert() {
+      const value = inputBox.value.trim();
+
+      if (!value) return showError("Please enter a value");
+
+      const percentCount = (value.match(/%/g) || []).length;
+      const colonCount = (value.match(/:/g) || []).length;
+      const dotCount = (value.match(/\./g) || []).length;
+      const hasInvalidChars = /[^0-9:.%]/.test(value);
+
+      if ((value.includes('%') && value.includes(':')) ||
+          (value.includes('%') && dotCount > 0) ||
+          (value.includes(':') && dotCount > 0)) {
+        return showError("Please enter only one format: decimal, %, or ratio");
+      }
+
+      if (hasInvalidChars) return showError("Invalid characters in input");
+
+      if (value.includes('%')) {
+        if (percentCount > 1 || !/^\d+(\.\d+)?%$/.test(value)) return showError("Invalid percentage format");
+        let num = parseFloat(value.replace('%', ''));
+        if (isNaN(num)) return showError("Invalid percentage number");
+        let decimal = num / 100;
+        resultBox.innerHTML = `
+          <strong>Decimal:</strong> ${decimal}<br>
+          <strong>Ratio:</strong> ${decimalToRatio(decimal)}
+        `;
+      } else if (value.includes(':')) {
+        if (colonCount > 1) return showError("Only one ':' allowed in a ratio");
+        let [a, b] = value.split(':');
+        if (!a || !b) return showError("Both parts of the ratio must be numbers");
+        if (isNaN(a) || isNaN(b)) return showError("Ratio must contain valid numbers");
+        if (parseFloat(b) === 0) return showError("Denominator cannot be zero");
+        let decimal = parseFloat(a) / parseFloat(b);
+        resultBox.innerHTML = `
+          <strong>Decimal:</strong> ${decimal.toFixed(6)}<br>
+          <strong>Percentage:</strong> ${(decimal * 100).toFixed(2)}%
+        `;
+      } else {
+        if (dotCount > 1 || value === '.' || isNaN(value)) return showError("Invalid decimal");
+        let decimal = parseFloat(value);
+        resultBox.innerHTML = `
+          <strong>Percentage:</strong> ${(decimal * 100).toFixed(2)}%<br>
+          <strong>Ratio:</strong> ${decimalToRatio(decimal)}
+        `;
+      }
+    }
+
+    function decimalToRatio(decimal) {
+      let precision = 10000;
+      let numerator = Math.round(decimal * precision);
+      let denominator = precision;
+      const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+      let factor = gcd(numerator, denominator);
+      return `${numerator / factor}:${denominator / factor}`;
+    }
+
+    // Theme toggle
+    themeToggle.addEventListener("click", () => {
+     document.body.classList.toggle("dark");
+      document.body.classList.toggle("light");
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Crystal Ball Randomizer — fixed centering</title>
+  <style>
+    * { box-sizing: border-box; font-family: "Segoe UI", sans-serif; }
+    body {
+      margin: 0; padding: 0;
+      background: linear-gradient(to bottom, #111, #222);
+      color: #fff; min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding-top: 40px; transition: background 0.5s ease;
+    }
+
+    .top-bar { display:flex; justify-content:space-between; align-items:center;
+       max-width:600px; margin-bottom:30px; gap:20px;
+    }
+    .top-bar h1 { margin:0; font-size:1.6em; color:#00ffff; }
+
+    /* Theme Toggle */
+    .switch {
+      width: 50px;
+      height: 28px;
+      background: #555;              
+      border-radius: 30px;
+      position: relative;
+      transition: background 0.3s ease;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+    .slider {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translateX(0); 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    body.light .switch {
+      background: linear-gradient(90deg, #e6ccff, #f2e6ff); 
+      border: 1px solid rgba(0, 0, 0, 0.05); 
+      box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.1),
+        inset 1px 1px 3px rgba(255, 255, 255, 0.6);
+      transition: all 0.3s ease-in-out;
+    }
+
+
+    body.light .switch .slider {
+      transform: translateX(20px); 
+    }
+    .input-error {
+      animation: shake 0.4s ease;
+      outline: 2px solid #ff9999;
+      outline-offset: 2px;
+    }
+    .inputs { display:flex; gap:10px; margin-bottom:10px; }
+    .inputs input {
+      padding:10px; width:100px; border-radius:10px; border:none;
+      background:#222; color:#0ff; text-align:center; font-size:1.1em;
+    }
+    .warning-text { color:#ff5555; font-size:.95em; min-height:1.2em; text-align:center; margin-bottom:10px; }
+    .warning-text.shake {
+      animation: shake 0.4s ease;
+      color: #ff4444;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+
+    .crystal-wrapper { display:flex; flex-direction:column; align-items:center; gap:16px; }
+
+    .crystal-ball {
+      position: relative;
+      width: clamp(220px, 40vw, 360px);
+      height: clamp(220px, 40vw, 360px);
+      border-radius: 50%;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 20px #0ff, inset 0 0 15px #0ff33f;
+      display: block; 
+      transition: transform .8s ease, width .25s ease, height .25s ease;
+    }
+    .crystal-ball::before {
+      content:""; position:absolute; top:-50%; left:-50%;
+      width:200%; height:200%; border-radius:50%;
+      background: conic-gradient(
+        from 0deg,
+        rgba(0,255,128,0.2),
+        rgba(0,255,160,0.18),
+        rgba(0,255,200,0.15),
+        rgba(0,255,255,0.13),
+        rgba(150,255,255,0.1),
+        rgba(255,255,255,0.08),
+        rgba(0,200,255,0.1),
+        rgba(0,100,255,0.12),
+        rgba(0,255,255,0.1),
+        rgba(0,255,200,0.12),
+        rgba(0,255,160,0.15),
+        rgba(0,255,128,0.2)
+      );
+      animation: rotate-glow 12s linear infinite, pulse-glow 3s ease-in-out infinite;
+      filter: blur(6px); opacity:.8; transform-origin:center center; pointer-events:none;
+    }
+
+    @keyframes rotate-glow { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
+    @keyframes pulse-glow { 0%,100%{opacity:.75;filter:blur(6px)} 50%{opacity:1;filter:blur(8px)} }
+
+    .crystal-ball.animate { animation: roll 1s ease-in-out forwards; }
+    @keyframes roll { 0%{transform:rotateY(0deg) scale(1)} 100%{transform:rotateY(720deg) scale(1.08)} }
+
+    .ball-center {
+      position:absolute;
+      top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      display:flex; align-items:center; justify-content:center;
+      width:90%; pointer-events:none; 
+      text-align:center;
+    }
+
+    #ball-text {
+      font-size: clamp(1.6rem, 6vw, 4rem);
+      font-weight: 700;
+      color:#00f2ff99;
+      white-space:nowrap;
+      z-index:1;
+      transition: transform .25s ease, opacity .25s ease, font-size .15s ease;
+      pointer-events:none;
+      display:inline-block;
+    }
+    body.light #ball-text {
+      color: #8338ec;
+    }
+
+    .particles { position:absolute; inset:0; pointer-events:none; z-index:0; }
+    .particle { position:absolute; width:6px; height:6px; background:#0ff; border-radius:50%;
+      animation:sparkle .8s ease-out forwards; opacity:.9;
+    }
+    @keyframes sparkle { 0%{transform:translate(0,0) scale(1);opacity:1} 100%{transform:translate(var(--dx),var(--dy)) scale(.3); opacity:0} }
+
+    .crystal-base {
+      width: clamp(180px, 32vw, 280px); height: clamp(50px, 8vw, 90px);
+      margin-top:-30px;
+      background: radial-gradient(ellipse at center, rgba(0,255,255,.35), rgba(0,0,0,.8));
+      border-radius:0 0 100px 100px;
+      box-shadow: inset 0 10px 20px rgba(0,255,255,.3), 0 15px 25px rgba(0,255,255,.15);
+      transform:rotate(180deg) perspective(600px) rotateX(15deg);
+      position:relative; z-index:-1;
+      transition: width .25s ease, height .25s ease;
+    }
+
+    .generate-btn {
+      padding: 15px 70px; font-size:1.3rem; border-radius:50px; border:none;
+      background:linear-gradient(to right,#0ff,#00f2ff); color:#000; font-weight:700; cursor:pointer;
+      box-shadow:0 0 15px #00f2ff99; transition:transform .12s ease, padding .2s ease, font-size .2s ease;
+    }
+    .generate-btn:hover {
+      transform: scale(1.05);
+      animation: bounce 0.3s ease;
+    }
+
+    .generate-btn:active {
+      transform: scale(0.95);
+    }
+    @keyframes bounce {
+     0%, 100% { transform: scale(1); }
+     50% { transform: scale(1.12); }
+    }
+
+    body.light {
+      background: linear-gradient(to bottom, #f9f9ff, #e3e6ff);
+      color: #000;
+    }
+
+    body.light .top-bar h1,
+    body.light .theme-toggle {
+      color: #6a00ff;
+    }
+
+    body.light .inputs input {
+      background: #fff;
+      color: #6a00ff;
+      border: 1px solid #ccc;
+    }
+
+    body.light .crystal-ball {
+      background: radial-gradient(circle at center, rgba(255, 249, 200, 0.6), rgba(204, 179, 255, 0.4), rgba(174, 239, 255, 0.3));
+      box-shadow: 0 0 25px #fff6b0, 0 0 35px #cdb4ff, inset 0 0 20px #aeefff;
+      color: #6a00ff;
+    }
+
+    body.light .particle {
+      background: #a960ff;
+    }
+
+    body.light .crystal-base {
+      background: radial-gradient(ellipse at center, #fff9cc, #d1bfff);
+    }
+
+    body.light .generate-btn {
+      background: linear-gradient(to right, #b46cff, #8338ec);
+      color: #fff;
+      box-shadow: 0 0 15px #c984ff99;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <h1>Random Number Generator</h1>
+    <div id="themeToggle" class="switch"><div class="slider"></div></div>
+  </div>
+
+  <div class="inputs">
+    <input type="number" id="min" placeholder="Min" />
+    <input type="number" id="max" placeholder="Max" />
+  </div>
+  <div id="warning" class="warning-text"></div>
+
+  <div class="crystal-wrapper">
+    <div class="crystal-ball" id="ball">
+      <!-- new centered wrapper -->
+      <div class="ball-center">
+        <span id="ball-text">?</span>
+      </div>
+
+      <div class="particles" id="particles"></div>
+    </div>
+
+    <div class="crystal-base"></div>
+    <button class="generate-btn" onclick="startRolling()">Generate</button>
+  </div>
+
+  <script>
+    const ball = document.getElementById("ball");
+    const ballText = document.getElementById("ball-text");
+    const particlesContainer = document.getElementById("particles");
+    const themeToggle = document.getElementById("themeToggle");
+    const minInput = document.getElementById("min");
+    const maxInput = document.getElementById("max");
+    const warning = document.getElementById("warning");
+
+    let fadeTimeout, resetTimeout;
+
+    function triggerParticles(count = 8, fadeWithNumber = false) {
+      const fragment = document.createDocumentFragment();
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement("div");
+        p.className = "particle";
+        const angle = Math.random() * 2 * Math.PI;
+        const radius = 40 + Math.random() * 20;
+        const dx = Math.cos(angle) * radius;
+        const dy = Math.sin(angle) * radius;
+        p.style.setProperty('--dx', `${dx}px`);
+        p.style.setProperty('--dy', `${dy}px`);
+        fragment.appendChild(p);
+        if (!fadeWithNumber) {
+          setTimeout(() => p.remove(), 1000);
+        }
+      }
+      particlesContainer.appendChild(fragment);
+    }
+
+    function startRolling() {
+      const min = parseInt(minInput.value);
+      const max = parseInt(maxInput.value);
+
+      // Reset visuals
+      clearTimeout(fadeTimeout);
+      clearTimeout(resetTimeout);
+      ballText.style.transition = "none";
+      ballText.style.opacity = 1;
+      ballText.style.transform = "scale(1)"; // transforms the inner text only
+      ballText.textContent = "?";
+      particlesContainer.innerHTML = "";
+      particlesContainer.style.transition = "none";
+      particlesContainer.style.opacity = 1;
+      ball.classList.remove("animate");
+      minInput.classList.remove("input-error");
+      maxInput.classList.remove("input-error");
+      warning.classList.remove("shake");
+      warning.textContent = "";
+
+      // Validation
+      if (isNaN(min) || isNaN(max)) {
+        minInput.classList.add("input-error");
+        maxInput.classList.add("input-error");
+        warning.classList.add("shake");
+        warning.textContent = "⚠️ Please input minimum & maximum number!";
+        setTimeout(() => {
+          warning.classList.remove("shake");
+          minInput.classList.remove("input-error");
+        maxInput.classList.remove("input-error");
+        }, 1000);
+        return;
+      }
+      if (min > max) {
+        minInput.classList.add("input-error");
+        maxInput.classList.add("input-error");
+        warning.classList.add("shake");
+        warning.textContent = "⚠️ Please input minimum & maximum number correctly!";
+        setTimeout(() => {
+          warning.classList.remove("shake");
+          minInput.classList.remove("input-error");
+          maxInput.classList.remove("input-error");
+        }, 1000);
+        return;
+      }
+
+      // Begin random flickering
+      let counter = 0;
+      const flickers = 40;
+      const interval = setInterval(() => {
+        const temp = Math.floor(Math.random() * (max - min + 1)) + min;
+        ballText.style.opacity = 0;
+        setTimeout(() => {
+          ballText.textContent = temp;
+          ballText.style.opacity = 1;
+          // keep transform changes on the inner text only (won't break centering)
+          triggerParticles(6, false); // Flicker sparkles (short)
+        }, 10);
+        counter++;
+        if (counter >= flickers) {
+          clearInterval(interval);
+          const final = Math.floor(Math.random() * (max - min + 1)) + min;
+
+          setTimeout(() => {
+            ballText.textContent = final;
+            ball.classList.add("animate");
+
+            // Final sparkles that fade WITH number
+            triggerParticles(14, true);
+
+            // Begin fading everything
+            fadeTimeout = setTimeout(() => {
+              ballText.style.transition = "opacity 20s ease-out, transform 20s ease-out";
+              ballText.style.opacity = 0;
+              ballText.style.transform = "scale(0.85)"; // inner text scaled down
+              particlesContainer.style.transition = "opacity 20s ease-out";
+              particlesContainer.style.opacity = 0;
+
+              resetTimeout = setTimeout(() => {
+                ballText.textContent = "?";
+                ballText.style.transition = "none";
+                ballText.style.opacity = 1;
+                ballText.style.transform = "scale(1)";
+                particlesContainer.innerHTML = "";
+                particlesContainer.style.transition = "none";
+                particlesContainer.style.opacity = 1;
+              }, 20000);
+            }, 1000); // wait 1s after flip before fading
+          }, 50);
+        }
+      }, 30);
+    }
+
+    // Theme toggle
+    themeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      document.body.classList.toggle("light");
+    });
+  </script>
+</body>
+</html>

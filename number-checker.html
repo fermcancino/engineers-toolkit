@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Number Checker</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: linear-gradient(to bottom, #1e1e2f, #141421);
+      color: #000;
+      transition: background 0.3s, color 0.3s;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dark body {
+      color: #fff;
+    }
+
+    .calculator {
+      width: clamp(280px, 95%, 400px);
+      margin: 40px auto;
+      background: linear-gradient(to bottom right, #1e1e2f, #2c3e50);
+      border: 3px solid #1abc9c;  
+      border-radius: 20px;      
+      padding: 15px;
+      box-shadow: 0 8px 20px #00bcd4;
+      transition: border-color 0.3s;
+    }
+
+    body.light .calculator {
+      background: linear-gradient(to bottom right, #cceeff, #b3e0ff);
+      box-shadow: 0 8px 20px #3d8791; 
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 15px;
+      background: linear-gradient(to right, #283e51, #485563);    
+      color: white;
+      border-radius: 12px;
+    }
+
+    body.light .top-bar {
+      background: linear-gradient(to right, #2193b0, #6dd5ed);
+    }
+
+    .top-bar h1 {
+      font-size: 1.5rem;
+      margin: 0;
+    }
+
+    /* Theme Toggle */
+    .switch {
+      width: 50px;
+      height: 28px;
+      background: #555;              
+      border-radius: 30px;
+      position: relative;
+      transition: background 0.3s ease;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+    .slider {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translateX(0); 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    body.light .switch {
+      background: linear-gradient(90deg, #4facfe, #00f2fe); 
+      border: 1px solid rgba(0, 0, 0, 0.1); 
+      box-shadow:
+       0 2px 6px rgba(0, 0, 0, 0.15), 
+       inset 1px 1px 3px rgba(255, 255, 255, 0.4); 
+      transition: all 0.3s ease-in-out;
+    }
+
+    body.light .switch .slider {
+      transform: translateX(20px); 
+    }
+
+    
+    .display {
+      margin: 15px 0;
+      padding: 15px;
+      border: 1px solid #ffffff22 !important;
+      background-color: rgba(255, 255, 255, 0.06);
+      color: white;
+      border-radius: 10px;
+      min-height: 60px;
+      font-size: 1.5rem;
+      text-align: right;
+      transition: border 0.3s, height 0.2s ease;
+      width: 100%;
+      box-sizing: border-box;
+      overflow-wrap: break-word; 
+      white-space: normal;       
+      resize: none;            
+    }
+
+    .display:focus {
+      outline: none;
+    }
+
+    body.light .display {
+      background: #fff;
+      color: black;
+    }
+
+    .shake {
+      animation: shake 0.3s ease;
+      border: 2px solid #ff9999 !important;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-3px); }
+    }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .btn {
+      font-size: 1.4rem;
+      padding: 18px;
+      border-radius: 12px;
+      background: #1e2a38;
+      color: #fff;
+      box-shadow: inset 2px 2px 5px #0d141f, inset -2px -2px 5px #2f3b4c;      
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn:active {
+      transform: scale(0.96); 
+      filter: brightness(1.05);
+      transform: scale(1.05);
+      animation: bounce 0.3s ease;
+    }
+
+    body.light .btn {
+      background: #d0eaff; 
+      color: #000;
+      box-shadow: inset 2px 2px 4px #a3c2d1, inset -2px -2px 4px #f0ffff; 
+      transition: all 0.2s ease;
+    }
+
+    .btn-clear:active {
+      border: 2px solid #ff8080 !important;
+      box-shadow: 
+        0 0 8px rgba(255, 0, 0, 0.6),   
+        0 0 16px rgba(255, 64, 64, 0.5),
+        0 0 30px rgba(255, 128, 128, 0.4);      
+      color: white;
+    }
+    body.light .btn-clear:active {
+    background: linear-gradient(to right, #ff6a6a, #ff9999);
+    }
+
+    .btn-check {
+      grid-column: span 3;
+    }
+
+    .btn-check:active {
+      box-shadow: 
+        0 0 10px rgba(79, 172, 254, 0.8),   
+        0 0 20px rgba(0, 242, 254, 0.6),    
+        0 0 35px rgba(79, 172, 254, 0.5);  
+      transform: scale(0.97);
+      color: white;
+      font-weight: bold;
+    }
+    body.light .btn-check:active {      
+      background: linear-gradient(to right, #4facfe, #00f2fe);
+    }
+
+    @keyframes bounce {
+     0%, 100% { transform: scale(1); }
+     50% { transform: scale(1.12); }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="calculator" id="calculator">
+    <div class="top-bar">
+      <h1>Number Checker</h1>
+      <div id="themeToggle" class="switch">
+        <div class="slider"></div>
+      </div>
+    </div>
+
+    <textarea class="display" id="display"></textarea>
+
+    <div class="keypad">
+      <button class="btn btn-clear" onclick="clearDisplay()">C</button>
+      <button class="btn" onclick="appendSymbol('%')">%</button>
+      <button class="btn" id="plusMinusBtn" onclick="toggleInputSign()">±</button>
+
+      <button class="btn" onclick="appendNumber('7')">7</button>
+      <button class="btn" onclick="appendNumber('8')">8</button>
+      <button class="btn" onclick="appendNumber('9')">9</button>
+
+      <button class="btn" onclick="appendNumber('4')">4</button>
+      <button class="btn" onclick="appendNumber('5')">5</button>
+      <button class="btn" onclick="appendNumber('6')">6</button>
+
+      <button class="btn" onclick="appendNumber('1')">1</button>
+      <button class="btn" onclick="appendNumber('2')">2</button>
+      <button class="btn" onclick="appendNumber('3')">3</button>
+
+      <button class="btn" onclick="appendDecimal()">.</button>
+      <button class="btn" onclick="appendNumber('0')">0</button>
+      <button class="btn" onclick="backspace()">⌫</button>
+
+      <button class="btn btn-check" onclick="checkNumber()">Check</button>
+    </div>
+  </div>
+
+<script>
+const display = document.getElementById("display");
+const themeToggle = document.getElementById("themeToggle");
+
+function autoResize() {
+  display.style.height = "auto"; // reset first
+  display.style.height = display.scrollHeight + "px"; // grow with content
+}
+
+
+// Insert at cursor
+function insertAtCursor(char) {
+  const start = display.selectionStart;
+  const end = display.selectionEnd;
+  display.value = display.value.slice(0, start) + char + display.value.slice(end);
+  display.selectionStart = display.selectionEnd = start + char.length;
+  display.focus();
+  autoResize();
+}
+
+// Backspace at cursor
+function backspaceAtCursor() {
+  const start = display.selectionStart;
+  const end = display.selectionEnd;
+  if (start === 0) return;
+  display.value = display.value.slice(0, start - 1) + display.value.slice(end);
+  display.selectionStart = display.selectionEnd = start - 1;
+  display.focus();
+  autoResize();
+}
+
+// Button functions
+function appendNumber(num) { insertAtCursor(num); }
+function appendDecimal() { 
+  if ((display.value.match(/\./g) || []).length >= 1) {
+    triggerError(); return;
+  }
+  insertAtCursor('.');
+}
+function appendSymbol(sym) { 
+  if (display.value.includes(sym)) { triggerError(); return; }
+  insertAtCursor(sym);
+}
+function toggleInputSign() {
+  if (display.value.startsWith('+') || display.value.startsWith('-')) {
+    display.value = display.value.slice(1);
+  }
+  if (!toggleInputSign.isNegative) display.value = '+' + display.value;
+  else display.value = '-' + display.value;
+  toggleInputSign.isNegative = !toggleInputSign.isNegative;
+  display.focus();
+}
+toggleInputSign.isNegative = false;
+
+function clearDisplay() { 
+  display.value = ""; 
+  display.focus(); 
+  autoResize();
+}
+
+function triggerError() {
+  display.classList.add("shake");
+  display.style.border = "2px solid #ff4d4d";
+  display.style.boxShadow = "0 0 10px rgba(255, 0, 0, 0.7)";
+  
+  setTimeout(() => {
+    display.classList.remove("shake");
+    display.style.border = "2px solid transparent";
+    display.style.boxShadow = "none";
+  }, 500);
+}
+
+
+function checkNumber() {
+  const input = display.value;
+
+  if (!/^[+-]?\d*\.?\d*%?$/.test(input)) {
+    display.value = "❌ Invalid format"; 
+    triggerError(); 
+    return;
+  }
+
+  let hasPercent = input.includes('%');
+  let clean = input.replace('%', '');
+  let num = parseFloat(clean);
+  if (isNaN(num)) { 
+    display.value = "❌ Invalid input"; 
+    triggerError(); 
+    return; 
+  }
+
+  let isInt = Number.isInteger(num);
+  let isNeg = num < 0;
+  let isDecimal = !isInt;
+  let isEven = isInt && num % 2 === 0;
+  let isOdd = isInt && num % 2 !== 0;
+  let isPrime = true;
+  if (num < 2 || !isInt) isPrime = false;
+  else for (let i=2; i<=Math.sqrt(num); i++) if (num % i === 0) { isPrime=false; break; }
+  let isPerfectSquare = isInt && Math.sqrt(num) % 1 === 0;
+
+  let result = `✅ ${num}`;
+  if (hasPercent) result += " | Percentage";
+  if (isDecimal && isNeg) result += " | Negative Decimal";
+  else if (isDecimal && !isNeg) result += " | Positive Decimal";
+  else if (isInt && isNeg) result += " | Negative Integer";
+  else if (isInt && !isNeg) result += " | Positive Integer";
+  if (isInt) result += isEven ? " | Even" : " | Odd";
+  if (isPrime) result += " | Prime";
+  if (isPerfectSquare) result += " | Perfect Square";
+  display.value = result;
+  autoResize();
+}
+
+// Keyboard support
+document.addEventListener("keydown", (event) => {
+  const key = event.key;
+
+  // Handle digits
+  if (/^\d$/.test(key)) {
+    event.preventDefault();
+    insertAtCursor(key);
+  }
+  // Decimal
+  else if (key === ".") {
+    event.preventDefault();
+    insertAtCursor(".");
+  }
+  // Percent
+  else if (key === "%") {
+    event.preventDefault();
+    insertAtCursor("%");
+  }
+  // Backspace
+  else if (key === "Backspace") {
+    event.preventDefault();
+    backspaceAtCursor();
+  }
+  // Enter = check number
+  else if (key === "Enter") {
+    event.preventDefault();
+    checkNumber();
+  }
+  // Escape = clear
+  else if (key === "Escape") {
+    event.preventDefault();
+    clearDisplay();
+  }
+});
+
+// Theme toggle
+themeToggle.addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+  document.body.classList.toggle("light");
+});
+</script>
+
+</body>
+</html>
