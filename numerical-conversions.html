@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Numerical Convertions</title>
+  <style>
+    * {
+      margin:0; 
+      padding:0; 
+      box-sizing:border-box; 
+      font-family:'Poppins',sans-serif;
+      transition:background 0.3s, color 0.3s;
+    }
+    body {
+      height:100vh; 
+      display:flex;
+      flex-direction: column; 
+      justify-content:center; 
+      align-items:center; 
+      background:#1e1e1e; 
+      color:#fff;
+      margin: 0;
+      padding: 0;
+    }
+    .light {
+      background:#e0e0e0; 
+      color:#333;
+    }
+
+    /* Topbar */
+    .topbar {
+      width: 100%;
+      max-width: 450px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 15px 20px;
+      margin-bottom: 20px;
+      font-size: 1.5em;
+      font-weight: bold;
+      background: linear-gradient(135deg, #3a3a3a, #1e1e1e);
+      color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      letter-spacing: 1px;
+    }
+    .light .topbar {
+      background:linear-gradient(135deg,#f1f1f1,#d8d8d8); 
+      color:#222;
+    }
+    /* Theme Toggle */
+    .switch {
+      width: 50px;
+      height: 28px;
+      background: #555;
+      box-shadow: 0 2px 6px rgba(255,255,255,0.15);
+      border-radius: 30px;
+      position: relative;
+      transition: background 0.3s ease;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+    .slider {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translateX(0);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    body.light .switch {
+      background: #f0f0f0;
+      border: 1px solid #bbb;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+
+    body.light .switch .slider {
+      transform: translateX(20px);
+    }
+
+    /* Carousel */
+    .carousel-container {
+      width: 90%;
+      max-width: 420px;
+      height: 460px;
+      perspective: 1200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      margin: 20px auto;
+    }
+    .carousel {
+      width:100%; 
+      height:100%; 
+      position:relative; 
+      transform-style:preserve-3d;
+      transition:transform 0.8s; 
+      transform: translateZ(-175px);
+    }
+    .card {
+      position:absolute; 
+      width:100%; 
+      height:100%; 
+      border-radius:25px;
+      background:#2a2a2a; box-shadow: 9px 9px 16px #141414, -9px -9px 16px #3a3a3a;
+      padding:20px; 
+      display:flex; 
+      flex-direction:column; 
+      justify-content:center; 
+      align-items:center;
+    }
+    .light .card {
+      background:#e0e0e0; 
+      box-shadow: 9px 9px 16px #b8b9be, -9px -9px 16px #ffffff;
+    }
+    .card h1 {
+      font-size: 1.4em;
+      font-weight: bold;
+      color: inherit;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .card h2 {
+      margin-bottom:20px; 
+      font-size:1.2em; 
+      display:flex; 
+      justify-content:center; 
+      align-items:center; 
+      width:100%; 
+      gap:10px;
+    }
+    .card h3 {
+      font-size: 1.3em;
+      margin-bottom: 15px;
+    }
+    .title {
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .swap-btn {
+      background:none; 
+      border:none; 
+      width:35px; 
+      height:35px; 
+      border-radius:20px; 
+      font-size:1.1em;
+      cursor:pointer; 
+      color:inherit; 
+      margin:0 5px; 
+      display:inline-flex; 
+      align-items:center; 
+      justify-content:center;
+      transition:transform 0.6s ease;
+      transform:rotate(0deg);
+      
+    }
+    .swap-btn:hover,
+    button:hover {
+      background:rgba(255,255,255,0.1); 
+      transform: translateY(-3px) scale(1.03);
+    }
+    .swap-btn .arrow {
+      display:inline-block; 
+      transition:transform 0.6s ease;
+    }
+    .swap-btn.spin .arrow {
+      transform:rotate(360deg);
+    }
+    select {
+      background: #3a3a3a;
+      color: inherit;
+      border: none;
+      border-radius: 10px;
+      padding: 5px 10px;
+      font-size: 1em;
+      box-shadow: inset 4px 4px 6px #141414, inset -4px -4px 6px #3a3a3a;
+    }
+    .light select {
+      background: #f3f3f3;
+      color: #222;
+      box-shadow: inset 4px 4px 6px #b8b9be, inset -4px -4px 6px #ffffff;
+    }
+
+    .input-group {
+      margin:8px 0; 
+      width:100%; 
+      position:relative;
+    }
+    input {
+      width:100%; 
+      padding:10px; 
+      font-size:1.2em; 
+      text-align:center; 
+      border:none;
+      outline:none; 
+      border-radius:15px;
+      box-shadow:inset 4px 4px 6px #141414, inset -4px -4px 6px #3a3a3a; 
+      background:#3a3a3a; 
+      color:#fff;
+    }
+    input::placeholder {
+      color:#aaa;
+    }
+    .light input {
+      background:#f3f3f3; 
+      color:#222; 
+      box-shadow:inset 4px 4px 6px #b8b9be, inset -4px -4px 6px #ffffff;
+    }
+    input:focus {
+      box-shadow:inset 1px 1px 2px #00f2fe, inset -1px -1px 2px #00c6ff;
+   }
+
+    .buttons-row {
+      display:flex; 
+      gap:10px; 
+      margin-top:15px; 
+      width:100%;
+    }
+    button {
+      flex:1; 
+      padding:10px; 
+      font-size:1.1em; 
+      border:none; 
+      border-radius:25px; 
+      cursor:pointer;
+      background:#2a2a2a; 
+      color:inherit; 
+      box-shadow:4px 4px 6px #141414, -4px -4px 6px #3a3a3a; 
+      transition:transform 0.2s;
+    }
+    button:active {
+      animation: bounce3D 0.4s ease forwards;
+      box-shadow: 
+        0 0 12px rgba(79,172,254,0.9),
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+    }
+    .light button:active {
+      box-shadow: 0 0 12px rgba(79,172,254,0.9),
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+    }
+    
+    @keyframes bounce {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+     
+    .light button {
+      background:#e0e0e0; 
+      box-shadow:4px 4px 6px #b8b9be, -4px -4px 6px #ffffff;}
+
+    
+    .controls {
+      position:absolute;
+      bottom:-60px; 
+      width:100%; 
+      display:flex; 
+      justify-content:space-between;
+    }
+    .controls button {
+      width:50px; 
+      height:50px; 
+      border-radius:50%; 
+      font-size:1.5em;
+    }
+    .controls button:active {
+      animation: bounce3D 0.4s ease forwards;
+      box-shadow: 
+        0 0 12px rgba(0, 255, 128, 0.9),
+        inset 3px 3px 6px rgba(0, 0, 0, 0.6),
+        inset -3px -3px 6px rgba(0, 255, 128, 0.2);
+      transform: translateY(-2px);
+    }
+
+    @keyframes bounce3D {
+      0% { transform: rotateX(0deg) scale(1); }
+      50% { transform: rotateX(20deg) scale(1.1); }
+      100% { transform: rotateX(0deg) scale(1); }
+    }
+    
+    .error-message {
+      color:#ff6b6b; 
+      font-size:0.9em; 
+      margin-top:5px; 
+      text-align:center; 
+      opacity:0; 
+      transition:opacity 0.3s;
+    }
+    .show-error {
+      opacity:1;
+    }
+    .shake {
+      animation:shake 0.3s;
+    }
+    @keyframes shake {
+       0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+    
+    .result-emphasize {
+      animation: bounceResult 0.6s ease;
+      box-shadow: 0 0 12px rgba(79, 172, 254, 0.9),
+                0 0 20px rgba(0, 242, 254, 0.6);
+    }
+
+    body.light .result-emphasize {
+      box-shadow: 0 0 12px rgba(79, 172, 254, 0.7),
+                0 0 20px rgba(0, 242, 254, 0.5);
+    }
+
+    @keyframes bounceResult {
+      0%   { transform: scale(1); }
+      30%  { transform: scale(1.08); }
+      60%  { transform: scale(0.95); }
+      100% { transform: scale(1); }
+    }
+
+  </style>
+</head>
+<body class="dark">
+  <div class="topbar">
+    <div> Numerical Conversions</div>
+    <div id="themeToggle" class="switch">
+     <div class="slider"></div>
+    </div>
+  </div>
+
+  <div class="carousel-container">
+    <div class="carousel" id="carousel">
+      <!-- Card 1: Decimal ↔ Fraction -->
+      <div class="card">
+        <h1>Decimal & Fraction<br>Converter</h1>
+        <h3><span class="title" id="df-left">Decimal</span>
+          <button class="swap-btn" onclick="swapDF()"><span class="arrow">→</span></button>
+          <span class="title" id="df-right">Fraction</span>
+        </h3>
+        <div class="input-group"><input type="text" id="decimalInput" placeholder="Enter Decimal"><div class="error-message" id="df-error"></div></div>
+        <div class="input-group"><input type="text" id="fractionResult" placeholder="Result" readonly></div>
+        <div class="buttons-row"><button onclick="convertDecimalFraction()">Calculate</button><button onclick="clearDF()">Clear</button></div>
+      </div>
+
+      <!-- Card 2: Arabic ↔ Roman -->
+      <div class="card">
+        <h1>Arabic & Roman<br>Converter</h1>
+        <h3><span class="title" id="ra-left">Arabic</span>
+          <button class="swap-btn" onclick="swapRA()"><span class="arrow">→</span></button>
+          <span class="title" id="ra-right">Roman</span>
+        </h3>
+        <div class="input-group"><input type="text" id="romanInput" placeholder="Enter Number"><div class="error-message" id="ra-error"></div></div>
+        <div class="input-group"><input type="text" id="arabicResult" placeholder="Result" readonly></div>
+        <div class="buttons-row"><button onclick="convertRomanArabic()">Calculate</button><button onclick="clearRA()">Clear</button></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button onclick="prevCard()">‹</button>
+      <button onclick="nextCard()">›</button>
+    </div>
+  </div>
+
+<script>
+  const carousel = document.getElementById('carousel');
+const cards = document.querySelectorAll('.card');
+const numCards = cards.length;
+const angleStep = 360 / numCards;
+const translateZ = 175; // Distance from center
+
+// Position cards dynamically
+cards.forEach((card, index) => {
+    card.style.transform = `rotateY(${index * angleStep}deg) translateZ(${translateZ}px)`;
+});
+
+// Handle rotation
+let currentAngle = 0;
+function nextCard() {
+    currentAngle -= angleStep;
+    carousel.style.transform = `translateZ(-${translateZ}px) rotateY(${currentAngle}deg)`;
+}
+function prevCard() {
+    currentAngle += angleStep;
+    carousel.style.transform = `translateZ(-${translateZ}px) rotateY(${currentAngle}deg)`;
+}
+  // Theme toggle
+    themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+    document.body.classList.toggle("light");
+});
+  // Error display
+  function showError(inputId,msgId,msg){
+    const input=document.getElementById(inputId),error=document.getElementById(msgId);
+    input.classList.add('shake');input.style.boxShadow="0 0 8px #ff6b6b";
+    input.classList.add('shake');input.style.border= "1px solid #ff6b6b";
+    error.textContent=msg;error.classList.add('show-error');
+    setTimeout(()=>{input.classList.remove('shake');input.style.boxShadow='';error.classList.remove('show-error');},2000);
+    setTimeout(()=>{input.classList.remove('shake');input.style.border='';error.classList.remove('show-error');},2000);
+  }
+  function emphasizeResult(id) {
+    const result = document.getElementById(id);
+    result.classList.add("result-emphasize");
+
+    // Remove after animation (so you can re-trigger on next result)
+    setTimeout(() => {
+        result.classList.remove("result-emphasize");
+    }, 1500);
+  }
+
+  // Decimal <-> Fraction
+  let dfMode = "decimalToFraction"; let dfRotation = 0;
+  function convertDecimalFraction() {
+      let input = document.getElementById("decimalInput").value.trim();
+      let resultField = document.getElementById("fractionResult");
+      if (!input) { showError("decimalInput", "df-error", "Input required"); return; }
+      if (dfMode === "decimalToFraction") {
+          let num = parseFloat(input);
+          if (isNaN(num)) { showError("decimalInput", "df-error", "Invalid number"); return; }
+          resultField.value = toFraction(num);
+          emphasizeResult("fractionResult");
+      } else {
+          let parts = input.split('/');
+          if (parts.length !== 2) { showError("decimalInput", "df-error", "Use a/b format"); return; }
+          let a = parseFloat(parts[0]), b = parseFloat(parts[1]);
+          if (isNaN(a) || isNaN(b) || b === 0) { showError("decimalInput", "df-error", "Invalid fraction"); return; }
+          resultField.value = (a / b).toString();
+          emphasizeResult("fractionResult");
+      }
+  }
+  function toFraction(num) {const tolerance = 1.0E-6;let h1 = 1, h2 = 0, k1 = 0, k2 = 1, b = num;
+      do {let a = Math.floor(b);[h1, h2] = [a * h1 + h2, h1];[k1, k2] = [a * k1 + k2, k1];b = 1 / (b - a);} while (Math.abs(num - h1 / k1) > num * tolerance);
+      return h1 + "/" + k1;}
+  function swapDF() {
+    const arrow = document.querySelector("#df-left").nextElementSibling.querySelector('.arrow');
+    arrow.style.transition = "transform 0.6s ease";
+    arrow.style.transform = `rotate(${dfRotation + 360}deg)`;
+    dfRotation += 360;
+
+    dfMode = (dfMode === "decimalToFraction") ? "fractionToDecimal" : "decimalToFraction";
+    document.getElementById("df-left").textContent = (dfMode === "decimalToFraction") ? "Decimal" : "Fraction";
+    document.getElementById("df-right").textContent = (dfMode === "decimalToFraction") ? "Fraction" : "Decimal";
+    document.getElementById("decimalInput").placeholder = (dfMode === "decimalToFraction") ? "Enter Decimal" : "Enter Fraction (a/b)";
+    clearDF();
+}
+  function clearDF() {document.getElementById("decimalInput").value = '';document.getElementById("fractionResult").value = '';}
+
+  // Arabic <-> Roman
+  let raMode = "arabicToRoman"; let raRotation = 0;
+  function convertRomanArabic() {
+      let input = document.getElementById("romanInput").value.trim().toUpperCase();
+      let resultField = document.getElementById("arabicResult");
+      if (!input) {showError("romanInput", "ra-error", "Input required");return;}
+      if (raMode === "arabicToRoman") {
+          let num = parseFloat(input);
+          if (isNaN(num) || num <= 0 || num > 3999 || !Number.isInteger(num)) {showError("romanInput", "ra-error", "Only whole numbers 1–3999 allowed");return;}
+          resultField.value = intToRoman(num);
+          emphasizeResult("arabicResult");
+      } else {
+          resultField.value = romanToInt(input);
+          if (resultField.value === "Invalid") {showError("romanInput", "ra-error", "Invalid Roman");resultField.value = '';}
+          emphasizeResult("arabicResult");
+        }
+  }
+  function swapRA() {
+    const arrow = document.querySelector("#ra-left").nextElementSibling.querySelector('.arrow');
+    arrow.style.transition = "transform 0.6s ease";
+    arrow.style.transform = `rotate(${raRotation + 360}deg)`;
+    raRotation += 360;
+
+    raMode = (raMode === "arabicToRoman") ? "romanToArabic" : "arabicToRoman";
+    document.getElementById("ra-left").textContent = (raMode === "arabicToRoman") ? "Arabic" : "Roman";
+    document.getElementById("ra-right").textContent = (raMode === "arabicToRoman") ? "Roman" : "Arabic";
+    document.getElementById("romanInput").placeholder = (raMode === "arabicToRoman") ? "Enter Number" : "Enter Roman";
+    clearRA();
+}
+  function clearRA() {document.getElementById("romanInput").value = '';document.getElementById("arabicResult").value = '';}
+  function romanToInt(s) {const map = { I:1, V:5, X:10, L:50, C:100, D:500, M:1000 };let num = 0;for (let i = 0; i < s.length; i++) {let curr = map[s[i]], next = map[s[i+1]];if (!curr) return "Invalid";if (next > curr) { num += next - curr; i++; } else { num += curr; }}return num;}
+  function intToRoman(num) {const map = [[1000,'M'], [900,'CM'], [500,'D'], [400,'CD'],[100,'C'], [90,'XC'], [50,'L'], [40,'XL'],[10,'X'], [9,'IX'], [5,'V'], [4,'IV'], [1,'I']];let res = '';for (let [val, sym] of map) {while (num >= val) { res += sym; num -= val; }}return res;}
+
+</script>
+</body>
+</html>

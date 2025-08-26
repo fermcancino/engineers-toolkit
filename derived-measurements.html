@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Derived Measurements</title>
+  <style>
+    * {
+      margin:0; 
+      padding:0; 
+      box-sizing:border-box; 
+      font-family:'Poppins',sans-serif; 
+      transition:background 0.3s, color 0.3s;
+    }
+    body {
+      height:100vh; 
+      display:flex;
+      flex-direction: column; 
+      justify-content:center; 
+      align-items:center; 
+      background:#1e1e1e; 
+      color:#fff;
+      margin: 0;
+      padding: 0;
+    }
+    .light {
+      background:#e0e0e0; 
+      color:#333;
+    }
+
+    /* Topbar */
+    .topbar {
+      width: 100%;
+      max-width: 450px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 15px 20px;
+      margin-bottom: 20px;
+      font-size: 1.5em;
+      font-weight: bold;
+      background: linear-gradient(135deg, #3a3a3a, #1e1e1e);
+      color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      letter-spacing: 1px;
+    }
+    .light .topbar {
+      background:linear-gradient(135deg,#f1f1f1,#d8d8d8); 
+      color:#222;
+    }
+    /* Theme Toggle */
+    .switch {
+      width: 50px;
+      height: 28px;
+      background: #555;
+      box-shadow: 0 2px 6px rgba(255,255,255,0.15);
+      border-radius: 30px;
+      position: relative;
+      transition: background 0.3s ease;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+    .slider {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translateX(0);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    body.light .switch {
+      background: #f0f0f0;
+      border: 1px solid #bbb;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+
+    body.light .switch .slider {
+      transform: translateX(20px);
+    }
+
+    /* Carousel */
+    .carousel-container {
+      width: 90%;
+      max-width: 420px;
+      height: 460px;
+      perspective: 1200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      margin: 20px auto;
+    }
+    .carousel {
+      width:100%; 
+      height:100%; 
+      position:relative; 
+      transform-style:preserve-3d;
+      transition:transform 0.8s; 
+      transform: translateZ(-175px);
+    }
+    .card {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 25px;
+      background: #2a2a2a;
+      box-shadow: 9px 9px 16px #141414, -9px -9px 16px #3a3a3a;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      opacity: 0.4;
+      transition: opacity 0.4s ease;
+    }
+    .card.active {
+      opacity: 1; 
+    }
+    .light .card {
+      background:#e0e0e0; 
+      box-shadow: 9px 9px 16px #b8b9be, -9px -9px 16px #ffffff;
+    }
+    .card h1 {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: inherit;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    h3 {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    h3 select {
+      flex: 1;
+      padding: 10px 18px;      
+      border-radius: 12px;     
+      font-size: 1.1rem;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    h3 select:focus {
+      outline: none;
+      border-color: #6c63ff;  
+      box-shadow: 0 0 8px rgba(108, 99, 255, 0.4);
+      
+    }
+
+    .swap-btn {
+      flex: 0 0 40px; 
+      width: 40px;
+      height: 40px;
+      border-radius: 20px;
+      font-size: 1.1em;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor:pointer; color:inherit; margin:0 5px;
+      transition:transform 0.6s ease; transform:rotate(0deg);
+    }
+    
+    .title {
+      font-family: 'Courier New', monospace;
+    }
+
+    .swap-btn:hover,
+    button:hover {
+      background:rgba(255,255,255,0.1); 
+      transform:scale(0.95);
+    }
+    .swap-btn .arrow {
+      display:inline-block; 
+      transition:transform 0.6s ease;
+    }
+    .swap-btn.spin .arrow {
+      transform:rotate(360deg);
+    }
+    select {
+      background: #3a3a3a;
+      color: inherit;
+      border: none;
+      border-radius: 10px;
+      padding: 5px 10px;
+      font-size: 1.1em;
+      box-shadow: inset 4px 4px 6px #141414, inset -4px -4px 6px #3a3a3a;
+    }
+
+    .light select {
+      background: #f3f3f3;
+      color: #222;
+      box-shadow: inset 4px 4px 6px #b8b9be, inset -4px -4px 6px #ffffff;
+    }
+
+    .input-group {
+      margin:8px 0; 
+      width:100%; 
+      position:relative;
+    }
+    input {
+      width:100%; 
+      padding:10px; 
+      font-size:1.2em; 
+      text-align:center;  
+      border:none; 
+      outline:none; 
+      border-radius:15px;
+      box-shadow:inset 4px 4px 6px #141414, 
+        inset -4px -4px 6px #3a3a3a; 
+        background:#3a3a3a; color:#fff;
+      }
+    input::placeholder {
+      color:#aaa;
+    }
+    .light input {
+      background:#f3f3f3; 
+      color:#222; 
+      box-shadow:inset 4px 4px 6px #b8b9be, 
+        inset -4px -4px 6px #ffffff;
+      }
+    input:focus {
+      box-shadow:inset 1px 1px 2px #00f2fe, 
+      inset -1px -1px 2px #00c6ff;
+    }
+   
+
+    .buttons-row {
+      display:flex; 
+      gap:10px; 
+      margin-top:15px; 
+      width:100%;
+      perspective: 500px; 
+    }
+    button {
+      flex: 1;
+      padding: 10px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      background: #2a2a2a;
+      color: inherit;
+      box-shadow: 4px 4px 6px #141414, -4px -4px 6px #3a3a3a;
+      transition: transform 0.2s;
+      transform-style: preserve-3d;
+    }
+
+    button:active {
+      animation: bounce3D 0.4s ease forwards;
+      box-shadow: 
+        0 0 12px rgba(79,172,254,0.9),
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+    }
+    .light button:active {
+      box-shadow: 0 0 12px rgba(79,172,254,0.9),
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+      }
+        
+      @keyframes bounce {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.08); }
+        100% { transform: scale(1); }
+      }
+       
+      .light button {
+        background:#e0e0e0; 
+        box-shadow:4px 4px 6px #b8b9be, 
+          -4px -4px 6px #ffffff;
+      }
+
+      .controls {
+        position: absolute;
+        bottom: -60px;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        perspective: 500px; 
+      }
+      .controls button {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        font-size: 1.5em;
+        transition: transform 0.2s;
+        transform-style: preserve-3d;
+      }
+
+
+      .controls button:active {
+        animation: bounce3D 0.4s ease forwards;
+        box-shadow: 
+          0 0 12px rgba(0, 255, 128, 0.9),
+          inset 3px 3px 6px rgba(0, 0, 0, 0.6),
+          inset -3px -3px 6px rgba(0, 255, 128, 0.2);
+          transform: translateY(-2px);
+      }
+
+      @keyframes bounce3D {
+        0% { transform: rotateX(0deg) scale(1); }
+        50% { transform: rotateX(20deg) scale(1.1); }
+        100% { transform: rotateX(0deg) scale(1); }
+      }
+
+      .error-message {
+        color:#ff6b6b; 
+        font-size:0.9em; 
+        margin-top:5px; 
+        text-align:center; 
+        opacity:0; 
+        transition:opacity 0.3s;
+      }
+      .show-error {
+        opacity:1;
+      }
+      .shake {
+        animation:shake 0.3s;
+      }
+      @keyframes shake {
+        0% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        50% { transform: translateX(5px); }
+        75% { transform: translateX(-5px); }
+        100% { transform: translateX(0); }
+      }
+      .result-emphasize {
+      animation: bounceResult 0.6s ease;
+      box-shadow: 0 0 12px rgba(79, 172, 254, 0.9),
+                0 0 20px rgba(0, 242, 254, 0.6);
+      }
+
+      body.light .result-emphasize {
+        box-shadow: 0 0 12px rgba(79, 172, 254, 0.7),
+                  0 0 20px rgba(0, 242, 254, 0.5);
+      }
+
+      @keyframes bounceResult {
+        0%   { transform: scale(1); }
+        30%  { transform: scale(1.08); }
+        60%  { transform: scale(0.95); }
+        100% { transform: scale(1); }
+      }
+  </style>
+</head>
+<body class="dark">
+  <div class="topbar">
+    <div>Derived Measurements</div>
+    <div id="themeToggle" class="switch">
+     <div class="slider"></div>
+    </div>
+  </div>
+
+  <div class="carousel-container">
+  <div class="carousel" id="carousel">
+  <!-- Card 1: Speed Converter -->
+<div class="card">
+  <h1>Speed Converter</h1>
+  <h3>
+    <select id="speed-left">
+      <option value="mps">m/s</option>
+      <option value="kph">km/h</option>
+      <option value="mph">mph</option>
+      <option value="knots">knots</option>
+    </select>
+    <button class="swap-btn" onclick="swapSpeed()"><span class="arrow">→</span></button>
+    <select id="speed-right">
+      <option value="kph">km/h</option>
+      <option value="mps">m/s</option>
+      <option value="mph">mph</option>
+      <option value="knots">knots</option>
+    </select>
+  </h3>
+  <div class="input-group">
+    <input type="text" id="speedInput" placeholder="Enter Value">
+    <div class="error-message" id="speed-error"></div>
+  </div>
+  <div class="input-group">
+    <input type="text" id="speedResult" placeholder="Result" readonly>
+  </div>
+  <div class="buttons-row">
+    <button onclick="convertSpeed()">Calculate</button>
+    <button onclick="clearSpeed()">Clear</button>
+  </div>
+</div>
+
+<!-- Card 2: Area Converter -->
+<div class="card">
+  <h1>Area Converter</h1>
+  <h3>
+    <select id="area-left">
+      <option value="sqm">m²</option>
+      <option value="sqkm">km²</option>
+      <option value="sqft">ft²</option>
+      <option value="acre">Acre</option>
+      <option value="hectare">Hectare</option>
+    </select>
+    <button class="swap-btn" onclick="swapArea()"><span class="arrow">→</span></button>
+    <select id="area-right">
+      <option value="sqft">ft²</option>
+      <option value="sqm">m²</option>
+      <option value="sqkm">km²</option>
+      <option value="acre">Acre</option>
+      <option value="hectare">Hectare</option>
+    </select>
+  </h3>
+  <div class="input-group">
+    <input type="text" id="areaInput" placeholder="Enter Value">
+    <div class="error-message" id="area-error"></div>
+  </div>
+  <div class="input-group">
+    <input type="text" id="areaResult" placeholder="Result" readonly>
+  </div>
+  <div class="buttons-row">
+    <button onclick="convertArea()">Calculate</button>
+    <button onclick="clearArea()">Clear</button>
+  </div>
+</div>
+
+<!-- Card 3: Angle Converter -->
+<div class="card">
+  <h1>Angle Converter</h1>
+  <h3>
+    <select id="angle-left">
+      <option value="degree">Degree</option>
+      <option value="radian">Radian</option>
+      <option value="gradian">Gradian</option>
+    </select>
+    <button class="swap-btn" onclick="swapAngle()"><span class="arrow">→</span></button>
+    <select id="angle-right">
+      <option value="radian">Radian</option>
+      <option value="degree">Degree</option>
+      <option value="gradian">Gradian</option>
+    </select>
+  </h3>
+  <div class="input-group">
+    <input type="text" id="angleInput" placeholder="Enter Value">
+    <div class="error-message" id="angle-error"></div>
+  </div>
+  <div class="input-group">
+    <input type="text" id="angleResult" placeholder="Result" readonly>
+  </div>
+  <div class="buttons-row">
+    <button onclick="convertAngle()">Calculate</button>
+    <button onclick="clearAngle()">Clear</button>
+  </div>
+</div>
+
+<!-- Card 4: Time Converter -->
+<div class="card">
+  <h1>Time Converter</h1>
+  <h3>
+    <select id="time-left">
+      <option value="sec">Seconds</option>
+      <option value="min">Minutes</option>
+      <option value="hour">Hours</option>
+      <option value="day">Days</option>
+    </select>
+    <button class="swap-btn" onclick="swapTime()"><span class="arrow">→</span></button>
+    <select id="time-right">
+      <option value="min">Minutes</option>
+      <option value="sec">Seconds</option>
+      <option value="hour">Hours</option>
+      <option value="day">Days</option>
+    </select>
+  </h3>
+  <div class="input-group">
+    <input type="text" id="timeInput" placeholder="Enter Value">
+    <div class="error-message" id="time-error"></div>
+  </div>
+  <div class="input-group">
+    <input type="text" id="timeResult" placeholder="Result" readonly>
+  </div>
+  <div class="buttons-row">
+    <button onclick="convertTime()">Calculate</button>
+    <button onclick="clearTime()">Clear</button>
+  </div>
+</div>
+</div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button onclick="prevCard()">‹</button>
+    <button onclick="nextCard()">›</button>
+  </div>
+</div>
+
+<script>
+function updateCarouselLayout() {
+    const carousel = document.getElementById('carousel');
+    const cards = document.querySelectorAll('.card');
+    const numCards = cards.length;
+
+    if (numCards === 0) return;
+
+    const cardWidth = carousel.offsetWidth;
+
+    const translateZ = Math.round((cardWidth / 2) / Math.tan(Math.PI / numCards));
+    const angleStep = 360 / numCards;
+
+    let currentIndex = window.carouselData ? window.carouselData.currentIndex : 0;
+
+    // Position each card dynamically
+    cards.forEach((card, index) => {
+        card.style.transform = `rotateY(${index * angleStep}deg) translateZ(${translateZ}px)`;
+    });
+
+    // Save globals for snapping rotation
+    window.carouselData = { 
+        translateZ, 
+        angleStep, 
+        currentIndex,
+        total: numCards
+    };
+
+
+    const newAngle = -currentIndex * angleStep;
+    carousel.style.transform = `translateZ(-${translateZ}px) rotateY(${newAngle}deg)`;
+
+    // Highlight active card
+    cards.forEach((card, i) => {
+        card.classList.toggle('active', i === currentIndex);
+    });
+}
+
+// Navigation
+function nextCard() { rotateToIndex(window.carouselData.currentIndex + 1); }
+function prevCard() { rotateToIndex(window.carouselData.currentIndex - 1); }
+
+function rotateToIndex(index) {
+    const { translateZ, angleStep, total } = window.carouselData;
+    window.carouselData.currentIndex = (index + total) % total; // Wrap around
+    const newAngle = -window.carouselData.currentIndex * angleStep;
+    document.getElementById('carousel').style.transform = `translateZ(-${translateZ}px) rotateY(${newAngle}deg)`;
+
+    // Highlight active card
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, i) => {
+        card.classList.toggle('active', i === window.carouselData.currentIndex);
+    });
+}
+
+// Initialize & recalculate on resize
+window.addEventListener('load', updateCarouselLayout);
+window.addEventListener('resize', updateCarouselLayout);
+
+  // Theme toggle
+  themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+    document.body.classList.toggle("light");
+  });
+  
+  // Error display
+  function showError(inputId,msgId,msg){
+    const input=document.getElementById(inputId),error=document.getElementById(msgId);
+    input.classList.add('shake');input.style.boxShadow="0 0 8px #ff6b6b";
+    input.classList.add('shake');input.style.border= "1px solid #ff6b6b";
+    error.textContent=msg;error.classList.add('show-error');
+    setTimeout(()=>{input.classList.remove('shake');input.style.boxShadow='';error.classList.remove('show-error');},2000);
+    setTimeout(()=>{input.classList.remove('shake');input.style.border='';error.classList.remove('show-error');},2000);
+  }
+  function emphasizeResult(id) {
+    const result = document.getElementById(id);
+    result.classList.add("result-emphasize");
+
+    // Remove after animation (so you can re-trigger on next result)
+    setTimeout(() => {
+        result.classList.remove("result-emphasize");
+    }, 1500);
+  }
+
+// Speed Conversion
+function convertSpeed() {
+    let input = parseFloat(document.getElementById("speedInput").value.trim());
+    let resultField = document.getElementById("speedResult");
+    if (isNaN(input)) { 
+        showError("speedInput","speed-error","Invalid number"); 
+        return; 
+    }
+    let from = document.getElementById("speed-left").value;
+    let to = document.getElementById("speed-right").value;
+    let result = speedConvert(input, from, to).toFixed(2);
+
+    resultField.value = result + " " + speedUnitSymbol(to);
+    document.getElementById("speedInput").value = input + " " + speedUnitSymbol(from);
+    emphasizeResult("speedResult");
+}
+
+function speedUnitSymbol(unit) {
+    switch(unit) {
+        case "mps": return "m/s";
+        case "kph": return "km/h";
+        case "mph": return "mph";
+        case "knots": return "knots";
+    }
+}
+
+function speedConvert(val, from, to) {
+    // Convert all to m/s
+    let mps;
+    if(from==="mps") mps = val;
+    if(from==="kph") mps = val / 3.6;
+    if(from==="mph") mps = val * 0.44704;
+    if(from==="knots") mps = val * 0.514444;
+    // Convert m/s to target
+    if(to==="mps") return mps;
+    if(to==="kph") return mps * 3.6;
+    if(to==="mph") return mps / 0.44704;
+    if(to==="knots") return mps / 0.514444;
+}
+
+let speedRotation = 0;
+function swapSpeed() {
+    clearSpeed();
+    const btn = document.querySelector("#speed-left").nextElementSibling;
+    const arrow = btn.querySelector(".arrow");
+    speedRotation += 360;
+    arrow.style.transition = "transform 0.6s ease";
+    arrow.style.transform = `rotate(${speedRotation}deg)`;
+    let left = document.getElementById("speed-left");
+    let right = document.getElementById("speed-right");
+    [left.value, right.value] = [right.value, left.value];
+}
+function clearSpeed() {
+    document.getElementById("speedInput").value = '';
+    document.getElementById("speedResult").value = '';
+}
+
+// Area Conversion
+function convertArea() {
+    let input = parseFloat(document.getElementById("areaInput").value.trim());
+    let resultField = document.getElementById("areaResult");
+    if (isNaN(input)) { 
+        showError("areaInput","area-error","Invalid number"); 
+        return; 
+    }
+    let from = document.getElementById("area-left").value;
+    let to = document.getElementById("area-right").value;
+    let result = areaConvert(input, from, to).toFixed(4);
+
+    resultField.value = result + " " + areaUnitSymbol(to);
+    document.getElementById("areaInput").value = input + " " + areaUnitSymbol(from);
+    emphasizeResult("areaResult");
+}
+
+function areaUnitSymbol(unit) {
+    switch(unit) {
+        case "sqm": return "m²";
+        case "sqkm": return "km²";
+        case "sqft": return "ft²";
+        case "acre": return "acre";
+        case "hectare": return "ha";
+    }
+}
+
+function areaConvert(val, from, to) {
+    // Convert to m²
+    let sqm;
+    if(from==="sqm") sqm = val;
+    if(from==="sqkm") sqm = val * 1e6;
+    if(from==="sqft") sqm = val * 0.092903;
+    if(from==="acre") sqm = val * 4046.856;
+    if(from==="hectare") sqm = val * 10000;
+    // Convert m² to target
+    if(to==="sqm") return sqm;
+    if(to==="sqkm") return sqm / 1e6;
+    if(to==="sqft") return sqm / 0.092903;
+    if(to==="acre") return sqm / 4046.856;
+    if(to==="hectare") return sqm / 10000;
+}
+
+let areaRotation = 0;
+function swapArea() {
+    clearArea();
+    const btn = document.querySelector("#area-left").nextElementSibling;
+    const arrow = btn.querySelector(".arrow");
+    areaRotation += 360;
+    arrow.style.transition = "transform 0.6s ease";
+    arrow.style.transform = `rotate(${areaRotation}deg)`;
+    let left = document.getElementById("area-left");
+    let right = document.getElementById("area-right");
+    [left.value, right.value] = [right.value, left.value];
+}
+function clearArea() {
+    document.getElementById("areaInput").value = '';
+    document.getElementById("areaResult").value = '';
+}
+// Angle Conversion
+function convertAngle() {
+    let input = parseFloat(document.getElementById("angleInput").value.trim());
+    let resultField = document.getElementById("angleResult");
+    if (isNaN(input)) { 
+        showError("angleInput","angle-error","Invalid number"); 
+        return; 
+    }
+    let from = document.getElementById("angle-left").value;
+    let to = document.getElementById("angle-right").value;
+    let result = angleConvert(input, from, to).toFixed(4);
+
+    resultField.value = result + " " + angleUnitSymbol(to);
+    document.getElementById("angleInput").value = input + " " + angleUnitSymbol(from);
+    emphasizeResult("angleResult");
+}
+
+function angleUnitSymbol(unit) {
+    switch(unit) {
+        case "degree": return "°";
+        case "radian": return "rad";
+        case "gradian": return "grad";
+    }
+}
+
+function angleConvert(val, from, to) {
+    // Convert to degrees
+    let deg;
+    if(from==="degree") deg = val;
+    if(from==="radian") deg = val * (180 / Math.PI);
+    if(from==="gradian") deg = val * 0.9;
+    // Convert degrees to target
+    if(to==="degree") return deg;
+    if(to==="radian") return deg * (Math.PI / 180);
+    if(to==="gradian") return deg / 0.9;
+}
+
+let angleRotation = 0;
+function swapAngle() {
+    clearAngle();
+    const btn = document.querySelector("#angle-left").nextElementSibling;
+    const arrow = btn.querySelector(".arrow");
+    angleRotation += 360;
+    arrow.style.transition = "transform 0.6s ease";
+    arrow.style.transform = `rotate(${angleRotation}deg)`;
+    let left = document.getElementById("angle-left");
+    let right = document.getElementById("angle-right");
+    [left.value, right.value] = [right.value, left.value];
+}
+function clearAngle() {
+    document.getElementById("angleInput").value = '';
+    document.getElementById("angleResult").value = '';
+}
+
+// Time Conversion
+function convertTime() {
+    let input = parseFloat(document.getElementById("timeInput").value.trim());
+    let resultField = document.getElementById("timeResult");
+    if (isNaN(input)) { 
+        showError("timeInput","time-error","Invalid number"); 
+        return; 
+    }
+    let from = document.getElementById("time-left").value;
+    let to = document.getElementById("time-right").value;
+    let result = timeConvert(input, from, to).toFixed(4);
+
+    resultField.value = result + " " + timeUnitSymbol(to);
+    document.getElementById("timeInput").value = input + " " + timeUnitSymbol(from);
+    emphasizeResult("timeResult");
+}
+
+function timeUnitSymbol(unit) {
+    switch(unit) {
+        case "sec": return "s";
+        case "min": return "min";
+        case "hour": return "h";
+        case "day": return "d";
+    }
+}
+
+function timeConvert(val, from, to) {
+    // Convert to seconds
+    let sec;
+    if(from==="sec") sec = val;
+    if(from==="min") sec = val * 60;
+    if(from==="hour") sec = val * 3600;
+    if(from==="day") sec = val * 86400;
+    // Convert seconds to target
+    if(to==="sec") return sec;
+    if(to==="min") return sec / 60;
+    if(to==="hour") return sec / 3600;
+    if(to==="day") return sec / 86400;
+}
+
+let timeRotation = 0;
+function swapTime() {
+    clearTime();
+    const btn = document.querySelector("#time-left").nextElementSibling;
+    const arrow = btn.querySelector(".arrow");
+    timeRotation += 360;
+    arrow.style.transition = "transform 0.6s ease";
+    arrow.style.transform = `rotate(${timeRotation}deg)`;
+    let left = document.getElementById("time-left");
+    let right = document.getElementById("time-right");
+    [left.value, right.value] = [right.value, left.value];
+}
+function clearTime() {
+    document.getElementById("timeInput").value = '';
+    document.getElementById("timeResult").value = '';
+}
+// Run placeholder update when dropdown changes
+document.getElementById("length-left").addEventListener("change", updateLengthPlaceholder);
+updateLengthPlaceholder(); 
+</script>
+</body>
+</html>

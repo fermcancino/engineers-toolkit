@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fundamental Physical Measurements</title>
+  <style>
+    * {
+      margin:0; 
+      padding:0; 
+      box-sizing:border-box; 
+      font-family:'Poppins',sans-serif; 
+      transition:background 0.3s, color 0.3s;
+    }
+    body {
+      height:100vh; 
+      display:flex;
+      flex-direction: column; 
+      justify-content:center; 
+      align-items:center; 
+      background:#1e1e1e; 
+      color:#fff;
+      margin: 0;
+      padding: 0;
+    }
+    .light {
+      background:#e0e0e0; 
+      color:#333;
+    }
+
+    /* Topbar */
+    .topbar {
+      width: 100%;
+      max-width: 450px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 15px 15px;
+      margin-bottom: 20px;
+      font-size: 1.2em;
+      font-weight: bold;
+      background: linear-gradient(135deg, #3a3a3a, #1e1e1e);
+      color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      letter-spacing: 0.9px;
+      gap: 1rem;
+    }
+    .light .topbar {
+      background:linear-gradient(135deg,#f1f1f1,#d8d8d8); 
+      color:#222;
+    }
+    /* Theme Toggle */
+    .switch {
+      width: 60px;
+      height: 32px;
+      background: #555;
+      box-shadow: 0 2px 6px rgba(255,255,255,0.15);
+      border-radius: 30px;
+      position: relative;
+      transition: background 0.3s ease;
+      display: flex;
+      align-items: center;
+      padding: 3px;
+      cursor: pointer;
+    }
+
+    .slider {
+      width: 26px;
+      height: 26px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translateX(0);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    body.light .switch {
+      background: #f0f0f0;
+      border: 1px solid #bbb;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+
+    body.light .switch .slider {
+      transform: translateX(16px);
+    }
+    /* Carousel */
+    .carousel-container {
+      width: 100%;
+      max-width: 420px;
+      height: 460px;
+      perspective: 1200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      margin: 20px auto;
+    }
+    .carousel {
+      width:100%; 
+      height:100%; 
+      position:relative; 
+      transform-style:preserve-3d; 
+      transition:transform 0.8s; 
+      transform: translateZ(-175px);
+    }
+    .card {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 25px;
+      background: #2a2a2a;
+      box-shadow: 9px 9px 16px #141414, -9px -9px 16px #3a3a3a;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      opacity: 0.4;
+      transition: opacity 0.4s ease;
+    }
+    .card.active {
+      opacity: 1; 
+    }
+    .light .card {
+      background:#e0e0e0; 
+      box-shadow: 9px 9px 16px #b8b9be, 
+        -9px -9px 16px #ffffff;
+    }
+    .card h1 {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: inherit;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .card h2 {
+      margin-bottom:20px; 
+      font-size:1.1em; 
+      display:flex; 
+      justify-content:center; 
+      align-items:center; 
+      width:100%; gap:10px;
+    }
+    .card h3 {
+      font-size: 1.3em;
+      margin-bottom: 15px;
+    }
+    .title {
+      font-family: 'Courier New', monospace;
+    }
+
+    .swap-btn {
+      background:none; 
+      border:none; 
+      width:35px; 
+      height:35px; 
+      border-radius:20px; 
+      font-size:1em;
+      cursor:pointer; 
+      color:inherit;
+      margin:0 10px; 
+      display:inline-flex; 
+      align-items:center; 
+      justify-content:center;
+      transition:transform 0.6s ease; 
+      transform:rotate(0deg);
+    }
+    .swap-btn:hover,
+    button:hover {
+      background:rgba(255,255,255,0.1); 
+      transform:scale(0.95);
+    }
+    .swap-btn .arrow {
+      display:inline-block; 
+      transition:transform 0.6s ease;
+    }
+    .swap-btn.spin .arrow {
+      transform:rotate(360deg);
+    }
+    select {
+      background: #3a3a3a;
+      color: inherit;
+      border: none;
+      border-radius: 10px;
+      padding: 5px 10px;
+      font-size: 1em;
+      box-shadow: inset 4px 4px 6px #141414, inset -4px -4px 6px #3a3a3a;
+    }
+    select.one {
+      background: #3a3a3a;
+      color: inherit;
+      border: none;
+      border-radius: 10px;
+      padding: 5px 10px;
+      font-size: 1em;
+      letter-spacing: 0.1em;
+      box-shadow: inset 4px 4px 6px #141414, inset -4px -4px 6px #3a3a3a;
+    }
+    select.two {
+      background: #3a3a3a;
+      color: inherit;
+      border: none;
+      border-radius: 10px;
+      padding: 5px 10px;
+      font-size: 1em;
+      letter-spacing: 0.06em;
+      box-shadow: inset 4px 4px 6px #141414, inset -4px -4px 6px #3a3a3a;
+    }
+    
+    .light select {
+      background: #f3f3f3;
+      color: #222;
+      box-shadow: inset 4px 4px 6px #b8b9be, inset -4px -4px 6px #ffffff;
+    }
+     
+    .input-group {
+      margin:8px 0; 
+      width:100%; 
+      position:relative;
+    }
+    input {
+      width:100%; 
+      padding:10px; 
+      font-size:1.2em; 
+      text-align:center; 
+      border:none; 
+      outline:none; 
+      border-radius:15px;
+      box-shadow:inset 4px 4px 6px #141414, 
+        inset -4px -4px 6px #3a3a3a; 
+      background:#3a3a3a;
+      color:#fff;
+    }
+    input::placeholder {
+      color:#aaa;
+    }
+    .light input {
+      background:#f3f3f3;
+      color:#222; 
+      box-shadow:inset 4px 4px 6px #b8b9be, 
+        inset -4px -4px 6px #ffffff;
+    }
+    input:focus {
+      box-shadow:inset 1px 1px 2px #00f2fe, inset -1px -1px 2px #00c6ff;
+    }
+   
+
+    .buttons-row {
+      display:flex; 
+      gap:10px; 
+      margin-top:15px; 
+      width:100%;
+      perspective: 500px; 
+    }
+    button {
+      flex: 1;
+      padding: 10px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      background: #2a2a2a;
+      color: inherit;
+      box-shadow: 4px 4px 6px #141414, -4px -4px 6px #3a3a3a;
+      transition: transform 0.2s;
+      transform-style: preserve-3d;
+    }
+
+    button:active {
+      animation: bounce3D 0.4s ease forwards;
+      box-shadow: 
+        0 0 12px rgba(79,172,254,0.9),
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+    }
+    .light button:active {
+      box-shadow: 0 0 12px rgba(79,172,254,0.9),
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+      }
+       
+    @keyframes bounce {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+          
+    .light button {
+      background:#e0e0e0;
+      box-shadow:4px 4px 6px #b8b9be, 
+        -4px -4px 6px #ffffff;
+    }
+
+     
+    .controls {
+      position: absolute;
+      bottom: -60px;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      perspective: 500px; 
+    }
+    .controls button {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      font-size: 1.5em;
+      transition: transform 0.2s;
+      transform-style: preserve-3d;
+    }
+
+    .controls button:hover {
+      animation: bounce3D 0.4s ease forwards;
+      box-shadow: 
+        0 0 12px rgba(0, 255, 128, 0.9),
+        inset 3px 3px 6px rgba(0, 0, 0, 0.6),
+        inset -3px -3px 6px rgba(0, 255, 128, 0.2);
+        transform: translateY(-2px);
+      }
+
+    @keyframes bounce3D {
+      0% { transform: rotateX(0deg) scale(1); }
+      50% { transform: rotateX(20deg) scale(1.1); }
+      100% { transform: rotateX(0deg) scale(1); }
+    }
+
+    .error-message {
+      color:#ff6b6b; 
+      font-size:0.9em; 
+      margin-top:5px; 
+      text-align:center; 
+      opacity:0; 
+      transition:opacity 0.3s;
+    }
+    .show-error {
+      opacity:1;
+    }
+    .shake {
+      animation:shake 0.3s;
+    }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+    .result-emphasize {
+      animation: bounceResult 0.6s ease;
+      box-shadow: 0 0 12px rgba(79, 172, 254, 0.9),
+                  0 0 20px rgba(0, 242, 254, 0.6);
+      }
+
+    body.light .result-emphasize {
+      box-shadow: 0 0 12px rgba(79, 172, 254, 0.7),
+                  0 0 20px rgba(0, 242, 254, 0.5);
+      }
+
+    @keyframes bounceResult {
+      0%   { transform: scale(1); }
+      30%  { transform: scale(1.08); }
+      60%  { transform: scale(0.95); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body class="dark">
+  <div class="topbar">
+    <div>Fundamental Physical Measurements</div>
+     <div id="themeToggle" class="switch">
+     <div class="slider"></div>
+    </div>
+  </div>
+
+  <div class="carousel-container">
+  <div class="carousel" id="carousel">
+  <!-- Card 1: Temperature Converter -->
+  <div class="card">
+    <h1>Temperature Converter</h1>
+    <h2>
+      <select class="one" id="temp-left">
+        <option value="Celsius">Celsius</option>
+        <option value="Fahrenheit">Fahrenheit</option>
+        <option value="Kelvin">Kelvin</option>
+        <option value="Rankine">Rankine</option>
+      </select>
+      <button class="swap-btn" onclick="swapTemp()"><span class="arrow">→</span></button>
+      <select class="one" id="temp-right">
+        <option value="Fahrenheit">Fahrenheit</option>
+        <option value="Celsius">Celsius</option>
+        <option value="Kelvin">Kelvin</option>
+        <option value="Rankine">Rankine</option>
+      </select>
+    </h2>
+    <div class="input-group">
+      <input type="text" id="tempInput" placeholder="Enter Value">
+      <div class="error-message" id="temp-error"></div>
+    </div>
+    <div class="input-group">
+      <input type="text" id="tempResult" placeholder="Result" readonly>
+    </div>
+    <div class="buttons-row">
+      <button onclick="convertTemp()">Calculate</button>
+      <button onclick="clearTemp()">Clear</button>
+    </div>
+  </div>
+
+  <!-- Card 2: Length Converter -->
+  <div class="card">
+    <h1>Length Converter</h1>
+    <h2>
+      <select class="two" id="length-left">
+        <option value="mm">Millimeters</option>
+        <option value="cm">Centimeters</option>
+        <option value="m" selected>Meters</option>
+        <option value="km">Kilometers</option>
+        <option value="in">Inches</option>
+        <option value="ft">Feet</option>
+        <option value="yd">Yards</option>
+        <option value="mi">Miles</option>
+      </select>
+      <button class="swap-btn" onclick="swapLength()"><span class="arrow">→</span></button>
+      <select class="two" id="length-right">
+        <option value="cm">Centimeters</option>
+        <option value="mm">Millimeters</option>
+        <option value="m">Meters</option>
+        <option value="km">Kilometers</option>
+        <option value="in">Inches</option>
+        <option value="ft">Feet</option>
+        <option value="yd">Yards</option>
+        <option value="mi">Miles</option>
+      </select>
+    </h2>
+    <div class="input-group">
+      <input type="text" id="lengthInput" placeholder="Enter Value">
+      <div class="error-message" id="length-error"></div>
+    </div>
+    <div class="input-group">
+      <input type="text" id="lengthResult" placeholder="Result" readonly>
+    </div>
+    <div class="buttons-row">
+      <button onclick="convertLength()">Calculate</button>
+      <button onclick="clearLength()">Clear</button>
+    </div>
+  </div>
+
+  <!-- Card 3: Weight / Mass Converter -->
+  <div class="card">
+    <h1>Weight / Mass Converter</h1>
+    <h2>
+      <select id="weight-left">
+        <option value="mg">Milligrams</option>
+        <option value="g">Grams</option>
+        <option value="kg" selected>Kilograms</option>
+        <option value="t">Metric Tonnes</option>
+        <option value="oz">Ounces</option>
+        <option value="lb">Pounds</option>
+        <option value="st">Stones</option>
+      </select>
+      <button class="swap-btn" onclick="swapWeight()"><span class="arrow">→</span></button>
+      <select id="weight-right">
+        <option value="g">Grams</option>
+        <option value="mg">Milligrams</option>
+        <option value="kg">Kilograms</option>
+        <option value="t">Metric Tonnes</option>
+        <option value="oz">Ounces</option>
+        <option value="lb">Pounds</option>
+        <option value="st">Stones</option>
+      </select>
+    </h2>
+    <div class="input-group">
+      <input type="text" id="weightInput" placeholder="Enter Value">
+      <div class="error-message" id="weight-error"></div>
+    </div>
+    <div class="input-group">
+      <input type="text" id="weightResult" placeholder="Result" readonly>
+    </div>
+    <div class="buttons-row">
+      <button onclick="convertWeight()">Calculate</button>
+      <button onclick="clearWeight()">Clear</button>
+    </div>
+  </div>
+
+  <!-- Card 4: Volume Converter -->
+  <div class="card">
+    <h1>Volume Converter</h1>
+    <h2>
+      <select id="volume-left">
+        <option value="ml">Milliliters</option>
+        <option value="l" selected>Liters</option>
+        <option value="m3">Cubic Meters</option>
+        <option value="tsp">Teaspoons</option>
+        <option value="tbsp">Tablespoons</option>
+        <option value="cup">Cups</option>
+        <option value="pt">Pints</option>
+        <option value="qt">Quarts</option>
+        <option value="gal">Gallons</option>
+      </select>
+      <button class="swap-btn" onclick="swapVolume()"><span class="arrow">→</span></button>
+      <select id="volume-right">
+        <option value="ml">Milliliters</option>
+        <option value="l">Liters</option>
+        <option value="m3">Cubic Meters</option>
+        <option value="tsp">Teaspoons</option>
+        <option value="tbsp">Tablespoons</option>
+        <option value="cup">Cups</option>
+        <option value="pt">Pints</option>
+        <option value="qt">Quarts</option>
+        <option value="gal">Gallons</option>
+      </select>
+    </h2>
+    <div class="input-group">
+      <input type="text" id="volumeInput" placeholder="Enter Value">
+      <div class="error-message" id="volume-error"></div>
+    </div>
+    <div class="input-group">
+      <input type="text" id="volumeResult" placeholder="Result" readonly>
+    </div>
+    <div class="buttons-row">
+      <button onclick="convertVolume()">Calculate</button>
+      <button onclick="clearVolume()">Clear</button>
+    </div>
+  </div>
+</div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button onclick="prevCard()">‹</button>
+    <button onclick="nextCard()">›</button>
+  </div>
+</div>
+
+<script>
+function updateCarouselLayout() {
+    const carousel = document.getElementById('carousel');
+    const cards = document.querySelectorAll('.card');
+    const numCards = cards.length;
+
+    if (numCards === 0) return;
+
+    const cardWidth = carousel.offsetWidth;
+
+    const translateZ = Math.round((cardWidth / 2) / Math.tan(Math.PI / numCards));
+    const angleStep = 360 / numCards;
+
+    let currentIndex = window.carouselData ? window.carouselData.currentIndex : 0;
+
+    // Position each card dynamically
+    cards.forEach((card, index) => {
+        card.style.transform = `rotateY(${index * angleStep}deg) translateZ(${translateZ}px)`;
+    });
+
+    // Save globals for snapping rotation
+    window.carouselData = { 
+        translateZ, 
+        angleStep, 
+        currentIndex,
+        total: numCards
+    };
+
+
+    const newAngle = -currentIndex * angleStep;
+    carousel.style.transform = `translateZ(-${translateZ}px) rotateY(${newAngle}deg)`;
+
+    // Highlight active card
+    cards.forEach((card, i) => {
+        card.classList.toggle('active', i === currentIndex);
+    });
+}
+
+// Navigation
+function nextCard() { rotateToIndex(window.carouselData.currentIndex + 1); }
+function prevCard() { rotateToIndex(window.carouselData.currentIndex - 1); }
+
+function rotateToIndex(index) {
+    const { translateZ, angleStep, total } = window.carouselData;
+    window.carouselData.currentIndex = (index + total) % total; // Wrap around
+    const newAngle = -window.carouselData.currentIndex * angleStep;
+    document.getElementById('carousel').style.transform = `translateZ(-${translateZ}px) rotateY(${newAngle}deg)`;
+
+    // Highlight active card
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, i) => {
+        card.classList.toggle('active', i === window.carouselData.currentIndex);
+    });
+}
+
+// Initialize & recalculate on resize
+window.addEventListener('load', updateCarouselLayout);
+window.addEventListener('resize', updateCarouselLayout);
+
+  // Theme toggle
+  themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+    document.body.classList.toggle("light");
+  });
+
+  // Error display
+  function showError(inputId,msgId,msg){
+    const input=document.getElementById(inputId),error=document.getElementById(msgId);
+    input.classList.add('shake');input.style.boxShadow="0 0 8px #ff6b6b";
+    input.classList.add('shake');input.style.border= "1px solid #ff6b6b";
+    error.textContent=msg;error.classList.add('show-error');
+    setTimeout(()=>{input.classList.remove('shake');input.style.boxShadow='';error.classList.remove('show-error');},2000);
+    setTimeout(()=>{input.classList.remove('shake');input.style.border='';error.classList.remove('show-error');},2000);
+  }
+  function emphasizeResult(id) {
+    const result = document.getElementById(id);
+    result.classList.add("result-emphasize");
+
+    // Remove after animation (so you can re-trigger on next result)
+    setTimeout(() => {
+        result.classList.remove("result-emphasize");
+    }, 1500);
+  }
+
+// Temperature Conversion
+function convertTemp() {
+    let input = parseFloat(document.getElementById("tempInput").value.trim());
+    let resultField = document.getElementById("tempResult");
+    if (isNaN(input)) { 
+        showError("tempInput","temp-error","Invalid number"); 
+        return; 
+    }
+    let from = document.getElementById("temp-left").value;
+    let to = document.getElementById("temp-right").value;
+    let result = tempConvert(input, from, to).toFixed(2);
+
+    // Add temperature units
+    resultField.value = result + "°" + tempUnitSymbol(to);
+    document.getElementById("tempInput").value = input + "°" + tempUnitSymbol(from);
+    emphasizeResult("tempResult");
+}
+
+function tempUnitSymbol(unit) { 
+    switch(unit) {
+        case "Celsius": return "C";
+        case "Fahrenheit": return "F";
+        case "Kelvin": return "K";
+        case "Rankine": return "R";
+    }
+}
+
+function tempConvert(val, from, to) {
+    let C;
+    if(from==="Celsius") C=val;
+    if(from==="Fahrenheit") C=(val-32)*5/9;
+    if(from==="Kelvin") C=val-273.15;
+    if(from==="Rankine") C=(val-491.67)*5/9;
+    if(to==="Celsius") return C;
+    if(to==="Fahrenheit") return C*9/5+32;
+    if(to==="Kelvin") return C+273.15;
+    if(to==="Rankine") return (C+273.15)*9/5;
+}
+
+let tempRotation = 0;
+
+function swapTemp() {
+    clearTemp();
+
+    const btn = document.querySelector("#temp-left").nextElementSibling;
+    const arrow = btn.querySelector(".arrow");
+
+    tempRotation += 360;
+    arrow.style.transition = "transform 0.6s ease";
+    arrow.style.transform = `rotate(${tempRotation}deg)`;
+
+    let left = document.getElementById("temp-left");
+    let right = document.getElementById("temp-right");
+    [left.value, right.value] = [right.value, left.value];
+}
+function clearTemp() {
+    document.getElementById("tempInput").value = '';
+    document.getElementById("tempResult").value = '';
+}
+
+// Length Conversion
+function convertLength() {
+    let inputField = document.getElementById("lengthInput");
+    let input = parseFloat(inputField.value.trim());
+    let resultField = document.getElementById("lengthResult");
+    let from = document.getElementById("length-left").value;
+    let to = document.getElementById("length-right").value;
+
+    if (isNaN(input)) { 
+        showError("lengthInput","length-error",`Please enter a valid number in ${unitName(from)}`); 
+        return; 
+    }
+
+    let result = lengthConvert(input, from, to).toFixed(4);
+    resultField.value = result + " " + lengthUnitSymbol(to);
+    inputField.value = input + " " + lengthUnitSymbol(from);
+    emphasizeResult("lengthResult");
+}
+
+function lengthConvert(val, from, to) {
+    const toMeters = {
+        mm: val => val / 1000,
+        cm: val => val / 100,
+        m: val => val,
+        km: val => val * 1000,
+        in: val => val * 0.0254,
+        ft: val => val * 0.3048,
+        yd: val => val * 0.9144,
+        mi: val => val * 1609.344
+    };
+    const fromMeters = {
+        mm: val => val * 1000,
+        cm: val => val * 100,
+        m: val => val,
+        km: val => val / 1000,
+        in: val => val / 0.0254,
+        ft: val => val / 0.3048,
+        yd: val => val / 0.9144,
+        mi: val => val / 1609.344
+    };
+    return fromMeters[to](toMeters[from](val));
+}
+
+// Length
+let lengthRotation = 0;
+function swapLength() {
+    clearLength();
+    const arrow = document.querySelector("#length-left").nextElementSibling.querySelector(".arrow");
+    lengthRotation += 360;
+    arrow.style.transition = "transform 0.6s ease";
+    arrow.style.transform = `rotate(${lengthRotation}deg)`;
+    let left = document.getElementById("length-left");
+    let right = document.getElementById("length-right");
+    [left.value, right.value] = [right.value, left.value];
+    updateLengthPlaceholder();
+}
+
+function clearLength() {
+    document.getElementById("lengthInput").value = '';
+    document.getElementById("lengthResult").value = '';
+}
+
+// Update placeholder dynamically
+function updateLengthPlaceholder() {
+    let from = document.getElementById("length-left").value;
+    document.getElementById("lengthInput").placeholder = `Enter value in ${unitName(from)}`;
+}
+
+// Unit names for placeholder & errors
+function unitName(unit) {
+    switch(unit) {
+        case "mm": return "millimeters";
+        case "cm": return "centimeters";
+        case "m": return "meters";
+        case "km": return "kilometers";
+        case "in": return "inches";
+        case "ft": return "feet";
+        case "yd": return "yards";
+        case "mi": return "miles";
+    }
+}
+
+// Separate length unit symbols
+function lengthUnitSymbol(unit) {
+    switch(unit) {
+        case "mm": return "mm";
+        case "cm": return "cm";
+        case "m": return "m";
+        case "km": return "km";
+        case "in": return "in";
+        case "ft": return "ft";
+        case "yd": return "yd";
+        case "mi": return "mi";
+    }
+}
+// Weight / Mass Conversion
+function convertWeight() {
+    let inputField = document.getElementById("weightInput");
+    let input = parseFloat(inputField.value.trim());
+    let resultField = document.getElementById("weightResult");
+    let from = document.getElementById("weight-left").value;
+    let to = document.getElementById("weight-right").value;
+
+    if (isNaN(input)) { 
+        showError("weightInput","weight-error",`Invalid number`); 
+        return; 
+    }
+
+    let result = weightConvert(input, from, to).toFixed(4);
+    resultField.value = result + " " + weightUnitSymbol(to);
+    inputField.value = input + " " + weightUnitSymbol(from);
+    emphasizeResult("weightResult");
+}
+
+function weightConvert(val, from, to) {
+    const toKg = {
+        mg: v => v / 1e6,
+        g: v => v / 1000,
+        kg: v => v,
+        t: v => v * 1000,
+        oz: v => v * 0.0283495,
+        lb: v => v * 0.453592,
+        st: v => v * 6.35029
+    };
+    const fromKg = {
+        mg: v => v * 1e6,
+        g: v => v * 1000,
+        kg: v => v,
+        t: v => v / 1000,
+        oz: v => v / 0.0283495,
+        lb: v => v / 0.453592,
+        st: v => v / 6.35029
+    };
+    return fromKg[to](toKg[from](val));
+}
+
+// Weight
+let weightRotation = 0;
+function swapWeight() {
+    clearWeight();
+    const arrow = document.querySelector("#weight-left").nextElementSibling.querySelector(".arrow");
+    weightRotation += 360;
+    arrow.style.transition = "transform 0.6s ease";
+    arrow.style.transform = `rotate(${weightRotation}deg)`;
+    let left = document.getElementById("weight-left");
+    let right = document.getElementById("weight-right");
+    [left.value, right.value] = [right.value, left.value];
+}
+
+function clearWeight() {
+    document.getElementById("weightInput").value = '';
+    document.getElementById("weightResult").value = '';
+}
+
+function weightUnitSymbol(unit) {
+    switch(unit) {
+        case "mg": return "mg";
+        case "g": return "g";
+        case "kg": return "kg";
+        case "t": return "t";
+        case "oz": return "oz";
+        case "lb": return "lb";
+        case "st": return "st";
+    }
+}
+// Volume Conversion
+function convertVolume() {
+    let inputField = document.getElementById("volumeInput");
+    let input = parseFloat(inputField.value.trim());
+    let resultField = document.getElementById("volumeResult");
+    let from = document.getElementById("volume-left").value;
+    let to = document.getElementById("volume-right").value;
+
+    if (isNaN(input)) { 
+        showError("volumeInput","volume-error","Invalid number"); 
+        return; 
+    }
+
+    let result = volumeConvert(input, from, to).toFixed(4);
+    resultField.value = result + " " + volumeUnitSymbol(to);
+    inputField.value = input + " " + volumeUnitSymbol(from);
+    emphasizeResult("volumeResult");
+}
+
+function volumeConvert(val, from, to) {
+    const toLiters = {
+        ml: v => v / 1000,
+        l: v => v,
+        m3: v => v * 1000,
+        tsp: v => v * 0.00492892,
+        tbsp: v => v * 0.0147868,
+        cup: v => v * 0.24,
+        pt: v => v * 0.473176,
+        qt: v => v * 0.946353,
+        gal: v => v * 3.78541
+    };
+    const fromLiters = {
+        ml: v => v * 1000,
+        l: v => v,
+        m3: v => v / 1000,
+        tsp: v => v / 0.00492892,
+        tbsp: v => v / 0.0147868,
+        cup: v => v / 0.24,
+        pt: v => v / 0.473176,
+        qt: v => v / 0.946353,
+        gal: v => v / 3.78541
+    };
+    return fromLiters[to](toLiters[from](val));
+}
+
+// Volume
+let volumeRotation = 0;
+function swapVolume() {
+    clearVolume();
+    const arrow = document.querySelector("#volume-left").nextElementSibling.querySelector(".arrow");
+    volumeRotation += 360;
+    arrow.style.transition = "transform 0.6s ease";
+    arrow.style.transform = `rotate(${volumeRotation}deg)`;
+    let left = document.getElementById("volume-left");
+    let right = document.getElementById("volume-right");
+    [left.value, right.value] = [right.value, left.value];
+}
+
+function clearVolume() {
+    document.getElementById("volumeInput").value = '';
+    document.getElementById("volumeResult").value = '';
+}
+
+function volumeUnitSymbol(unit) {
+    switch(unit) {
+        case "ml": return "ml";
+        case "l": return "L";
+        case "m3": return "m³";
+        case "tsp": return "tsp";
+        case "tbsp": return "tbsp";
+        case "cup": return "cup";
+        case "pt": return "pt";
+        case "qt": return "qt";
+        case "gal": return "gal";
+    }
+}
+// Run placeholder update when dropdown changes
+document.getElementById("length-left").addEventListener("change", updateLengthPlaceholder);
+updateLengthPlaceholder(); // Initialize on load
+</script>
+</body>
+</html>
