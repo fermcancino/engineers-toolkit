@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Number Series Generator</title>
+  <style>
+    * {
+      margin:0; 
+      padding:0; 
+      box-sizing:border-box; 
+      font-family:'Poppins',sans-serif; 
+      transition:background-color 0.3s, color 0.3s;
+    }
+    body {
+      height:100vh; 
+      display:flex;
+      flex-direction: column; 
+      justify-content:center; 
+      align-items:center; 
+      background:#1e1e1e; 
+      color:#fff;
+      margin: 0;
+      padding: 0; 
+    }
+    
+    .light {
+      background:#e0e0e0; 
+      color:#333;
+    }
+
+    .topbar {
+      width: 100%;
+      max-width: 450px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 40px;
+      margin-bottom: 20px;
+      font-size: 1.2em;
+      font-weight: bold;
+      background: linear-gradient(135deg, #3a3a3a, #1e1e1e);
+      color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      letter-spacing: 1px;
+    }
+    .light .topbar {
+      background:linear-gradient(135deg,#f1f1f1,#d8d8d8); 
+      color:#222;
+    }
+    /* Theme Toggle */
+    .switch {
+      width: 50px;
+      height: 28px;
+      background-color: #555;
+      box-shadow: 0 2px 6px rgba(255,255,255,0.15);
+      border-radius: 30px;
+      position: relative;
+      transition: background-c0lor 0.3s ease;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+    .slider {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translateX(0);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    body.light .switch {
+      background: #f0f0f0;
+      border: 1px solid #bbb;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+
+    body.light .switch .slider {
+      transform: translateX(20px);
+    }
+    
+    .container {
+      width:95%; 
+      max-width:420px; 
+      perspective: 1200px;
+      padding:25px; 
+      border-radius:30px;
+      background:#2a2a2a; 
+      box-shadow:8px 8px 18px rgba(0,0,0,0.6), 
+                -8px -8px 18px rgba(70,70,70,0.4);
+              }
+    .light .container {
+      background:#e0e0e0; 
+      box-shadow:8px 8px 18px #b8b9be, 
+                -8px -8px 18px #ffffff;
+    }
+
+    h1 {
+     font-size: 1.1em;
+     letter-spacing: 1px;
+     font-weight: bold;
+     color: inherit;
+     text-align: center;
+     margin-bottom: 30px; 
+    }
+
+    .input-group {
+      margin:10px 0; 
+      position:relative;
+    }
+    select, input {
+      width:100%; 
+      padding:10px; 
+      font-size:1.05em; 
+      text-align:center; 
+      border:none; 
+      outline:none; 
+      border-radius:15px;
+      box-shadow:inset 4px 4px 6px #141414, 
+                 inset -4px -4px 6px #3a3a3a; 
+      background:#3a3a3a; 
+      color:#fff;
+    }
+    .light select, 
+    .light input {
+      background:#f3f3f3; 
+      color:#222; 
+      box-shadow:inset 4px 4px 6px #b8b9be, 
+                 inset -4px -4px 6px #ffffff;
+    }
+    input:focus, 
+    select:focus {
+      box-shadow:inset 1px 1px 2px #00f2fe, 
+                 inset -1px -1px 2px #00c6ff;
+    }
+    input::placeholder {
+      color:#aaa; 
+      font-size:0.9em;
+    }
+
+    .buttons-row {
+      display:flex; 
+      gap:12px; 
+      margin-top:20px;
+      margin-bottom:10px;
+    }
+    button {
+      flex:1; 
+      padding:12px; 
+      font-size:1.1em; 
+      border:none; 
+      border-radius:25px; 
+      cursor:pointer; 
+      background:#2a2a2a; 
+      color:inherit;
+      box-shadow:4px 4px 6px #141414, 
+                -4px -4px 6px #3a3a3a; 
+      transition:transform 0.2s;
+    }
+    button:hover {     
+      box-shadow:         
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+      
+    }
+    .light button:hover {
+      box-shadow: 
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+    }
+      
+    .light button {
+      background:#e0e0e0; 
+      box-shadow:4px 4px 6px #b8b9be, 
+                -4px -4px 6px #ffffff;
+    }
+    
+    button:active,
+    .light button:active {
+      box-shadow: 0 0 12px rgba(79,172,254,0.9);
+      background:rgba(255,255,255,0.1); 
+      animation: bounce3D 0.4s ease forwards;      
+      transform: translateY(-2px);
+    }
+    @keyframes bounce3D {
+      0%{transform:scale(1);}
+      50%{transform:scale(1.08);}
+      100%{transform:scale(1);}
+    }
+
+    .error-message {
+      color:#ff6b6b; 
+      font-size:0.85em; 
+      margin-top:4px; 
+      text-align:center; 
+      opacity:0; 
+      transition:opacity 0.3s;
+    }
+    .show-error {
+      opacity:1;
+    }
+    .input-error {
+      border:2px solid #ff6b6b !important; 
+      box-shadow:0 0 8px rgba(255,107,107,0.8);
+    }
+    .shake {
+      animation:shake 0.3s;
+    }
+    @keyframes shake {
+      0%{transform:translateX(0);}
+      25%{transform:translateX(-5px);}
+      50%{transform:translateX(5px);}
+      75%{transform:translateX(-5px);}
+      100%{transform:translateX(0);}
+    }
+    .result-flash { 
+    animation:bounce3D 0.4s ease forwards;
+    font-weight:bold; 
+    border:2px solid #00c6ff; 
+    box-shadow:0 0 7px #00bcd4;
+    }
+    
+    .result-field {
+      border-radius:25px;
+      color:white;
+      font-weight:bold;
+      border:1px solid #00c6ff;
+      box-shadow:0 0 7px #00bcd4;
+      font-size:1.2em;
+      margin-top: 10px;
+    }
+    .light .result-field {
+      border:1px solid #00aaff;
+      box-shadow:0 0 7px #00bcd4;
+    }
+    .line {
+      width: 100%;
+      height: 2px;
+      background: white;
+    }
+    .light .line {
+      background: black;
+    }
+
+  </style>
+</head>
+<body class="dark">
+  <div class="topbar">
+    <div>Sequences and Series</div>
+    <div id="themeToggle" class="switch">
+     <div class="slider"></div>
+    </div>
+  </div>
+  <div class="container">
+    <h1>Number Series Generator</h1>
+    <div class="input-group">
+      <select id="seriesType">
+        <option value="arithmetic">Arithmetic</option>
+        <option value="geometric">Geometric</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <input type="text" id="firstTerm" placeholder="First Term (a₁)">
+      <div class="error-message" id="series-error1"></div>
+    </div>
+    <div class="input-group">
+      <input type="text" id="commonValue" placeholder="Difference / Ratio (d or r)">
+      <div class="error-message" id="series-error2"></div>
+    </div>
+    <div class="input-group">
+      <input type="text" id="numTerms" placeholder="Number of Terms (n)">
+      <div class="error-message" id="series-error3"></div>
+    </div>
+   <div class="line"></div> 
+    <div class="input-group">
+      <input type="text" id="seriesResult" class="result-field" placeholder="Series" readonly>
+    </div>
+    <div class="input-group">
+      <input type="text" id="seriesSum" class="result-field" placeholder="Sum (Sₙ)" readonly>
+    </div>
+    <div class="buttons-row">
+      <button onclick="generateSeries()">Generate</button>
+      <button onclick="clearSeries()">Clear</button>
+    </div>
+  </div>
+
+<script>
+// Theme toggle
+  themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+    document.body.classList.toggle("light");
+  });
+  
+// Error Helper
+function showError(inputId,msgId,msg){
+  const input=document.getElementById(inputId),error=document.getElementById(msgId);
+  input.classList.add('shake','input-error'); error.textContent=msg; error.classList.add('show-error');
+  setTimeout(()=>{input.classList.remove('shake');},600);
+  setTimeout(()=>{input.classList.remove('input-error');error.classList.remove('show-error');},2000);
+}
+
+// Flash effect
+function emphasizeResult(fieldId){
+  let field=document.getElementById(fieldId);
+  field.classList.remove("result-flash");
+  void field.offsetWidth;
+  field.classList.add("result-flash");
+}
+
+// Series Generator
+function generateSeries() {
+    let type = document.getElementById("seriesType").value;
+    let a1 = parseFloat(document.getElementById("firstTerm").value.trim());
+    let d = parseFloat(document.getElementById("commonValue").value.trim());
+    let n = parseInt(document.getElementById("numTerms").value.trim());
+
+    if (isNaN(a1)) { showError("firstTerm","series-error1","Enter first term"); return; }
+    if (isNaN(d)) { showError("commonValue","series-error2","Enter difference/ratio"); return; }
+    if (isNaN(n) || n < 1 || n > 100) { showError("numTerms","series-error3","Enter 1-100 terms"); return; }
+
+    let series = [], sum = 0;
+
+    if (type === "arithmetic") {
+        for (let i = 0; i < n; i++) series.push(a1 + i * d);
+        sum = (n / 2) * (2 * a1 + (n - 1) * d);
+    } else {
+        for (let i = 0; i < n; i++) series.push(a1 * Math.pow(d, i));
+        sum = d === 1 ? a1 * n : a1 * (1 - Math.pow(d, n)) / (1 - d);
+    }
+
+    document.getElementById("seriesResult").value = series.join(", ");
+    document.getElementById("seriesSum").value = sum;
+    emphasizeResult("seriesResult");
+    emphasizeResult("seriesSum");
+}
+
+function clearSeries() {
+    ["firstTerm","commonValue","numTerms","seriesResult","seriesSum"].forEach(id=>document.getElementById(id).value='');
+    ["seriesResult","seriesSum"].forEach(id=>document.getElementById(id).classList.remove("result-flash"));
+    ["series-error1","series-error2","series-error3"].forEach(id=>document.getElementById(id).textContent='');
+}
+</script>
+</body>
+</html>

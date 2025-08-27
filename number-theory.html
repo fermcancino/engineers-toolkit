@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Number Theory Tools</title>
+  <style>
+    * {
+      margin:0; 
+      padding:0; 
+      box-sizing:border-box; 
+      font-family:'Poppins',sans-serif; 
+      transition:background-color 0.3s, color 0.3s;
+    }
+    body {
+      height:100vh; 
+      display:flex;
+      flex-direction: column; 
+      justify-content:center; 
+      align-items:center; 
+      background:#1e1e1e; 
+      color:#fff;
+      margin: 0;
+      padding: 0;
+    }
+    .light {
+      background:#e0e0e0; 
+      color:#333;
+    }
+
+    /* Topbar */
+    .topbar {
+      width: 100%;
+      max-width: 450px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 40px;
+      margin-bottom: 20px;
+      font-size: 1.2em;
+      font-weight: bold;
+      background: linear-gradient(135deg, #3a3a3a, #1e1e1e);
+      color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      letter-spacing: 1px;
+    }
+    .light .topbar {
+      background:linear-gradient(135deg,#f1f1f1,#d8d8d8); 
+      color:#222;
+    }
+    /* Theme Toggle */
+    .switch {
+      width: 50px;
+      height: 28px;
+      background-color: #555;
+      box-shadow: 0 2px 6px rgba(255,255,255,0.15);
+      border-radius: 30px;
+      position: relative;
+      transition: background-c0lor 0.3s ease;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+    .slider {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translateX(0);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    body.light .switch {
+      background: #f0f0f0;
+      border: 1px solid #bbb;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+
+    body.light .switch .slider {
+      transform: translateX(20px);
+    }
+    /* Carousel */
+    .carousel-container {
+      width: 95%;
+      max-width: 420px;
+      height: 420px;
+      perspective: 1200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      margin: 20px auto;
+    }
+    .carousel {
+      width:100%; 
+      height:100%; 
+      position:relative; 
+      transform-style:preserve-3d;
+      transition:transform 0.8s;
+      transform: translateZ(-200px);
+    }
+    .card {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 35px;
+      background: #2a2a2a;
+      box-shadow: 
+        8px 8px 18px rgba(0,0,0,0.6), 
+        -8px -8px 18px rgba(70,70,70,0.4),
+        inset 1px 1px 2px rgba(255,255,255,0.05);
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      opacity: 0.4;
+      transition: opacity 0.4s ease;
+    }
+    .card.active {
+      opacity: 1; 
+    }
+    .light .card {
+      background:#e0e0e0; 
+      box-shadow: 
+        8px 8px 18px #b8b9be, 
+        -8px -8px 18px #ffffff,
+        inset 1px 1px 2px rgba(255,255,255,0.6);
+    }
+    .card h1 {
+      font-size: 1.1em;
+      font-weight: bold;
+      letter-spacing: 0.1em;
+      color: inherit;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .result-field {
+      border-radius:25px;
+      color:black;
+      font-weight:bold;
+      border:1px solid #00c6ff;
+      box-shadow:0 0 7px #00bcd4;
+      font-size:1.2em;
+      margin-top: 10px;
+    }
+    .light .result-field {
+      border:1px solid #00aaff;
+      box-shadow:0 0 7px #00bcd4;
+    }
+    
+    .input-group {
+      margin:10px 0; 
+      width:100%; 
+      position:relative;
+    }
+    input {
+      width:100%; 
+      padding:10px; 
+      font-size:1.2em; 
+      text-align:center; 
+      border:none; 
+      outline:none; 
+      border-radius:15px;
+      box-shadow:inset 4px 4px 6px #141414, 
+                 inset -4px -4px 6px #3a3a3a; 
+      background:#3a3a3a; 
+      color:#fff;
+    }
+    input::placeholder {
+      color:#aaa;
+      font-size:0.9em;
+    }
+    .light input {
+      background:#f3f3f3; 
+      color:#222; 
+      box-shadow:inset 4px 4px 6px #b8b9be, 
+                 inset -4px -4px 6px #ffffff;
+    }
+    input:focus {
+      box-shadow:inset 1px 1px 2px #00f2fe, 
+                 inset -1px -1px 2px #00c6ff;
+    }
+
+    .buttons-row {
+      display:flex; 
+      gap:12px; 
+      margin-top:20px; 
+      width:100%;
+    }
+    button {
+      flex:1; 
+      padding:12px; 
+      font-size:1.1em; 
+      border:none; 
+      border-radius:25px; 
+      cursor:pointer; 
+      background:#2a2a2a; 
+      color:inherit;
+      box-shadow:4px 4px 6px #141414, 
+                -4px -4px 6px #3a3a3a; 
+      transition:transform 0.2s;
+    }
+    button:hover {     
+      box-shadow:         
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+      
+    }
+    .light button:hover {
+      box-shadow: 
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+    }
+      
+    .light button {
+      background:#e0e0e0; 
+      box-shadow:4px 4px 6px #b8b9be, 
+                -4px -4px 6px #ffffff;
+    }
+    
+    button:active,
+    .light button:active {
+      box-shadow: 0 0 12px rgba(79,172,254,0.9);
+      background:rgba(255,255,255,0.1); 
+      animation: bounce3D 0.4s ease forwards;      
+      transform: translateY(-2px);
+    }
+    @keyframes bounce3D {
+      0%{transform:scale(1);}
+      50%{transform:scale(1.08);}
+      100%{transform:scale(1);}
+    }
+
+    .controls {
+      position: absolute;
+      bottom: -60px;
+      width: 100%;
+      display: flex;     
+      justify-content: center;
+      align-items: center;
+      perspective: 500px; 
+      gap: 5px;
+    }
+    .controls button {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      font-size: 1.5em;
+      transition: transform 0.2s;
+      transform-style: preserve-3d;
+      
+    }
+
+    .controls button:active {
+      animation: bounce3D 0.4s ease forwards;
+      box-shadow: 
+        0 0 12px rgba(0, 255, 128, 0.9),
+        inset 3px 3px 6px rgba(0, 0, 0, 0.6),
+        inset -3px -3px 6px rgba(0, 255, 128, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .input-error {
+      border:2px solid #ff6b6b !important; 
+      box-shadow:0 0 8px rgba(255,107,107,0.8);
+    }
+    .light .input-error {
+      border:2px solid #ff6b6b !important; 
+      box-shadow:0 0 8px rgba(255,107,107,0.8);
+    }
+    .error-message {
+      color:#ff6b6b; 
+      font-size:0.85em; 
+      margin-top:4px; 
+      text-align:center; 
+      opacity:0; 
+      transition:opacity 0.3s;
+    }
+    .show-error {
+      opacity:1;
+    }
+    .shake {
+      animation:shake 0.3s;
+    }
+    @keyframes shake {
+      0%{transform:translateX(0);}
+      25%{transform:translateX(-5px);}
+      50%{transform:translateX(5px);}
+      75%{transform:translateX(-5px);}
+      100%{transform:translateX(0);}
+    }
+    .result-flash {
+      background:linear-gradient(120deg,#d0f0ff,#00bcd4); 
+      color:black; 
+      font-weight:bold;
+       border:1px solid #00c6ff; 
+       box-shadow:0 0 7px #00bcd4; 
+       animation:bounce3D 0.4s ease forwards;
+      }
+    .light .result-flash {
+      background:linear-gradient(120deg,#d0f0ff,#00bcd4); 
+      color:black; font-weight:bold; 
+      border:1px solid #00c6ff; 
+      box-shadow:0 0 7px #00bcd4;
+    }
+  </style>
+</head>
+<body class="dark">
+  <div class="topbar">
+    <div>Number Theory Tools</div>
+    <div id="themeToggle" class="switch">
+     <div class="slider"></div>
+    </div>
+  </div>
+
+  <div class="carousel-container">
+    <div class="carousel" id="carousel">
+
+      <!-- Card 1: GCD & LCM -->
+      <div class="card">
+  <h1>GCD & LCM Calculator</h1>
+  <div class="input-group">
+    <input type="text" id="gcdInput" placeholder="Enter Numbers (e.g., 12,18,24)">
+    <div class="error-message" id="gcd-error"></div>
+  </div>
+  <div class="input-group">
+    <input type="text" id="gcdResult" class="result-field" placeholder="Result" readonly>
+  </div>
+  <div class="buttons-row">
+    <button onclick="calculateGcdLcm('gcd')">GCD</button>
+    <button onclick="calculateGcdLcm('lcm')">LCM</button>
+    <button onclick="clearGcd()">Clear</button>
+  </div>
+</div>
+
+      <!-- Card 2: Prime & Factorization -->
+      <div class="card">
+        <h1>Prime & Factorization</h1>
+        <div class="input-group">
+          <input type="text" id="primeInput" placeholder="Enter Number">
+          <div class="error-message" id="prime-error"></div>
+        </div>
+        <div class="input-group">
+          <input type="text" id="primeResult" class="result-field" placeholder="Result" readonly>
+        </div>
+        <div class="buttons-row">
+          <button onclick="checkPrime()">Prime?</button>
+          <button onclick="factorizeNumber()">Factors</button>
+          <button onclick="clearPrime()">Clear</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Carousel Controls -->
+    <div class="controls">
+      <button onclick="prevCard()">‹</button>
+      <button onclick="nextCard()">›</button>
+    </div>
+  </div>
+
+<script>
+// 3D Carousel
+function updateCarouselLayout(){
+  const carousel=document.getElementById('carousel');
+  const cards=document.querySelectorAll('.card');
+  const numCards=cards.length;
+  const cardWidth=carousel.offsetWidth;
+  const translateZ=Math.round((cardWidth/2)/Math.tan(Math.PI/numCards));
+  const angleStep=360/numCards;
+  let currentIndex=window.carouselData?window.carouselData.currentIndex:0;
+  cards.forEach((card,index)=>{card.style.transform=`rotateY(${index*angleStep}deg) translateZ(${translateZ}px)`;});
+  window.carouselData={translateZ,angleStep,currentIndex,total:numCards};
+  const newAngle=-currentIndex*angleStep;
+  carousel.style.transform=`translateZ(-${translateZ}px) rotateY(${newAngle}deg)`;
+  cards.forEach((card,i)=>{card.classList.toggle('active',i===currentIndex);});
+}
+function nextCard(){rotateToIndex(window.carouselData.currentIndex+1);}
+function prevCard(){rotateToIndex(window.carouselData.currentIndex-1);}
+function rotateToIndex(index){
+  const {translateZ,angleStep,total}=window.carouselData;
+  window.carouselData.currentIndex=(index+total)%total;
+  const newAngle=-window.carouselData.currentIndex*angleStep;
+  document.getElementById('carousel').style.transform=`translateZ(-${translateZ}px) rotateY(${newAngle}deg)`;
+  const cards=document.querySelectorAll('.card');
+  cards.forEach((card,i)=>{card.classList.toggle('active',i===window.carouselData.currentIndex);});
+}
+window.addEventListener('load',updateCarouselLayout);
+window.addEventListener('resize',updateCarouselLayout);
+
+// Theme toggle
+  themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+    document.body.classList.toggle("light");
+  });
+
+// Error Helper
+function showError(inputId,msgId,msg){
+  const input=document.getElementById(inputId),error=document.getElementById(msgId);
+  input.classList.add('shake','input-error'); error.textContent=msg; error.classList.add('show-error');
+  setTimeout(()=>{input.classList.remove('shake');},600);
+  setTimeout(()=>{input.classList.remove('input-error');error.classList.remove('show-error');},2000);
+}
+
+// Flash effect
+function emphasizeResult(fieldId){
+  let field=document.getElementById(fieldId);
+  field.classList.remove("result-flash");
+  void field.offsetWidth;
+  field.classList.add("result-flash");
+}
+
+// GCD & LCM 
+function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+function lcm(a, b) { return Math.abs(a * b) / gcd(a, b); }
+
+function calculateGcdLcm(type) {
+    let inputField = document.getElementById("gcdInput");
+    let input = inputField.value.trim();
+    let errorField = document.getElementById("gcd-error");
+
+    // Validation: Empty
+    if (!input) {
+        showError("gcdInput", "gcd-error", "Input required");
+        return;
+    }
+
+    // Validation: Only numbers & commas
+    if (!/^\d+(,\d+){1,19}$/.test(input)) {
+        showError("gcdInput", "gcd-error", "Enter 2-20 numbers, comma separated");
+        return;
+    }
+
+    // Convert to array of integers
+    let numbers = input.split(",").map(n => parseInt(n, 10));
+
+    // Reduce for GCD/LCM
+    let result = numbers.reduce((acc, curr) => {
+        return type === "gcd" ? gcd(acc, curr) : lcm(acc, curr);
+    });
+
+    document.getElementById("gcdResult").value = result;
+    emphasizeResult("gcdResult");
+}
+
+function clearGcd() {
+    let input = document.getElementById("gcdInput");
+    let result = document.getElementById("gcdResult");
+    let error = document.getElementById("gcd-error");
+
+    error.textContent = '';
+    input.value = '';
+    result.value = '';
+    result.classList.remove("result-flash");
+}
+
+// Prime & Factorization
+function isPrime(n) {
+    if (n <= 1) return false;
+    if (n <= 3) return true;
+    if (n % 2 === 0 || n % 3 === 0) return false;
+    for (let i = 5; i * i <= n; i += 6) {
+        if (n % i === 0 || n % (i + 2) === 0) return false;
+    }
+    return true;
+}
+
+function factorize(n) {
+    let factors = [];
+    for (let i = 1; i <= Math.sqrt(n); i++) {
+        if (n % i === 0) {
+            factors.push(i);
+            if (i !== n / i) factors.push(n / i);
+        }
+    }
+    return factors.sort((a, b) => a - b);
+}
+
+function checkPrime() {
+    let input = document.getElementById("primeInput").value.trim();
+    if (!input) {
+        showError("primeInput", "prime-error", "Input required");
+        return;
+    }
+    if (!/^\d+$/.test(input)) {
+        showError("primeInput", "prime-error", "Enter a valid positive integer");
+        return;
+    }
+
+    let num = parseInt(input, 10);
+    if (num > 1e9) {
+        showError("primeInput", "prime-error", "Number too large");
+        return;
+    }
+
+    document.getElementById("primeResult").value = isPrime(num) ? "Prime" : "Not Prime";
+    emphasizeResult("primeResult");
+}
+
+function factorizeNumber() {
+    let input = document.getElementById("primeInput").value.trim();
+    if (!input) {
+        showError("primeInput", "prime-error", "Input required");
+        return;
+    }
+    if (!/^\d+$/.test(input)) {
+        showError("primeInput", "prime-error", "Enter a valid positive integer");
+        return;
+    }
+
+    let num = parseInt(input, 10);
+    if (num > 1e9) {
+        showError("primeInput", "prime-error", "Number too large");
+        return;
+    }
+
+    let factors = factorize(num);
+    document.getElementById("primeResult").value = factors.join(", ");
+    emphasizeResult("primeResult");
+}
+
+function clearPrime() {
+    document.getElementById("primeInput").value = '';
+    document.getElementById("primeResult").value = '';
+    document.getElementById("primeResult").classList.remove("result-flash");
+    document.getElementById("prime-error").textContent = '';
+}
+</script>
+</body>
+</html>

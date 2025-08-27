@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Number System & Conversions</title>
+  <style>
+    * {
+      margin:0; 
+      padding:0; 
+      box-sizing:border-box; 
+      font-family:'Poppins',sans-serif; 
+      transition:background-color 0.3s, color 0.3s;
+    }
+    body {
+      height:100vh; 
+      display:flex;
+      flex-direction: column; 
+      justify-content:center; 
+      align-items:center; 
+      background:#1e1e1e; 
+      color:#fff;
+      margin: 0;
+      padding: 0;
+    }
+    .light {
+      background:#e0e0e0; 
+      color:#333;
+    }
+
+    /* Topbar */
+    .topbar {
+      width: 100%;
+      max-width: 450px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      margin-bottom: 20px;
+      font-size: 1.2em;
+      font-weight: bold;
+      background: linear-gradient(135deg, #3a3a3a, #1e1e1e);
+      color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      letter-spacing: 1px;
+    }
+    .light .topbar {
+      background:linear-gradient(135deg,#f1f1f1,#d8d8d8); 
+      color:#222;
+    }
+    /* Theme Toggle */
+    .switch {
+      width: 50px;
+      height: 28px;
+      background-color: #555;
+      box-shadow: 0 2px 6px rgba(255,255,255,0.15);
+      border-radius: 30px;
+      position: relative;
+      transition: background-color 0.3s ease;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+    .slider {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translateX(0);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    body.light .switch {
+      background: #f0f0f0;
+      border: 1px solid #bbb;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+
+    body.light .switch .slider {
+      transform: translateX(18px);
+    }
+
+    /* Carousel */
+    .carousel-container {
+      width: 95%;
+      max-width: 420px;
+      height: 460px;
+      perspective: 1200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      margin: 20px auto;
+    }
+    .carousel {
+      width:100%; 
+      height:100%; 
+      position:relative; 
+      transform-style:preserve-3d;
+      transition:transform 0.8s;
+      transform: translateZ(-200px);
+    }
+    .card {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 35px;
+      background: #2a2a2a;
+      box-shadow: 
+        8px 8px 18px rgba(0,0,0,0.6), 
+        -8px -8px 18px rgba(70,70,70,0.4),
+        inset 1px 1px 2px rgba(255,255,255,0.05);
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      opacity: 0.4;
+      transition: opacity 0.4s ease;
+    }
+    .card.active {
+      opacity: 1; 
+    }
+    .light .card {
+      background:#e0e0e0; 
+      box-shadow: 
+        8px 8px 18px #b8b9be, 
+        -8px -8px 18px #ffffff,
+        inset 1px 1px 2px rgba(255,255,255,0.6);
+    }
+    .card h1 {
+      font-size: 1.1em;
+      font-weight: bold;
+      letter-spacing: 0.1em;
+      color: inherit;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .card h2 {
+      margin-bottom:20px; 
+      font-size:1em; 
+      display:flex; 
+      justify-content:center; 
+      align-items:center;       
+      gap:10px;
+    }
+    .card h3 {
+      font-size: 1em;
+      letter-spacing: 1em;
+      margin-bottom: 20px;
+      display:flex;
+      justify-content:center; 
+      align-items:center;
+      gap:17px;
+    }
+
+    .swap-btn {
+      background:none; 
+      border:none; 
+      width:35px; 
+      height:35px; 
+      border-radius:20px; 
+      font-size:1em;
+      cursor:pointer; 
+      color:inherit;  
+      display:inline-flex;
+      align-items:center; 
+      justify-content:center;
+      transition:transform 0.6s ease; 
+      transform:rotate(0deg);
+    }
+
+    .swap-btn .arrow {
+      display:inline-block; 
+      transition:transform 0.6s ease;
+    }
+    .swap-btn.spin .arrow {
+      transform:rotate(360deg);
+    }
+    select {
+      background: #3a3a3a;
+      color: inherit;
+      border: none;
+      border-radius: 12px;
+      padding: 8px 12px;
+      font-size: 1em;
+      box-shadow: 
+        inset 4px 4px 6px #141414, 
+        inset -4px -4px 6px #3a3a3a;
+    }
+    .light select {
+      background: #f3f3f3;
+      color: #222;
+      box-shadow: inset 4px 4px 6px #b8b9be, 
+                  inset -4px -4px 6px #ffffff;
+    }
+    
+    .result-field {
+      border-radius:25px;
+      color:black;
+      font-weight:bold;
+      border:1px solid #00c6ff;
+      box-shadow:0 0 7px #00bcd4;
+      font-size:1.2em;
+      margin-top: 10px;
+    }
+    .light .result-field {
+      border:1px solid #00aaff;
+      box-shadow:0 0 7px #00bcd4;
+    }
+    
+    .input-group {
+      margin:10px 0; 
+      width:100%; 
+      position:relative;
+    }
+    input {
+      width:100%; 
+      padding:10px; 
+      font-size:1.2em; 
+      text-align:center;  
+      border:none; 
+      outline:none; 
+      border-radius:15px;
+      box-shadow:inset 4px 4px 6px #141414, 
+                 inset -4px -4px 6px #3a3a3a; 
+      background:#3a3a3a; 
+      color:#fff;
+    }
+    input::placeholder {
+      color:#aaa;
+    }
+    .light input {
+      background:#f3f3f3;
+      color:#222; 
+      box-shadow:inset 4px 4px 6px #b8b9be, 
+                 inset -4px -4px 6px #ffffff;
+    }
+    input:focus {
+      box-shadow:inset 1px 1px 2px #00f2fe, 
+                inset -1px -1px 2px #00c6ff;
+   }
+  
+   .two-input {
+      width:100%;
+      font-size:1em; 
+      text-align:center;  
+      border:none; 
+      outline:none; 
+      margin-bottom: 10px;
+      gap:5px;
+    }
+   .line {
+      width: 100%;
+      height: 3px;
+      background: white;
+    }
+    .light .line {
+      background: black;
+    }
+    
+    .buttons-row {
+      display:flex; 
+      gap:12px; 
+      margin-top:20px; 
+      width:100%;
+      perspective: 500px; 
+    }
+    button {
+      flex: 1;
+      padding: 12px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      background: #2a2a2a;
+      color: inherit;
+      box-shadow: 4px 4px 6px #141414, -4px -4px 6px #3a3a3a;
+      transition: transform 0.2s;
+      transform-style: preserve-3d;
+    }
+
+    button:hover {     
+      box-shadow:         
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+      
+    }
+    .light button:hover {
+      box-shadow: 
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+    }
+      
+    .light button {
+      background:#e0e0e0; 
+      box-shadow:4px 4px 6px #b8b9be, 
+                -4px -4px 6px #ffffff;
+    }
+
+    .swap-btn:active,
+    button:active,
+    .light .swap-btn:active,
+    .light button:active {
+      box-shadow: 0 0 12px rgba(79,172,254,0.9);
+      background:rgba(255,255,255,0.1); 
+      animation: bounce3D 0.4s ease forwards;      
+      transform: translateY(-2px);
+    }
+    
+    .controls {
+      position: absolute;
+      bottom: -60px;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      perspective: 500px; 
+      gap: 5px;
+    }
+    .controls button {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      font-size: 1.5em;
+      transition: transform 0.2s;
+      transform-style: preserve-3d;
+    }
+
+    .controls button:active {
+      animation: bounce3D 0.4s ease forwards;
+      box-shadow: 
+        0 0 12px rgba(0, 255, 128, 0.9),
+        inset 3px 3px 6px rgba(0, 0, 0, 0.6),
+        inset -3px -3px 6px rgba(0, 255, 128, 0.2);
+        transform: translateY(-2px);
+    }
+
+    @keyframes bounce3D {
+      0% { transform: rotateX(0deg) scale(1); }
+      50% { transform: rotateX(20deg) scale(1.1); }
+      100% { transform: rotateX(0deg) scale(1); }
+    }
+    
+    .input-error {
+      border: 2px solid #ff6b6b !important;
+      box-shadow: 
+        0 0 8px rgba(255, 107, 107, 0.8),
+        inset 4px 4px 6px rgba(0,0,0,0.6),
+        inset -4px -4px 6px rgba(255,255,255,0.05);
+    }
+    .light .input-error {
+      border: 2px solid #ff6b6b !important;
+      box-shadow: 
+        0 0 8px rgba(255, 107, 107, 0.8),
+        inset 4px 4px 6px rgba(0,0,0,0.6),
+        inset -4px -4px 6px rgba(255,255,255,0.05);
+    }
+
+    .error-message {
+      color: #ff6b6b;
+      font-size: 0.85em;
+      margin-top: 4px;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .show-error { 
+     opacity: 1; 
+    }
+
+    .shake {
+     animation: shake 0.3s;
+    }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+
+    .result-flash {
+      background: linear-gradient(120deg, #d0f0ff, #00bcd4);
+      color: black;
+      font-weight: bold;
+      border: 1px solid #00c6ff;
+      box-shadow: 0 0 7px #00bcd4;
+      animation:bounce3D 0.4s ease forwards;
+    }
+    .light .result-flash {
+      background: linear-gradient(150deg, #d0f0ff, #00f2fe);
+      color: black;
+      font-weight: bold;
+      border: 1px solid #00c6ff;
+      box-shadow: 0 0 7px #00bcd4;
+    }
+
+  </style>
+</head>
+<body class="dark">
+  <div class="topbar">
+    <div>Number System & Conversions</div>
+    <div id="themeToggle" class="switch">
+     <div class="slider"></div>
+    </div>
+  </div>
+
+  <div class="carousel-container">
+  <div class="carousel" id="carousel">
+<!-- Card 1: Number Base Converter -->
+<div class="card">
+  <h1>Number Base Converter</h1>
+  <h2>
+    <select id="base-left">
+      <option value="2">Binary</option>
+      <option value="8">Octal</option>
+      <option value="10" selected>Decimal</option>
+      <option value="16">Hexadecimal</option>
+    </select>
+    <button class="swap-btn" onclick="swapBase()"><span class="arrow">→</span></button>
+    <select id="base-right">
+      <option value="2" selected>Binary</option>
+      <option value="8">Octal</option>
+      <option value="10">Decimal</option>
+      <option value="16">Hexadecimal</option>
+    </select>
+  </h2>
+  <div class="input-group">
+    <input type="text" id="baseInput" placeholder="Enter Decimal number">
+    <div class="error-message" id="base-error"></div>
+  </div>
+  <div class="input-group">
+    <input type="text" id="baseResult" class="result-field" placeholder="Result" readonly>
+  </div>
+  <div class="buttons-row">
+    <button onclick="convertBase()">Convert</button>
+    <button onclick="clearBase()">Clear</button>
+  </div>
+</div>
+
+<!-- Card 2: Base Calculator -->
+<div class="card">
+  <h1>Base Calculator</h1>
+  <h3>
+    <select id="calc-base">
+      <option value="2">Binary</option>
+      <option value="8">Octal</option>
+      <option value="10" selected>Decimal</option>
+      <option value="16">Hexadecimal</option>
+    </select>
+    
+    <select id="calc-operation">
+      <option value="add">+</option>
+      <option value="subtract">-</option>
+      <option value="multiply">*</option>
+      <option value="divide">/</option>
+    </select>
+  </h3>
+  <div class="two-input">
+    <input type="text" id="calcInput1" placeholder="Enter First Number">
+    <div class="error-message" id="calc-error1"></div>
+  </div>
+  <div class="two-input">
+    <input type="text" id="calcInput2" placeholder="Enter Second Number">
+    <div class="error-message" id="calc-error2"></div>
+  </div>
+ <div class="line"></div>
+  <div class="input-group">
+    <input type="text" id="calcResult" class="result-field" placeholder="Result" readonly>
+  </div>
+  <div class="buttons-row">
+    <button onclick="calculateBase()">Calculate</button>
+    <button onclick="clearCalc()">Clear</button>
+  </div>
+</div>
+
+<!-- Card 3: Custom Base Converter -->
+<div class="card">
+  <h1>Custom Base Converter</h1>
+  <h3>
+    <select id="custom-left">
+      <option value="2">Base: 2</option>
+      <option value="3">Base: 3</option>
+      <option value="4">Base: 4</option>
+      <option value="5">Base: 5</option>
+      <option value="6">Base: 6</option>
+      <option value="7">Base: 7</option>
+      <option value="8">Base: 8</option>
+      <option value="9">Base: 9</option>
+      <option value="10" selected>Base: 10</option>
+      <option value="16">Base: 16</option>
+      <option value="20">Base: 20</option>
+      <option value="36">Base: 36</option>
+    </select>
+    <button class="swap-btn" onclick="swapCustom()"><span class="arrow">→</span></button>
+    <select id="custom-right">
+      <option value="2">Base: 2</option>
+      <option value="3">Base: 3</option>
+      <option value="4">Base: 4</option>
+      <option value="5">Base: 5</option>
+      <option value="6">Base: 6</option>
+      <option value="7">Base: 7</option>
+      <option value="8">Base: 8</option>
+      <option value="9">Base: 9</option>
+      <option value="10">Base: 10</option>
+      <option value="16">Base: 16</option>
+      <option value="20">Base: 20</option>
+      <option value="36" selected>Base: 36</option>
+    </select>
+  </h3>
+  <div class="input-group">
+    <input type="text" id="customInput" placeholder="Enter Number">
+    <div class="error-message" id="custom-error"></div>
+  </div>
+  <div class="input-group">
+    <input type="text" id="customResult" class="result-field" placeholder="Result" readonly>
+  </div>
+  <div class="buttons-row">
+    <button onclick="convertCustom()">Convert</button>
+    <button onclick="clearCustom()">Clear</button>
+  </div>
+</div>
+</div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button onclick="prevCard()">‹</button>
+    <button onclick="nextCard()">›</button>
+  </div>
+</div>
+
+<script>
+function updateCarouselLayout() {
+    const carousel = document.getElementById('carousel');
+    const cards = document.querySelectorAll('.card');
+    const numCards = cards.length;
+
+    if (numCards === 0) return;
+
+    const cardWidth = carousel.offsetWidth;
+
+    const translateZ = Math.round((cardWidth / 2) / Math.tan(Math.PI / numCards));
+    const angleStep = 360 / numCards;
+
+    let currentIndex = window.carouselData ? window.carouselData.currentIndex : 0;
+
+    // Position each card dynamically
+    cards.forEach((card, index) => {
+        card.style.transform = `rotateY(${index * angleStep}deg) translateZ(${translateZ}px)`;
+    });
+
+    // Save globals for snapping rotation
+    window.carouselData = { 
+        translateZ, 
+        angleStep, 
+        currentIndex,
+        total: numCards
+    };
+
+
+    const newAngle = -currentIndex * angleStep;
+    carousel.style.transform = `translateZ(-${translateZ}px) rotateY(${newAngle}deg)`;
+
+    // Highlight active card
+    cards.forEach((card, i) => {
+        card.classList.toggle('active', i === currentIndex);
+    });
+}
+
+// Navigation
+function nextCard() { rotateToIndex(window.carouselData.currentIndex + 1); }
+function prevCard() { rotateToIndex(window.carouselData.currentIndex - 1); }
+
+function rotateToIndex(index) {
+    const { translateZ, angleStep, total } = window.carouselData;
+    window.carouselData.currentIndex = (index + total) % total; // Wrap around
+    const newAngle = -window.carouselData.currentIndex * angleStep;
+    document.getElementById('carousel').style.transform = `translateZ(-${translateZ}px) rotateY(${newAngle}deg)`;
+
+    // Highlight active card
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, i) => {
+        card.classList.toggle('active', i === window.carouselData.currentIndex);
+    });
+}
+
+// Initialize & recalculate on resize
+window.addEventListener('load', updateCarouselLayout);
+window.addEventListener('resize', updateCarouselLayout);
+
+  // Theme toggle
+  themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+    document.body.classList.toggle("light");
+  });
+
+  // Error display
+  function showError(inputId,msgId,msg){
+    const input=document.getElementById(inputId),error=document.getElementById(msgId);
+    input.classList.add('shake');input.style.boxShadow="0 0 8px #ff6b6b";
+    input.classList.add('shake');input.style.border= "1px solid #ff6b6b";
+    error.textContent=msg;error.classList.add('show-error');
+    setTimeout(()=>{input.classList.remove('shake');input.style.boxShadow='';error.classList.remove('show-error');},2000);
+    setTimeout(()=>{input.classList.remove('shake');input.style.border='';error.classList.remove('show-error');},2000);
+  }
+
+// BASE PLACEHOLDER UPDATER 
+function updateBasePlaceholder(inputId, base) {
+    const ph = {
+        2: "Enter Binary number",
+        8: "Enter Octal number",
+        10: "Enter Decimal number",
+        16: "Enter Hexadecimal number"
+    };
+    document.getElementById(inputId).placeholder = ph[base] || `Enter Base-${base} number`;
+}
+
+// Subscript generator for any base
+function getBaseSubscript(base) {
+    const subDigits = { "0":"₀","1":"₁","2":"₂","3":"₃","4":"₄","5":"₅","6":"₆","7":"₇","8":"₈","9":"₉" };
+    return String(base).split("").map(d => subDigits[d] || `₍${d}₎`).join("");
+}
+
+// 1. NUMBER BASE CONVERTER
+let baseRotation = 0;
+
+function convertBase() {
+    let inputField = document.getElementById("baseInput");
+    let resultField = document.getElementById("baseResult");
+    let fromBase = parseInt(document.getElementById("base-left").value);
+    let toBase = parseInt(document.getElementById("base-right").value);
+    let errorField = document.getElementById("base-error");
+    let value = inputField.value.trim();
+
+    if (!value) {
+        showError("baseInput", "base-error", "Input required");
+        return;
+    }
+
+    const regex = {
+        2: /^[0-1]+$/,
+        8: /^[0-7]+$/,
+        10: /^[0-9]+$/,
+        16: /^[0-9a-fA-F]+$/
+    };
+    if (!regex[fromBase].test(value)) {
+        showError("baseInput", "base-error", "Invalid number for base " + fromBase);
+        return;
+    }
+
+    // Clear error styles
+    errorField.textContent = "";
+    inputField.classList.remove("input-error");
+    inputField.style.boxShadow = '';
+    inputField.style.border = '';
+
+    // Conversion
+    let decimal = parseInt(value, fromBase);
+    let converted = decimal.toString(toBase).toUpperCase();
+
+    // Add subscript for bases (e.g., 1011₂)
+    let fromSub = getBaseSubscript(fromBase);
+    let toSub = getBaseSubscript(toBase);
+
+    resultField.value = converted + toSub;
+    inputField.value = value + fromSub;
+
+    emphasizeResult("baseResult"); // <-- flash highlight
+}
+
+function swapBase() {
+    clearBase();
+    const btn = document.querySelector("#base-left").nextElementSibling;
+    const arrow = btn.querySelector(".arrow");
+    baseRotation += 360;
+    arrow.style.transition = "transform 0.6s ease";
+    arrow.style.transform = `rotate(${baseRotation}deg)`;
+
+    let left = document.getElementById("base-left");
+    let right = document.getElementById("base-right");
+    [left.value, right.value] = [right.value, left.value];
+    updateBasePlaceholder("baseInput", left.value);
+}
+
+function clearBase() {
+    let input = document.getElementById("baseInput");
+    let result = document.getElementById("baseResult");
+    let error = document.getElementById("base-error");
+
+    input.value = '';
+    result.value = '';
+    error.textContent = '';
+
+    // Remove any error highlights
+    input.classList.remove("input-error");
+    input.style.boxShadow = '';
+    input.style.border = '';
+
+    // Remove flash class
+    result.classList.remove("result-flash");
+}
+
+// Flash effect for result
+function emphasizeResult(fieldId) {
+    let field = document.getElementById(fieldId);
+    field.classList.remove("result-flash");
+    void field.offsetWidth; // restart animation
+    field.classList.add("result-flash");
+}
+
+// Auto-clear when dropdown changes
+document.querySelectorAll("#base-left, #base-right").forEach(sel => {
+    sel.addEventListener("change", clearBase);
+});
+
+// 2. BASE CALCULATOR
+function calculateBase() {
+    let base = parseInt(document.getElementById("calc-base").value);
+    let num1Field = document.getElementById("calcInput1");
+    let num2Field = document.getElementById("calcInput2");
+    let op = document.getElementById("calc-operation").value;
+    let resultField = document.getElementById("calcResult");
+
+    let num1 = num1Field.value.trim();
+    let num2 = num2Field.value.trim();
+
+    const regex = {
+        2: /^[0-1]+$/,
+        8: /^[0-7]+$/,
+        10: /^[0-9]+$/,
+        16: /^[0-9a-fA-F]+$/
+    };
+
+    if (!num1) { showError("calcInput1", "calc-error1", "Input required"); return; }
+    if (!num2) { showError("calcInput2", "calc-error2", "Input required"); return; }
+    if (!regex[base].test(num1)) { showError("calcInput1", "calc-error1", "Invalid base " + base); return; }
+    if (!regex[base].test(num2)) { showError("calcInput2", "calc-error2", "Invalid base " + base); return; }
+
+    // Clear errors
+    document.getElementById("calc-error1").textContent = "";
+    document.getElementById("calc-error2").textContent = "";
+    num1Field.classList.remove("input-error");
+    num2Field.classList.remove("input-error");
+
+    // Perform calculation
+    let dec1 = parseInt(num1, base);
+    let dec2 = parseInt(num2, base);
+    let result;
+    switch(op) {
+        case "add": result = dec1 + dec2; break;
+        case "subtract": result = dec1 - dec2; break;
+        case "multiply": result = dec1 * dec2; break;
+        case "divide": 
+            if (dec2 === 0) { showError("calcInput2", "calc-error2", "Cannot divide by zero"); return; }
+            result = dec1 / dec2; 
+            break;
+    }
+
+    // Convert back & add subscript
+    let converted = Math.floor(result).toString(base).toUpperCase();
+    let sub = getBaseSubscript(base);
+    resultField.value = converted + sub;
+
+    // Also append subscript to inputs
+    num1Field.value = num1.toUpperCase() + sub;
+    num2Field.value = num2.toUpperCase() + sub;
+
+    // Emphasize
+    emphasizeResult("calcResult");
+}
+
+function clearCalc() {
+    document.getElementById("calcInput1").value = '';
+    document.getElementById("calcInput2").value = '';
+    document.getElementById("calcResult").value = '';
+    document.getElementById("calc-error1").textContent = '';
+    document.getElementById("calc-error2").textContent = '';
+    document.getElementById("calcResult").classList.remove("result-flash");
+}
+
+// Auto-clear when base selection changes
+document.querySelectorAll("#calc-base, #calc-operation").forEach(sel => {
+    sel.addEventListener("change", clearCalc);
+});
+
+
+// 3. CUSTOM BASE CONVERTER
+let customRotation = 0;
+
+function convertCustom() {
+    let inputField = document.getElementById("customInput");
+    let resultField = document.getElementById("customResult");
+    let fromBase = parseInt(document.getElementById("custom-left").value);
+    let toBase = parseInt(document.getElementById("custom-right").value);
+    let errorField = document.getElementById("custom-error");
+    let value = inputField.value.trim();
+
+    if (!value) {
+        showError("customInput", "custom-error", "Input required");
+        return;
+    }
+
+    const validChars = /^[0-9A-Za-z]+$/;
+    if (!validChars.test(value)) {
+        showError("customInput", "custom-error", "Invalid characters for base " + fromBase);
+        return;
+    }
+
+    let maxDigit = Math.max(...value.toUpperCase().split("").map(ch => parseInt(ch,36)));
+    if (maxDigit >= fromBase) {
+        showError("customInput", "custom-error", "Digit exceeds base " + fromBase);
+        return;
+    }
+
+    // Clear error
+    errorField.textContent = "";
+    inputField.classList.remove("input-error");
+
+    // Conversion
+    let decimal = parseInt(value, fromBase);
+    let converted = decimal.toString(toBase).toUpperCase();
+    let fromSub = getBaseSubscript(fromBase);
+    let toSub = getBaseSubscript(toBase);
+
+    resultField.value = converted + toSub;
+    inputField.value = value + fromSub;
+
+    // Flash emphasize
+    emphasizeResult("customResult");
+}
+
+function swapCustom() {
+    clearCustom();
+    const btn = document.querySelector("#custom-left").nextElementSibling;
+    const arrow = btn.querySelector(".arrow");
+    customRotation += 360;
+    arrow.style.transition = "transform 0.6s ease";
+    arrow.style.transform = `rotate(${customRotation}deg)`;
+
+    let left = document.getElementById("custom-left");
+    let right = document.getElementById("custom-right");
+    [left.value, right.value] = [right.value, left.value];
+    updateBasePlaceholder("customInput", left.value);
+}
+
+function clearCustom() {
+    document.getElementById("customInput").value = '';
+    document.getElementById("customResult").value = '';
+    document.getElementById("custom-error").textContent = '';
+    document.getElementById("customResult").classList.remove("result-flash");
+}
+
+// Auto-clear when dropdown changes
+document.querySelectorAll("#custom-left, #custom-right").forEach(sel => {
+    sel.addEventListener("change", clearCustom);
+});
+// Run placeholder update when dropdown changes
+document.getElementById("length-left").addEventListener("change", updateLengthPlaceholder);
+updateLengthPlaceholder(); // Initialize on load
+</script>
+</body>
+</html>

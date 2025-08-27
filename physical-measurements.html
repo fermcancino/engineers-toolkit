@@ -10,7 +10,7 @@
       padding:0; 
       box-sizing:border-box; 
       font-family:'Poppins',sans-serif; 
-      transition:background 0.3s, color 0.3s;
+      transition:background-color 0.3s, color 0.3s;
     }
     body {
       height:100vh; 
@@ -33,11 +33,12 @@
       width: 100%;
       max-width: 450px;
       display: flex;
-      justify-content: space-around;
+      justify-content: space-between;
       align-items: center;
-      padding: 15px 15px;
+      padding: 15px 10px;
       margin-bottom: 20px;
       font-size: 1.2em;
+      letter-spacing: 1px;
       font-weight: bold;
       background: linear-gradient(135deg, #3a3a3a, #1e1e1e);
       color: #fff;
@@ -52,13 +53,13 @@
     }
     /* Theme Toggle */
     .switch {
-      width: 60px;
+      width: 58px;
       height: 32px;
-      background: #555;
+      background-color: #555;
       box-shadow: 0 2px 6px rgba(255,255,255,0.15);
       border-radius: 30px;
       position: relative;
-      transition: background 0.3s ease;
+      transition: background-color 0.3s ease;
       display: flex;
       align-items: center;
       padding: 3px;
@@ -82,13 +83,13 @@
     }
 
     body.light .switch .slider {
-      transform: translateX(16px);
+      transform: translateX(18px);
     }
     /* Carousel */
     .carousel-container {
-      width: 100%;
+      width: 95%;
       max-width: 420px;
-      height: 460px;
+      height: 440px;
       perspective: 1200px;
       display: flex;
       justify-content: center;
@@ -130,24 +131,22 @@
         -9px -9px 16px #ffffff;
     }
     .card h1 {
-      font-size: 1.3em;
+      font-size: 1.1em;
+      letter-spacing: 1px;
       font-weight: bold;
       color: inherit;
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 40px;
     }
     .card h2 {
       margin-bottom:20px; 
-      font-size:1.1em; 
+      font-size:1em; 
       display:flex; 
       justify-content:center; 
       align-items:center; 
-      width:100%; gap:10px;
+      gap:10px;
     }
-    .card h3 {
-      font-size: 1.3em;
-      margin-bottom: 15px;
-    }
+    
     .title {
       font-family: 'Courier New', monospace;
     }
@@ -187,26 +186,6 @@
       border-radius: 10px;
       padding: 5px 10px;
       font-size: 1em;
-      box-shadow: inset 4px 4px 6px #141414, inset -4px -4px 6px #3a3a3a;
-    }
-    select.one {
-      background: #3a3a3a;
-      color: inherit;
-      border: none;
-      border-radius: 10px;
-      padding: 5px 10px;
-      font-size: 1em;
-      letter-spacing: 0.1em;
-      box-shadow: inset 4px 4px 6px #141414, inset -4px -4px 6px #3a3a3a;
-    }
-    select.two {
-      background: #3a3a3a;
-      color: inherit;
-      border: none;
-      border-radius: 10px;
-      padding: 5px 10px;
-      font-size: 1em;
-      letter-spacing: 0.06em;
       box-shadow: inset 4px 4px 6px #141414, inset -4px -4px 6px #3a3a3a;
     }
     
@@ -382,14 +361,14 @@
   <div class="card">
     <h1>Temperature Converter</h1>
     <h2>
-      <select class="one" id="temp-left">
+      <select id="temp-left">
         <option value="Celsius">Celsius</option>
         <option value="Fahrenheit">Fahrenheit</option>
         <option value="Kelvin">Kelvin</option>
         <option value="Rankine">Rankine</option>
       </select>
       <button class="swap-btn" onclick="swapTemp()"><span class="arrow">→</span></button>
-      <select class="one" id="temp-right">
+      <select id="temp-right">
         <option value="Fahrenheit">Fahrenheit</option>
         <option value="Celsius">Celsius</option>
         <option value="Kelvin">Kelvin</option>
@@ -413,7 +392,7 @@
   <div class="card">
     <h1>Length Converter</h1>
     <h2>
-      <select class="two" id="length-left">
+      <select id="length-left">
         <option value="mm">Millimeters</option>
         <option value="cm">Centimeters</option>
         <option value="m" selected>Meters</option>
@@ -424,7 +403,7 @@
         <option value="mi">Miles</option>
       </select>
       <button class="swap-btn" onclick="swapLength()"><span class="arrow">→</span></button>
-      <select class="two" id="length-right">
+      <select id="length-right">
         <option value="cm">Centimeters</option>
         <option value="mm">Millimeters</option>
         <option value="m">Meters</option>
