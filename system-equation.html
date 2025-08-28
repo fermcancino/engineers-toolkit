@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>System of Equations Solver</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+
+    body {
+      margin: 0;
+      background: #121212;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 10px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .calculator-container {
+      background: linear-gradient(to bottom, #1a1a1a, #222);
+      border-radius: 20px;
+      padding: 20px;
+      max-width: 400px;
+      width: 95%;
+      position: relative;
+      border: 2px solid rgba(0, 255, 255, 0.5);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3),
+                  0 0 40px rgba(0, 255, 255, 0.2),
+                  0 0 60px rgba(0, 255, 255, 0.15);
+      animation: glowPulse 3s ease-in-out infinite;
+      transition: all 0.3s;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 1rem auto 1.4rem auto;
+    }
+
+    .title { 
+      font-size: 1.2rem;
+      font-weight: bold; 
+    }
+    /* Theme Toggle */
+    .switch {
+      width: 50px;
+      height: 28px;
+      background-color: #555;
+      box-shadow: 0 2px 6px rgba(255,255,255,0.15);
+      border-radius: 30px;
+      position: relative;
+      transition: background-color 0.3s ease;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+    .slider {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translateX(0);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    body.light .switch {
+      background: #f0f0f0;
+      border: 1px solid #bbb;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+
+    body.light .switch .slider {
+      transform: translateX(20px);
+    }
+
+    body.light {
+      background-color: #f4f4f4; 
+      color: #111;
+    }
+
+    body.light .calculator-container {
+      background: linear-gradient(to bottom, #fff, #ddd);
+      color: #111;
+    }
+    select {
+      width: 100%;
+      padding: 10px;
+      font-size: 1.1rem;
+      border-radius: 10px;
+      background: #2a2a2a;
+      color: #00eaff;
+      border: none;
+    }
+    .number {
+      color: #00eaff;
+    }
+    body.light .number {
+      color: #003973;
+    }
+    body.light #varSelect {
+      color: #003973;
+      background: #e0e0e0;
+    }
+    #varSelect {
+      width: 100%;
+      max-width: 300px;
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+        .selection-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 1.2rem;
+      margin-top: 0.3rem;
+      width: 100%;
+    }
+
+    .input-grid {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .input-field {
+      flex: 1 1 auto;
+      min-width: 60px;
+      max-width: 100px;
+      padding: 0.5rem;
+      text-align: center;
+    }
+
+        .equation-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .equation-row input {
+      flex: 1 1 50px;
+      max-width: 80px;
+      min-width: 40px;
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid #666;
+      background-color: #222;
+      color: #fff;
+    }
+
+    .equation-row .equals {
+      flex: 0 0 auto;
+      font-weight: bold;
+      font-size: 1.3rem;
+    }
+
+    .equation-row input:focus {
+      outline: none !important;
+      background: #333;
+      box-shadow: 0 0 5px #00bcd4;
+      caret-color: transparent;
+    }
+
+    body.light .equation-row input {
+      background-color: #f0f0f0;
+      color: #000;
+      border: 1px solid #ccc;
+    }
+    .equation-row.four-variable .input-field {
+      flex: 1 1 20%; 
+      max-width: 20%;
+    }
+
+    .result-container {
+      background: #2a2a2a;
+      border-radius: 10px;
+      text-align: center;
+      padding: 10px;
+      margin-bottom: 1rem;
+      min-height: 48px;
+      transition: all 0.4s ease;
+    }
+
+    .result-container strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .light .result-container {
+      background: #fff;
+      color: #000;
+    }
+
+    input.shake {
+      animation: shake 0.3s;
+      border: 2px solid rgba(255, 100, 100, 0.9) !important;
+      background-color: rgba(255, 76, 76, 0.1);
+      box-shadow: 0 0 8px rgba(255, 100, 100, 0.4);
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .keypad button {
+      padding: 15px;
+      font-size: 1.1rem;
+      border-radius: 10px;
+      border: none;
+      background: #2c2c2c;
+      color: white;
+      cursor: pointer;
+      box-shadow: inset -2px -2px 4px rgba(255,255,255,0.1),
+                  inset 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    body.light .keypad button {
+      background: #ccc;
+      color: #111;
+    }
+
+    .keypad button:hover {
+      animation: bounce 0.3s ease;
+    }
+    .keypad button:active {
+      box-shadow: inset 2px 2px 4px #121220, inset -2px -2px 4px #3a3a50;
+      transform: scale(0.97);
+    }
+    .wide {
+      grid-column: span 3;
+    }
+    .keypad .solve:active {
+      box-shadow: 0 0 12px rgba(100, 255, 100, 0.8), inset 0 0 6px rgba(0,0,0,0.5);
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.12); }
+    }
+
+    @keyframes glowPulse {
+      0%, 100% {
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.3),
+                    0 0 40px rgba(0, 255, 255, 0.2),
+                    0 0 60px rgba(0, 255, 255, 0.15);
+      }
+      50% {
+        box-shadow: 0 0 25px rgba(0, 255, 255, 0.5),
+                    0 0 50px rgba(0, 255, 255, 0.3),
+                    0 0 70px rgba(0, 255, 255, 0.2);
+      }
+    }
+
+    @media (max-width: 500px) {
+      .equation-row input {
+        max-width: 60px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body class="dark">
+  <div class="calculator-container">
+    <div class="topbar">
+      <div class="title">System of Equations Solver</div>
+      <div id="themeToggle" class="switch">
+      <div class="slider"></div>
+     </div>
+    </div>
+
+    <div class="content">
+        <label class="number" for="varSelect"><strong>Number of Variables:</strong></label>
+        <div class="selection-container">
+        <select id="varSelect" onchange="renderInputs()" style="margin: 7px; padding: 6px; font-size: 1rem;">
+          <option value="2">2 Variables: <b>a(x) + b(y) = k</b></option>
+          <option value="3" selected>3 Variables: <b>a(x) + b(y) + c(z) = k</b></option>
+          <option value="4">4 Variables: <b>a(x) + b(y) + c(z) + d(w)= k</b></option>
+        </select>
+      </div>
+
+      <div class="input-grid" id="inputGrid"></div>
+
+      <div class="result-container" id="resultContainer">
+        <strong>Result:</strong>
+        <div id="resultDisplay">—</div>
+      </div>
+
+      <div class="keypad">
+        <button onclick="insertValue('C')">C</button>
+        <button onclick="insertValue('±')">±</button>
+        <button onclick="insertValue('←')">⌫</button>
+
+        <button onclick="insertValue('7')">7</button>
+        <button onclick="insertValue('8')">8</button>
+        <button onclick="insertValue('9')">9</button>
+
+        <button onclick="insertValue('4')">4</button>
+        <button onclick="insertValue('5')">5</button>
+        <button onclick="insertValue('6')">6</button>
+
+        <button onclick="insertValue('1')">1</button>
+        <button onclick="insertValue('2')">2</button>
+        <button onclick="insertValue('3')">3</button>
+
+        <button onclick="insertValue('.')">.</button>
+        <button onclick="insertValue('0')">0</button>
+        <button onclick="prevRow()">↑</button>
+
+      <button onclick="prevInput()">←</button>
+      <button onclick="nextInput()">→</button>
+      <button onclick="nextRow()">↓</button>
+
+      <button class="solve wide" onclick="solve()">Solve Equation</button>
+        
+      </div>
+    </div>
+  </div>
+
+  <script>
+  let currentTarget = null;
+  let toggleNeg = false;
+  let inputs = [];
+  let activeIndex = 0;
+
+  // Theme toggle
+    themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("light");
+  });
+
+  function renderInputs() {
+    const numVars = parseInt(document.getElementById("varSelect").value);
+    const inputGrid = document.getElementById("inputGrid");
+    inputGrid.innerHTML = "";
+    const varLabels = ['a','b','c','d']; // for coefficients
+for (let row = 0; row < numVars; row++) {
+  const eqRow = document.createElement("div");
+  eqRow.className = "equation-row";
+
+  for (let col = 0; col < numVars; col++) {
+    const input = document.createElement("input");
+    const id = `${varLabels[col]}${row + 1}`;  // a1, b1, etc
+    input.id = id;
+    input.placeholder = `${varLabels[col]}${subscriptNum(row + 1)}`;
+    input.setAttribute("readonly", true);
+    input.addEventListener("focus", () => currentTarget = input);
+    input.addEventListener("click", () => currentTarget = input);
+    eqRow.appendChild(input);
+  }
+
+  const eqSign = document.createElement("span");
+  eqSign.className = "equals";
+  eqSign.textContent = "=";
+  eqRow.appendChild(eqSign);
+
+  const constant = document.createElement("input");
+  constant.id = `k${row + 1}`;  // <-- FIX: Use k for constants
+  constant.placeholder = `k${subscriptNum(row + 1)}`;
+  constant.setAttribute("readonly", true);
+  constant.addEventListener("focus", () => currentTarget = constant);
+  constant.addEventListener("click", () => currentTarget = constant);
+  eqRow.appendChild(constant);
+
+  inputGrid.appendChild(eqRow);
+}
+
+    setTimeout(() => {
+      inputs = Array.from(document.querySelectorAll('#inputGrid input'));
+      activeIndex = 0;
+      if (inputs.length > 0) {
+        inputs.forEach(i => i.setAttribute("readonly", true));
+        inputs[0].removeAttribute("readonly");
+        inputs[0].focus();
+        currentTarget = inputs[0];
+      }
+    }, 10);
+  }
+  function subscriptNum(num) {
+  const subs = {
+    '0': '₀',
+    '1': '₁',
+    '2': '₂',
+    '3': '₃',
+    '4': '₄',
+    '5': '₅',
+    '6': '₆',
+    '7': '₇',
+    '8': '₈',
+    '9': '₉',
+  };
+  return num.toString().split('').map(d => subs[d] || d).join('');
+}
+
+  function insertValue(val) {
+    if (!currentTarget) return;
+
+    if (val === 'C') {
+      document.querySelectorAll('#inputGrid input').forEach(i => {
+        i.value = '';
+        i.setAttribute("readonly", true);
+      });
+      document.getElementById('resultDisplay').innerHTML = '—';
+      const first = document.querySelector('#inputGrid input');
+      if (first) {
+        first.removeAttribute("readonly");
+        first.focus();
+        currentTarget = first;
+      }
+      return;
+    }
+
+    if (val === '←') {
+      currentTarget.value = currentTarget.value.slice(0, -1);
+      return;
+    }
+
+    if (val === '±') {
+      toggleNeg = !toggleNeg;
+      currentTarget.value = toggleNeg ? '-' + currentTarget.value.replace(/^[-]+/, '') : currentTarget.value.replace(/^[-]+/, '');
+      return;
+    }
+
+    currentTarget.value += val;
+  }
+
+  function focusActive() {
+    if (inputs[activeIndex]) {
+      inputs.forEach(i => i.setAttribute("readonly", true));
+      inputs[activeIndex].removeAttribute("readonly");
+      inputs[activeIndex].focus();
+      currentTarget = inputs[activeIndex];
+    }
+  }
+
+  function nextInput() {
+    activeIndex = (activeIndex + 1) % inputs.length;
+    focusActive();
+  }
+
+  function prevInput() {
+    activeIndex = (activeIndex - 1 + inputs.length) % inputs.length;
+    focusActive();
+  }
+
+  function nextRow() {
+    const numVars = parseInt(document.getElementById("varSelect").value);
+    activeIndex = (activeIndex + numVars + 1) % inputs.length;
+    focusActive();
+  }
+
+  function prevRow() {
+    const numVars = parseInt(document.getElementById("varSelect").value);
+    activeIndex = (activeIndex - numVars - 1 + inputs.length) % inputs.length;
+    focusActive();
+  }
+
+  function solve() {
+  const numVars = parseInt(document.getElementById("varSelect").value);
+  const labels = ['x','y','z','w'];
+  const resultBox = document.getElementById("resultDisplay");
+  
+  const A = []; // coefficient matrix
+  const B = []; // constants
+  let hasError = false;
+
+  for (let i = 0; i < numVars; i++) {
+    const row = [];
+    for (let j = 0; j < numVars; j++) {
+      const val = parseFloat(document.getElementById(['a','b','c','d'][j] + (i + 1)).value.trim());
+      if (isNaN(val)) {
+        document.getElementById(['a','b','c','d'][j] + (i + 1)).classList.add('shake');
+        setTimeout(() => document.getElementById(['a','b','c','d'][j] + (i + 1)).classList.remove('shake'), 800);
+        hasError = true;
+      }
+      row.push(val || 0);
+    }
+    const kVal = parseFloat(document.getElementById('k' + (i + 1)).value.trim());
+    if (isNaN(kVal)) {
+      document.getElementById('k' + (i + 1)).classList.add('shake');
+      setTimeout(() => document.getElementById('k' + (i + 1)).classList.remove('shake'), 800);
+      hasError = true;
+    }
+    A.push(row);
+    B.push(kVal || 0);
+  }
+
+  if (hasError) {
+    resultBox.innerHTML = `<span style='color:#ff4c4c'>Please fill all fields with valid numbers.</span>`;
+    return;
+  }
+
+  const D = determinant(A);
+  if (Math.abs(D) < 1e-10) {
+    resultBox.innerHTML = `<span style='color:#ff4c4c'>No unique solution (Det = 0)</span>`;
+    return;
+  }
+
+  const solutions = [];
+  for (let i = 0; i < numVars; i++) {
+    const Ai = JSON.parse(JSON.stringify(A));
+    for (let r = 0; r < numVars; r++) {
+      Ai[r][i] = B[r];
+    }
+    const Di = determinant(Ai);
+    solutions.push(Di / D);
+  }
+
+  resultBox.innerHTML = solutions.map((v, i) => `<b>${labels[i]} =</b> ${v.toFixed(4)}`).join('<br>');
+}
+function determinant(m) {
+  const n = m.length;
+
+  if (n === 2) {
+    return m[0][0] * m[1][1] - m[0][1] * m[1][0];
+  }
+
+  if (n === 3) {
+    return (
+      m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) -
+      m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) +
+      m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0])
+    );
+  }
+
+  if (n === 4) {
+    let det = 0;
+    for (let i = 0; i < 4; i++) {
+      const subMatrix = m.slice(1).map(row => row.filter((_, idx) => idx !== i));
+      det += m[0][i] * determinant(subMatrix) * (i % 2 === 0 ? 1 : -1);
+    }
+    return det;
+  }
+
+  // generic (not needed for >4)
+  let det = 0;
+  for (let i = 0; i < n; i++) {
+    const minor = m.slice(1).map(row => row.filter((_, colIdx) => colIdx !== i));
+    det += m[0][i] * determinant(minor) * (i % 2 === 0 ? 1 : -1);
+  }
+  return det;
+}
+
+function gaussianSolve(mat) {
+  const n = mat.length;
+
+  // Forward elimination
+  for (let i = 0; i < n; i++) {
+    // Find max pivot row
+    let maxRow = i;
+    for (let k = i + 1; k < n; k++) {
+      if (Math.abs(mat[k][i]) > Math.abs(mat[maxRow][i])) maxRow = k;
+    }
+    if (Math.abs(mat[maxRow][i]) < 1e-12) return null; // No unique solution
+    [mat[i], mat[maxRow]] = [mat[maxRow], mat[i]]; // Swap
+
+    // Normalize pivot row
+    const pivot = mat[i][i];
+    for (let j = i; j <= n; j++) mat[i][j] /= pivot;
+
+    // Eliminate below
+    for (let k = i + 1; k < n; k++) {
+      const factor = mat[k][i];
+      for (let j = i; j <= n; j++) mat[k][j] -= factor * mat[i][j];
+    }
+  }
+
+  // Back substitution
+  const solution = new Array(n).fill(0);
+  for (let i = n - 1; i >= 0; i--) {
+    solution[i] = mat[i][n];
+    for (let j = i + 1; j < n; j++) solution[i] -= mat[i][j] * solution[j];
+  }
+  return solution;
+}
+
+document.addEventListener("keydown", (e) => {
+  if (!currentTarget) return;
+
+  const allRows = Array.from(document.querySelectorAll('.equation-row'));
+  const allInputs = allRows.flatMap(r => Array.from(r.querySelectorAll('input')));
+  let idx = allInputs.indexOf(currentTarget);
+  const numRows = allRows.length;
+  const numCols = allRows[0].querySelectorAll('input').length; // assume uniform row length
+
+  switch(e.key) {
+    case "ArrowRight":
+      idx = (idx + 1) % allInputs.length;
+      break;
+    case "ArrowLeft":
+      idx = (idx - 1 + allInputs.length) % allInputs.length;
+      break;
+    case "ArrowDown":
+      {
+        let row = Math.floor(idx / numCols);
+        let col = idx % numCols;
+        row = (row + 1) % numRows;
+        const nextRow = allRows[row];
+        const rowInputs = Array.from(nextRow.querySelectorAll('input'));
+        idx = rowInputs[col] ? allInputs.indexOf(rowInputs[col]) : allInputs.indexOf(rowInputs[rowInputs.length-1]);
+      }
+      break;
+    case "ArrowUp":
+      {
+        let row = Math.floor(idx / numCols);
+        let col = idx % numCols;
+        row = (row - 1 + numRows) % numRows;
+        const prevRow = allRows[row];
+        const rowInputs = Array.from(prevRow.querySelectorAll('input'));
+        idx = rowInputs[col] ? allInputs.indexOf(rowInputs[col]) : allInputs.indexOf(rowInputs[rowInputs.length-1]);
+      }
+      break;
+    case "Backspace":
+      currentTarget.value = currentTarget.value.slice(0, -1);
+      e.preventDefault();
+      return;
+    case "Enter":
+      solve();
+      e.preventDefault();
+      return;
+    default:
+      return;
+  }
+
+  // Focus the new input
+  allInputs.forEach(i => i.setAttribute("readonly", true));
+  currentTarget = allInputs[idx];
+  currentTarget.removeAttribute("readonly");
+  currentTarget.focus();
+
+  e.preventDefault();
+});
+
+
+
+  window.onload = function () {
+    renderInputs(); 
+  };
+</script>
+</body>
+</html>

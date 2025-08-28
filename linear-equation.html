@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Linear Equation Solver</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background-color: #121212;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 10px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .calculator {
+      background: linear-gradient(to bottom, #1a1a1a, #222);
+      border-radius: 20px;
+      padding: 20px;
+      max-width: 400px;
+      width: 100%;
+      position: relative;
+      border: 2px solid rgba(0, 255, 255, 0.5);
+      box-shadow:
+        0 0 20px rgba(0, 255, 255, 0.3),
+        0 0 40px rgba(0, 255, 255, 0.2),
+        0 0 60px rgba(0, 255, 255, 0.15);
+      transition: box-shadow 0.3s, background-color 0.3s;
+      animation: glowPulse 3s ease-in-out infinite;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      border-radius: 12px;
+      margin: 1rem 0 1.5rem 0;
+    }
+
+    .title {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    /* Theme Toggle */
+    .switch {
+      width: 50px;
+      height: 28px;
+      background-color: #555;
+      box-shadow: 0 2px 6px rgba(255,255,255,0.15);
+      border-radius: 30px;
+      position: relative;
+      transition: background-color 0.3s ease;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+    .slider {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translateX(0);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    body.light .switch {
+      background: #f0f0f0;
+      border: 1px solid #bbb;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+
+    body.light .switch .slider {
+      transform: translateX(20px);
+    }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      font-size: 1.1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      background: #2a2a2a;
+      color: #00eaff;
+      border: none;
+    }
+    body.light #equationType {
+      color: #003973;
+    }
+
+    select.error {
+      border: 2px solid #ff4d4d !important;
+      box-shadow: 0 0 6px #ff4d4d;
+    }
+
+    .inputs {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 1rem;
+      opacity: 1;
+      transform: translateY(0);
+      transition: all 0.3s ease;
+    }
+
+    .inputs.hide {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+
+    .inputs.six {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .inputs.two {
+      grid-template-columns: repeat(2, 1fr);
+      justify-content: center;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    input {
+      padding: 10px;
+      font-size: 1.1rem;
+      text-align: center;
+      border-radius: 8px;
+      border: none;
+      width: 100%;
+      background: #333;
+      color: white;
+      caret-color: auto;
+      pointer-events: auto;
+    }
+
+    input:focus {
+      outline: none !important; 
+      background: #333;
+      box-shadow: 0 0 5px #00bcd4;
+    }
+
+    input.error {
+      outline: none;
+      border: 2px solid #ff8080;
+      box-shadow: 0 0 6px #ff8080;
+    }
+
+    .shake {
+      animation: shake 0.3s;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+    }
+
+    .result-container {
+      background: #2a2a2a;
+      border-radius: 10px;
+      text-align: center;
+      padding: 10px;
+      margin-bottom: 1rem;
+      min-height: 48px;
+    }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .keypad button {
+      padding: 15px;
+      font-size: 1.1rem;
+      border-radius: 10px;
+      border: none;
+      background: #2c2c2c;
+      color: white;
+      box-shadow: inset -2px -2px 4px rgba(255,255,255,0.1),
+                  inset 2px 2px 4px rgba(0,0,0,0.5);
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+    
+    .keypad button:hover {
+      transform: scale(1.05);
+      animation: bounce 0.3s ease;
+    }
+    .keypad button:active {
+      box-shadow: inset 2px 2px 4px #121220, inset -2px -2px 4px #3a3a50;
+      transform: scale(0.97);
+    }
+    @keyframes bounce {
+     0%, 100% { transform: scale(1); }
+     50% { transform: scale(1.12); }
+    }
+    @keyframes glowPulse {
+        0% {
+            box-shadow:
+            0 0 20px rgba(0, 255, 255, 0.3),
+            0 0 40px rgba(0, 255, 255, 0.2),
+            0 0 60px rgba(0, 255, 255, 0.15);
+        }
+        50% {
+            box-shadow:
+            0 0 25px rgba(0, 255, 255, 0.5),
+            0 0 50px rgba(0, 255, 255, 0.3),
+            0 0 70px rgba(0, 255, 255, 0.2);
+        }
+        100% {
+            box-shadow:
+            0 0 20px rgba(0, 255, 255, 0.3),
+            0 0 40px rgba(0, 255, 255, 0.2),
+            0 0 60px rgba(0, 255, 255, 0.15);
+        }
+    }
+
+    .wide {
+      grid-column: span 3;
+    }
+
+    .keypad .solve:active {
+      box-shadow: 0 0 12px rgba(100, 255, 100, 0.8), inset 0 0 6px rgba(0,0,0,0.5);
+      animation: bounce 0.3s ease;
+    }
+    .explanation {
+      margin-top: 10px;
+      font-size: 0.95rem;
+      color: #f2f2f2;
+    }
+
+    body.light .explanation {
+      color: #333333;
+    }
+    .answer {
+      color: #00e0b0; 
+      font-size: 1.2rem; 
+      font-weight: bold;
+    }
+    body.light {
+      background: #f4f4f4;
+      color: #111;
+    }
+
+    body.light .calculator {
+      background: linear-gradient(to bottom, #fff, #ddd);
+      color: #111;
+    }
+
+    body.light input,
+    body.light select {
+      background: #e0e0e0;
+      color: #111;
+    }
+
+    body.light .result-container {
+      background: #fff;
+      color: #000;
+    }
+
+    body.light .keypad button {
+      background: #ccc;
+      color: #111;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div class="top-bar">
+      <div class="title">Linear Equation Solver</div>
+      <div id="themeToggle" class="switch">
+      <div class="slider"></div>
+     </div>
+    </div>
+
+    <select id="equationType" onchange="switchEquation()">
+      <option value="" disabled selected>Select Equation</option>
+      <option value="two">Equation: ax + by + c = 0</option>
+      <option value="one">Equation: ax + b = 0</option>
+    </select>
+
+    <div class="inputs six hidden" id="inputsContainer">
+      <input id="a1" placeholder="a₁(x)"/>
+      <input id="b1" placeholder="b₁(y)"/>
+      <input id="c1" placeholder="c₁"/>
+      <input id="a2" placeholder="a₂(x)"/>
+      <input id="b2" placeholder="b₂(y)"/>
+      <input id="c2" placeholder="c₂"/>
+    </div>
+
+    <div class="result-container hidden" id="result">x = ?<br>y = ?</div>
+
+    <div class="keypad">
+      <button onclick="clearInputs()">C</button>
+      <button onclick="toggleSign()">±</button>
+      <button onclick="backspace()">⌫</button>
+
+      <button onclick="append('7')">7</button>
+      <button onclick="append('8')">8</button>
+      <button onclick="append('9')">9</button>
+
+      <button onclick="append('4')">4</button>
+      <button onclick="append('5')">5</button>
+      <button onclick="append('6')">6</button>
+
+      <button onclick="append('1')">1</button>
+      <button onclick="append('2')">2</button>
+      <button onclick="append('3')">3</button>
+
+      <button onclick="append('.')">.</button>
+      <button onclick="append('0')">0</button>
+      <button onclick="prevRow()">↑</button>
+
+      <button onclick="prevInput()">←</button>
+      <button onclick="nextInput()">→</button>
+      <button onclick="nextRow()">↓</button>
+
+      <button class="solve wide" onclick="solve()">Solve Equation</button>
+    </div>
+  </div>
+
+  <script>
+    const inputIds = ['a1', 'b1', 'c1', 'a2', 'b2', 'c2'];
+  const inputs = inputIds.map(id => document.getElementById(id));
+  const container = document.getElementById("inputsContainer");
+  const resultBox = document.getElementById("result");
+  const equationType = document.getElementById("equationType");
+  let activeIndex = 0;
+
+  function focusActive() {
+    inputs.forEach((el, i) => {
+      el.style.outline = i === activeIndex ? '2px solid #4facfe' : 'none';
+    });
+    inputs[activeIndex].focus();
+  }
+
+  function switchEquation() {
+    equationType.classList.remove("error");
+    const type = equationType.value;
+    if (!type) return;
+    container.classList.add('hide');
+    setTimeout(() => {
+      container.className = "inputs " + (type === "one" ? "two" : "six");
+      inputs.forEach((i, idx) => {
+        i.style.display = (type === "one" && idx > 1) ? "none" : "block";
+        i.value = "";
+      });
+      container.classList.remove('hidden', 'hide');
+      resultBox.classList.remove('hidden');
+      resultBox.innerHTML = type === 'one' ? 'x = ?' : 'x = ?<br>y = ?';
+      activeIndex = 0;
+      focusActive();
+    }, 150);
+  }
+
+  function append(char) {
+    const input = inputs[activeIndex];
+    if (!input || input.style.display === "none") return;
+    if (char === '.' && input.value.includes('.')) return;
+    input.value += char;
+    focusActive();
+  }
+
+  function backspace() {
+    const input = inputs[activeIndex];
+    input.value = input.value.slice(0, -1);
+  }
+
+  function toggleSign() {
+    const input = inputs[activeIndex];
+    const val = input.value;
+    input.value = val.startsWith('-') ? val.slice(1) : '-' + val;
+  }
+
+  function clearInputs() {
+    inputs.forEach(i => {
+      i.value = '';
+      i.classList.remove('error');
+      i.style.outline = 'none';
+    });
+    equationType.classList.remove("error");
+    resultBox.innerHTML = equationType.value === 'one' ? 'x = ?' : 'x = ?<br>y = ?';
+    activeIndex = 0;
+    focusActive();
+  }
+
+  function nextInput() {
+    do {
+      activeIndex = (activeIndex + 1) % inputs.length;
+    } while (inputs[activeIndex].style.display === "none");
+    focusActive();
+  }
+
+  function prevInput() {
+    do {
+      activeIndex = (activeIndex - 1 + inputs.length) % inputs.length;
+    } while (inputs[activeIndex].style.display === "none");
+    focusActive();
+  }
+
+  function nextRow() {
+    activeIndex = (activeIndex + 3) % inputs.length;
+    if (inputs[activeIndex].style.display === "none") nextInput();
+    else focusActive();
+  }
+
+  function prevRow() {
+    activeIndex = (activeIndex - 3 + inputs.length) % inputs.length;
+    if (inputs[activeIndex].style.display === "none") prevInput();
+    else focusActive();
+  }
+
+  function showError(msg, errorIndices = []) {
+    resultBox.innerHTML = `<span style="color:#ff4d4d">${msg}</span>`;
+    resultBox.classList.add("shake");
+    setTimeout(() => resultBox.classList.remove("shake"), 300);
+
+    errorIndices.forEach(i => {
+      inputs[i].classList.add("error", "shake");
+      setTimeout(() => {
+        inputs[i].classList.remove("shake", "error");
+      }, 300);
+    });
+  }
+
+    function solve() {
+  const type = equationType.value;
+  if (!type) {
+    equationType.classList.add("error");
+    resultBox.innerHTML = `<span style="color:#ff4d4d">Please select an equation type!</span>`;
+    resultBox.classList.add("shake");
+    setTimeout(() => resultBox.classList.remove("shake"), 300);
+    return;
+  }
+
+  equationType.classList.remove("error");
+
+  // ----- One equation (ax + b = 0) -----
+  if (type === "one") {
+    const a = parseFloat(inputs[0].value);
+    const b = parseFloat(inputs[1].value);
+    if (isNaN(a) || isNaN(b)) return showError("Enter valid a and b!", [0, 1]);
+
+    if (a === 0) {
+      const special = b === 0 ? "∞ (Infinite solutions)" : "No solution";
+      resultBox.innerHTML = `x = ${special}<div class="explanation">
+        Since a = 0 and b = ${b}, the equation becomes (${b}) = 0, which is ${b === 0 ? "true for all x" : "not valid"}.
+      </div>`;
+    } else {
+      const x = (-b / a).toFixed(2);
+      resultBox.innerHTML = `<div class="answer">x = ${x}</div><div class="explanation">
+        Solving <b>(${a})x + (${b}) = 0</b><br>
+        → (${a})x = (${(-b)})<br>
+        → x = (${(-b)}) / (${a}) = <b>${x}</b>
+      </div>`;
+    }
+    return;
+  }
+
+  // ----- Two equations (system of linear equations) -----
+  const values = inputs.map(i => parseFloat(i.value));
+  const errors = values.map((v, i) => isNaN(v) && inputs[i].style.display !== "none" ? i : null).filter(i => i !== null);
+  if (errors.length) return showError("Please enter all valid numbers!", errors);
+
+  const [a1, b1, c1, a2, b2, c2] = values;
+  const c1Norm = -c1;
+  const c2Norm = -c2;
+
+  const D = a1 * b2 - a2 * b1;
+  const Dx = c1Norm * b2 - c2Norm * b1;
+  const Dy = a1 * c2Norm - a2 * c1Norm;
+
+  if (D === 0) {
+    const msg = (Dx === 0 && Dy === 0) ? '∞ (Infinite solutions)' : 'No solution';
+    resultBox.innerHTML = `<span style="color:#ffcc00">x = ${msg}<br>y = ${msg}</span>
+    <div class="explanation">
+      D = (${a1})×(${b2}) - (${a2})×(${b1}) = ${D}<br>
+      Dx = (${c1Norm})×(${b2}) - (${c2Norm})×(${b1}) = ${Dx}<br>
+      Dy = (${a1})×(${c2Norm}) - (${a2})×(${c1Norm}) = ${Dy}<br>
+      Since D = 0 and Dx ${Dx === 0 ? "=" : "≠"} 0, Dy ${Dy === 0 ? "=" : "≠"} 0,<br>
+      The system has <b>${msg}</b>.
+    </div>`;
+  } else {
+    const x = (Dx / D).toFixed(2);
+    const y = (Dy / D).toFixed(2);
+
+    // slope-intercept form
+    let slopeIntercept;
+    if (b1 === 0) {
+      slopeIntercept = `x = ${(-c1Norm / a1).toFixed(2)}`;
+    } else {
+      const m = (-a1 / b1).toFixed(2);
+      const b = (c1Norm / b1).toFixed(2);
+      slopeIntercept = `y = ${m}x ${b >= 0 ? "+ " + b : "- " + Math.abs(b)}`;
+    }
+
+    // point-slope form
+    const pointSlope = `y ${y < 0 ? "+ " + Math.abs(y) : "- " + y} = ${b1 === 0 ? "undefined" : (-a1 / b1).toFixed(2)}(x ${x < 0 ? "+ " + Math.abs(x) : "- " + x})`;
+
+    // standard form
+    const cleanC = c1 >= 0 ? `+ ${c1}` : `- ${Math.abs(c1)}`;
+    const standard = `${a1}x + ${b1}y ${cleanC} = 0`;
+
+    resultBox.innerHTML = `
+      <div class="answer">x = ${x}<br>y = ${y}</div>
+      <div class="explanation">
+        D = (${a1})×(${b2}) - (${a2})×(${b1}) = ${D}<br>
+        Dx = (${c1Norm})×(${b2}) - (${c2Norm})×(${b1}) = ${Dx}<br>
+        Dy = (${a1})×(${c2Norm}) - (${a2})×(${c1Norm}) = ${Dy}<br>
+        x = Dx / D = (${Dx}) / (${D}) = <b>${x}</b><br>
+        y = Dy / D = (${Dy}) / (${D}) = <b>${y}</b><br><br>
+
+        <b>Standard Form:</b><br>${standard}<br><br>
+        <b>Slope-Intercept Form:</b><br>${slopeIntercept}<br><br>
+        <b>Point-Slope Form:</b><br>${pointSlope}
+      </div>`;
+  }
+}
+
+    // Theme toggle
+  themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("light");
+  });
+
+  document.addEventListener("keydown", (e) => { 
+    const key = e.key;
+
+    if (/^[0-9]$/.test(key)) {
+        append(key);
+        e.preventDefault();
+        return;
+    }
+    if (key === ".") {
+        append(".");
+        e.preventDefault();
+        return;
+    }
+    if (key === "Backspace") {
+        backspace();
+        e.preventDefault();
+        return;
+    }
+    if (key === "-") {
+        toggleSign();
+        e.preventDefault();
+        return;
+    }
+    if (key === "ArrowRight") {
+        nextInput();
+        e.preventDefault();
+        return;
+    }
+    if (key === "ArrowLeft") {
+        prevInput();
+        e.preventDefault();
+        return;
+    }
+    if (key === "Enter") {
+        solve();
+        e.preventDefault();
+        return;
+    }
+    if (key === "Escape") {
+        clearInputs(); // fixed (previously clearAll)
+        e.preventDefault();
+        return;
+    }
+  });
+
+  window.onload = () => {
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile) {
+      inputs.forEach(input => input.setAttribute('inputmode', 'none'));
+    }
+    inputs.forEach((input, index) => {
+      input.addEventListener('click', () => {
+        activeIndex = index;
+        focusActive();
+      });
+    });
+    activeIndex = 0;
+    focusActive();
+  };
+  </script>
+</body>
+</html>

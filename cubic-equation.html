@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cubic Equation Solver</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #121212;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 10px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .container {
+      background: linear-gradient(to bottom, #1a1a1a, #222);
+      border-radius: 20px;
+      padding: 20px;
+      max-width: 400px;
+      width: 100%;
+      position: relative;
+      border: 2px solid rgba(0, 255, 255, 0.5);
+      box-shadow:
+        0 0 20px rgba(0, 255, 255, 0.3),
+        0 0 40px rgba(0, 255, 255, 0.2),
+        0 0 60px rgba(0, 255, 255, 0.15);
+      transition: box-shadow 0.3s, background-color 0.3s;
+      animation: glowPulse 3s ease-in-out infinite;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin-bottom: 0.7rem;
+    }
+
+    .topbar h1 {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    /* Theme Toggle */
+    .switch {
+      width: 50px;
+      height: 28px;
+      background-color: #555;
+      box-shadow: 0 2px 6px rgba(255,255,255,0.15);
+      border-radius: 30px;
+      position: relative;
+      transition: background-color 0.3s ease;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+    .slider {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translateX(0);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    body.light .switch {
+      background: #f0f0f0;
+      border: 1px solid #bbb;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+
+    body.light .switch .slider {
+      transform: translateX(20px);
+    }
+
+    .equation-format {
+      text-align: center;
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+      font-weight: 500;
+      color: #00eaff;
+    }
+    body.light .equation-format {
+     color: #003973;
+    }
+
+    .inputs {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .inputs input {
+      padding: 10px;
+      font-size: 1.1rem;
+      text-align: center;
+      border: none;
+      width: 100%;
+      border-radius: 8px;
+      background: #333;
+      color: #fff;
+      transition: 0.3s;
+    }
+
+    .inputs input:focus {
+      outline: none !important; 
+      background: #333;
+      box-shadow: 0 0 5px #00bcd4;
+    }
+
+    .shake {
+      animation: shake 0.3s ease;
+      border: 2px solid #ff6b6b !important;
+      box-shadow: 0 0 6px #ff8080;
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+    @keyframes bounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.12); }
+    }
+
+    @keyframes glowPulse {
+      0% {
+    box-shadow:
+      0 0 20px rgba(0, 255, 255, 0.3),
+      0 0 40px rgba(0, 255, 255, 0.2),
+      0 0 60px rgba(0, 255, 255, 0.15);
+     }
+      50% {
+    box-shadow:
+      0 0 25px rgba(0, 255, 255, 0.5),
+      0 0 50px rgba(0, 255, 255, 0.3),
+      0 0 70px rgba(0, 255, 255, 0.2);
+     }
+      100% {
+    box-shadow:
+      0 0 20px rgba(0, 255, 255, 0.3),
+      0 0 40px rgba(0, 255, 255, 0.2),
+      0 0 60px rgba(0, 255, 255, 0.15);
+     }
+    }
+
+    .result {
+      background: #2a2a2a;
+      border-radius: 10px;
+      text-align: center;
+      padding: 10px;
+      min-height: 40px;
+      margin-bottom: 1rem;
+      white-space: pre-line;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .keypad button {
+      padding: 15px;
+      font-size: 1.1rem;
+      border-radius: 10px;
+      border: none;
+      background: #2c2c2c;
+      color: white;
+      box-shadow: inset -2px -2px 4px rgba(255,255,255,0.1),
+                  inset 2px 2px 4px rgba(0,0,0,0.5);
+      cursor: pointer;
+    }
+    .keypad button:hover {
+      transform: scale(1.05);
+      animation: bounce 0.3s ease;
+    }
+    .keypad button:active {
+      box-shadow: inset 2px 2px 4px #121220, inset -2px -2px 4px #3a3a50;
+      transform: scale(0.97);
+    }
+    @keyframes bounce {
+     0%, 100% { transform: scale(1); }
+     50% { transform: scale(1.12); }
+    }
+
+    .solve {
+      grid-column: span 3;
+      margin-top: 0.3rem;
+      background: #2c2c2c;
+      color: white;
+      box-shadow: inset -2px -2px 4px rgba(255,255,255,0.1),
+                  inset 2px 2px 4px rgba(0,0,0,0.5);
+      font-size: 1.2rem;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .keypad .solve:active {
+      box-shadow: 0 0 12px rgba(100, 255, 100, 0.8), inset 0 0 6px rgba(0,0,0,0.5);
+      animation: bounce 0.3s ease;
+    }
+
+    .error {
+      color: #ff5252;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+
+    body.light {
+      background: #f4f4f4;
+      color: #111;
+    }
+
+    body.light .container {
+      background: linear-gradient(to bottom, #fff, #ddd);
+      color: #111;
+    }
+
+    body.light .inputs input {
+      background: #e0e0e0;
+      color: #111;
+    }
+
+    body.light .inputs input:focus {
+      background: #f0f0f0;
+    }
+
+    body.light .result {
+      background: #fff;
+      color: #000; 
+    }
+
+    body.light .keypad button{
+      background: #ccc; 
+      color: #111; 
+    }
+
+    body.light .solve {
+      background: #ccc; 
+      color: #111; 
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="topbar">
+    <h1>Cubic Equation Solver</h1>
+    <div id="themeToggle" class="switch">
+     <div class="slider"></div>
+    </div>
+  </div>
+
+  <div class="equation-format">Equation: ax³ + bx² + cx + d = 0</div>
+
+  <div class="inputs">
+  <input id="a" type="text" placeholder="a (x³)" />
+  <input id="b" type="text" placeholder="b (x²)" />
+  <input id="c" type="text" placeholder="c (x)" />
+  <input id="d" type="text" placeholder="d" />
+</div>
+
+  <div id="error" class="error"></div>
+  <div id="result" class="result"></div>
+
+  <div class="keypad">
+    <button onclick="clearAll()">C</button>
+    <button onclick="toggleSign()">±</button>
+    <button onclick="backspace()">⌫</button>
+    <button onclick="insertKey('7')">7</button>
+    <button onclick="insertKey('8')">8</button>
+    <button onclick="insertKey('9')">9</button>
+    <button onclick="insertKey('4')">4</button>
+    <button onclick="insertKey('5')">5</button>
+    <button onclick="insertKey('6')">6</button>
+    <button onclick="insertKey('1')">1</button>
+    <button onclick="insertKey('2')">2</button>
+    <button onclick="insertKey('3')">3</button>
+    <button onclick="insertKey('.')">.</button>
+    <button onclick="insertKey('0')">0</button>
+    <button onclick="focusNext()">→</button>
+    <button class="solve" onclick="solveCubic()">Solve Equation</button>
+  </div>
+</div>
+
+<script>
+  const inputs = Array.from(document.querySelectorAll('.inputs input'));
+  let currentInput = 0;
+
+  function focusActive() {
+    inputs.forEach((el, i) => {
+      el.style.outline = i === currentInput ? '2px solid #4facfe' : 'none';
+    });
+    inputs[currentInput].focus();
+  }
+
+  // Theme toggle
+    themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("light");
+  });
+
+  function insertKey(val) {
+    const input = inputs[currentInput];
+    if (val === '.' && input.value.includes('.')) return;
+    input.value += val;
+    input.focus();
+  }
+
+  function toggleSign() {
+    const input = inputs[currentInput];
+    if (input.value.startsWith('-')) {
+      input.value = input.value.substring(1);
+    } else {
+      input.value = '-' + input.value;
+    }
+    input.focus();
+  }
+
+  function backspace() {
+    const input = inputs[currentInput];
+    input.value = input.value.slice(0, -1);
+    input.focus();
+  }
+
+  function clearAll() {
+    inputs.forEach(i => {
+      i.value = '';
+      i.classList.remove('shake');
+    });
+    document.getElementById('result').textContent = '';
+    document.getElementById('error').textContent = '';
+    currentInput = 0;
+    inputs[0].focus();
+  }
+
+  function focusNext() {
+    currentInput = (currentInput + 1) % inputs.length;
+    inputs[currentInput].focus();
+  }
+
+  function focusPrev() {
+    currentInput = (currentInput - 1 + inputs.length) % inputs.length;
+    inputs[currentInput].focus();
+  }
+
+  inputs.forEach((input, i) =>
+    input.addEventListener('focus', () => currentInput = i)
+  );
+
+  function animateInputs() {
+    inputs.forEach(i => {
+      i.classList.add('shake');
+      setTimeout(() => i.classList.remove('shake'), 1000);
+    });
+  }
+
+  function solve() {
+    solveCubic(); 
+  }
+
+  // 🔹 Keyboard handler
+  document.addEventListener("keydown", (e) => { 
+    const key = e.key;
+
+    // Digits 0–9
+    if (/^[0-9]$/.test(key)) {
+        append(key);
+        e.preventDefault();
+        return;
+    }
+
+    // Decimal point
+    if (key === ".") {
+        append(".");
+        e.preventDefault();
+        return;
+    }
+
+    // Backspace
+    if (key === "Backspace") {
+        backspace();
+        e.preventDefault();
+        return;
+    }
+
+    // Plus/minus sign toggle (press `-`)
+    if (key === "-") {
+        toggleSign();
+        e.preventDefault();
+        return;
+    }
+
+    // 🔹 Move ONLY with ArrowLeft & ArrowRight
+    if (key === "ArrowRight") {
+        nextInput();
+        e.preventDefault();
+        return;
+    }
+    if (key === "ArrowLeft") {
+        prevInput();
+        e.preventDefault();
+        return;
+    }
+
+    // Solve with Enter
+    if (key === "Enter") {
+        solve();
+        e.preventDefault();
+        return;
+    }
+
+    // Clear with Escape
+    if (key === "Escape") {
+        clearAll();
+        e.preventDefault();
+        return;
+    }
+});
+
+// 🔹 Navigation helpers
+  function nextInput() {
+    currentInput = (currentInput + 1) % inputs.length; 
+    focusActive();
+  }
+
+  function prevInput() {
+    currentInput = (currentInput - 1 + inputs.length) % inputs.length; 
+    focusActive();
+  }
+
+  
+  function solveCubic() {
+  const a = parseFloat(inputs[0].value);
+  const b = parseFloat(inputs[1].value);
+  const c = parseFloat(inputs[2].value);
+  const d = parseFloat(inputs[3].value);
+
+  const result = document.getElementById('result');
+  const error = document.getElementById('error');
+  result.innerHTML = '';
+  error.textContent = '';
+
+  if ([a, b, c, d].some(isNaN)) {
+    error.textContent = 'Please enter all values.';
+    animateInputs();
+    return;
+  }
+
+  if (a === 0) {
+    error.textContent = 'Coefficient "a" cannot be 0.';
+    animateInputs();
+    return;
+  }
+
+  // Compute depressed cubic values
+  const f = ((3 * c / a) - ((b * b) / (a * a))) / 3;
+  const g = ((2 * b * b * b) / (a * a * a) - (9 * b * c) / (a * a) + (27 * d / a)) / 27;
+  const h = g * g / 4 + f * f * f / 27;
+
+  let explanation = `Given: ${a}x³ + ${b}x² + ${c}x + ${d} = 0\n`;
+  explanation += `\nStep 1: Depress the cubic using Cardano’s method\n`;
+  explanation += `f = ${f.toFixed(6)}\ng = ${g.toFixed(6)}\nh = ${h.toFixed(6)}\n`;
+
+  if (h > 0) {
+    explanation += `\nSince h > 0 → One real root, two complex roots.\n`;
+
+    const r = -(g / 2) + Math.sqrt(h);
+    const s = Math.cbrt(r);
+    const t = -(g / 2) - Math.sqrt(h);
+    const u = Math.cbrt(t);
+    const x1 = (s + u) - (b / (3 * a));
+
+    explanation += `r = ${r.toFixed(6)}, s = ∛r = ${s.toFixed(6)}\n`;
+    explanation += `t = ${t.toFixed(6)}, u = ∛t = ${u.toFixed(6)}\n`;
+    explanation += `Real root x = (s + u) - b / (3a) = ${x1.toFixed(6)}\n`;
+
+    result.innerHTML = `✅ One real root:\n\nx = ${x1.toFixed(6)}\n\n📘 Solution Steps:\n${explanation}`;
+  } else if (f === 0 && g === 0 && h === 0) {
+    explanation += `\nAll values are zero (f = g = h = 0) → Triple real root.\n`;
+
+    const x1 = -Math.cbrt(d / a);
+    explanation += `x = ∛(-d/a) = ${x1.toFixed(6)}\n`;
+
+    result.innerHTML = `✅ Triple root:\n\nx = ${x1.toFixed(6)}\n\n📘 Solution Steps:\n${explanation}`;
+  } else {
+    explanation += `\nSince h ≤ 0 → Three real roots.\n`;
+
+    const i = Math.sqrt((g * g / 4) - h);
+    const j = Math.cbrt(i);
+    const k = Math.acos(-(g / (2 * i)));
+    const m = Math.cos(k / 3);
+    const n = Math.sqrt(3) * Math.sin(k / 3);
+    const p = -(b / (3 * a));
+    const x1 = 2 * j * m + p;
+    const x2 = -j * (m + n) + p;
+    const x3 = -j * (m - n) + p;
+
+    explanation += `i = ${i.toFixed(6)}, j = ∛i = ${j.toFixed(6)}\n`;
+    explanation += `θ = arccos(−g / 2i) = ${k.toFixed(6)}\n`;
+    explanation += `m = cos(θ / 3) = ${m.toFixed(6)}, n = √3 × sin(θ / 3) = ${n.toFixed(6)}\n`;
+    explanation += `p = −b / 3a = ${p.toFixed(6)}\n\n`;
+
+    explanation += `x₁ = 2j·m + p = ${x1.toFixed(6)}\n`;
+    explanation += `x₂ = -j(m + n) + p = ${x2.toFixed(6)}\n`;
+    explanation += `x₃ = -j(m - n) + p = ${x3.toFixed(6)}\n`;
+
+    result.innerHTML =
+      `✅ Three real roots:\n\nx₁ = ${x1.toFixed(6)}\nx₂ = ${x2.toFixed(6)}\nx₃ = ${x3.toFixed(6)}\n\n📘 Solution Steps:\n${explanation}`;
+  }
+}
+// On click, update currentInput
+  inputs.forEach((input, index) => {
+    input.addEventListener('click', () => {
+      currentInput = index;
+      focusActive();
+    });
+  });
+
+  window.onload = () => {
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      inputs.forEach(input => input.setAttribute('inputmode', 'none'));
+    }
+
+    currentInput = 0;   // start at first input
+    focusActive();      // automatically place cursor in 1st input
+  };
+</script>
+</body>
+</html>

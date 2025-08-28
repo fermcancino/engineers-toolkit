@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Simplify Expression</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #121212;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 10px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .calculator-container {
+      background: linear-gradient(to bottom, #1a1a1a, #222);
+      border-radius: 20px;
+      padding: 20px;
+      max-width: 400px;
+      width: 100%;
+      position: relative;
+      border: 2px solid rgba(0, 255, 255, 0.5);
+      box-shadow:
+        0 0 20px rgba(0, 255, 255, 0.3),
+        0 0 40px rgba(0, 255, 255, 0.2),
+        0 0 60px rgba(0, 255, 255, 0.15);
+      transition: box-shadow 0.3s, background-color 0.3s;
+      animation: glowPulse 3s ease-in-out infinite;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      border-radius: 12px;
+      margin: 0.5rem 0 1rem 0;
+    }
+
+    .topbar h1 {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    /* Theme Toggle */
+    .switch {
+      width: 50px;
+      height: 28px;
+      background-color: #555;
+      box-shadow: 0 2px 6px rgba(255,255,255,0.15);
+      border-radius: 30px;
+      position: relative;
+      transition: background-color 0.3s ease;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+    .slider {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translateX(0);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    body.light .switch {
+      background: #f0f0f0;
+      border: 1px solid #bbb;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+
+    body.light .switch .slider {
+      transform: translateX(20px);
+    }
+
+    .container {
+      width: 95%;
+      max-width: 400px;
+      margin: 0.8rem 8px;
+    }
+
+    .input-container, .result-container {
+      background-color: #2a2a2a;
+      padding: 8px;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      border: 2px solid transparent;
+      box-shadow: 0 0 5px #00bcd4;
+      transition: all 0.3s ease;
+    }
+
+    .input-container.error {
+      border: 2px solid #ff8080;
+      box-shadow: 0 0 6px #ff8080;
+      animation: shake 0.3s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+    }
+
+    .input-box {
+      width: 100%;
+      background: none;
+      border: none;
+      border-bottom: 2px solid #888;
+      font-size: 1.1rem;
+      padding: 0.5rem;
+      color: #fff;
+    }
+    .input-box:focus {
+      outline: none;
+      box-shadow: none;
+      border-bottom: 2px solid #14c9cb; 
+    }
+
+    .input-box {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .result-display {
+      font-size: 1.1rem;
+    }
+
+    .result-display b {
+      font-size: 1.2rem;
+      color: #14c9cb;
+    }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .keypad button {
+      padding: 15px;
+      font-size: 1.1rem;
+      border-radius: 10px;
+      border: none;
+      background: #2c2c2c;
+      color: white;
+      box-shadow: inset -2px -2px 4px rgba(255,255,255,0.1),
+                  inset 2px 2px 4px rgba(0,0,0,0.5);
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+    @keyframes glowPulse {
+        0% {
+            box-shadow:
+            0 0 20px rgba(0, 255, 255, 0.3),
+            0 0 40px rgba(0, 255, 255, 0.2),
+            0 0 60px rgba(0, 255, 255, 0.15);
+        }
+        50% {
+            box-shadow:
+            0 0 25px rgba(0, 255, 255, 0.5),
+            0 0 50px rgba(0, 255, 255, 0.3),
+            0 0 70px rgba(0, 255, 255, 0.2);
+        }
+        100% {
+            box-shadow:
+            0 0 20px rgba(0, 255, 255, 0.3),
+            0 0 40px rgba(0, 255, 255, 0.2),
+            0 0 60px rgba(0, 255, 255, 0.15);
+        }
+    }
+    @keyframes bounce {
+     0%, 100% { transform: scale(1); }
+     50% { transform: scale(1.12); }
+    }
+    .keypad button:hover {
+      transform: scale(1.05);
+      animation: bounce 0.3s ease;
+    }
+
+    .keypad button:active {
+      box-shadow: inset 2px 2px 4px #121220, inset -2px -2px 4px #3a3a50;
+      transform: scale(0.97);
+      background-color: #555;
+    }
+
+    .btn-span {
+      grid-column: span 2;
+    }
+    .keypad .btn-span:active {
+      box-shadow: 0 0 12px rgba(100, 255, 100, 0.8), inset 0 0 6px rgba(0,0,0,0.5);
+      animation: bounce 0.3s ease;
+      transform: scale(0.97);
+    }
+    /* Light Theme */
+    body.light {
+      background: #f4f4f4;
+      color: #111;
+    }
+    body.light .calculator-container {
+      background: linear-gradient(to bottom, #fff, #ddd);
+      color: #111;
+    }
+    
+    body.light .input-container,
+    body.light .result-container {
+      background: #e0e0e0;
+      color: #111;
+    }
+
+    body.light .input-box {
+      color: #000;
+      border-bottom: 2px solid #555;
+    }
+
+    body.light .keypad button {
+      background: #ccc;
+      color: #111;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="calculator-container">
+    <div class="topbar">
+      <h1>Simplify Expression</h1>
+      <div id="themeToggle" class="switch">
+      <div class="slider"></div>
+     </div>
+    </div>
+
+    <div class="container">
+      <div class="input-container" id="inputContainer">
+        <input type="text" id="expressionInput" class="input-box" placeholder="Enter Expression" autofocus autocomplete="off"/>
+      </div>
+
+      <div class="result-container" id="resultContainer">
+        <div class="result-display" id="resultDisplay"><b></b></div>
+      </div>
+
+      <div class="keypad" id="keypad">
+        <button onclick="toggleSign()">±</button>
+        <button onclick="appendToInput('x')">x</button>
+        <button onclick="appendToInput('^')">^</button>
+        <button onclick="backspace()">⌫</button>
+
+        <button onclick="appendToInput('7')">7</button>
+        <button onclick="appendToInput('8')">8</button>
+        <button onclick="appendToInput('9')">9</button>
+        <button onclick="appendToInput('/')">÷</button>
+
+        <button onclick="appendToInput('4')">4</button>
+        <button onclick="appendToInput('5')">5</button>
+        <button onclick="appendToInput('6')">6</button>
+        <button onclick="appendToInput('*')">*</button>
+
+        <button onclick="appendToInput('1')">1</button>
+        <button onclick="appendToInput('2')">2</button>
+        <button onclick="appendToInput('3')">3</button>
+        <button onclick="appendToInput('-')">-</button>
+
+        <button onclick="appendToInput('0')">0</button>
+        <button onclick="appendToInput('(')">(</button>
+        <button onclick="appendToInput(')')">)</button>
+        <button onclick="appendToInput('+')">+</button>
+
+        <button class="btn-span" onclick="clearInput()">Clear</button>
+        <button class="btn-span" onclick="handleSimplify()">Simplify</button>
+      </div>
+    </div>
+  </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+
+  <script>
+    const input = document.getElementById('expressionInput');
+    const inputContainer = document.getElementById('inputContainer');
+    const resultDisplay = document.getElementById('resultDisplay');
+
+    function appendToInput(value) {
+      const lastChar = input.value.slice(-1);
+      const invalidPairs = ['++', '--', '**', '//', '^^', '+-', '-+', '*/', '/*', '^*', '*^', '+*', '*+', '+/', '/+', '-/', '/-'];
+
+      if (
+        /[+\-*/^]/.test(lastChar) &&
+        /[+\-*/^]/.test(value) &&
+        invalidPairs.includes(lastChar + value)
+      ) {
+        inputContainer.classList.add('error');
+        resultDisplay.innerHTML = `<span style="color:#ff474c">Invalid operator sequence</span>`;
+        return;
+      }
+
+      input.value += value;
+      inputContainer.classList.remove('error');
+      resultDisplay.innerHTML = '';
+    }
+
+    function clearInput() {
+      input.value = '';
+      resultDisplay.innerHTML = '';
+      inputContainer.classList.remove('error');
+    }
+
+    function backspace() {
+      input.value = input.value.slice(0, -1);
+    }
+
+    function toggleSign() {
+  let val = input.value.trim();
+
+  if (val === '') {
+    input.value = '-';
+    return;
+  }
+
+  // Match last term (number, variable, or parenthesized expression)
+  const match = val.match(/(.*?)(\(?-?\d*\.?\d+[a-z]*\)?)$/i);
+  if (!match) return;
+
+  const before = match[1];
+  let term = match[2];
+
+  if (term.startsWith('(-')) {
+    // Was negative in parentheses: (-5) → 5
+    term = term.slice(2, -1);
+  } else if (term.startsWith('-')) {
+    // Was just -5 → 5
+    term = term.slice(1);
+  } else {
+    // Was 5 → -5 (or x → -x)
+    // Wrap only if it's a complex term
+    term = /^[-\d.]+$/.test(term) ? `-${term}` : `(-${term})`;
+  }
+
+  input.value = before + term;
+}
+
+function preprocess(expr) {
+  return expr
+    .replace(/\s+/g, '')                        // remove spaces
+    .replace(/([0-9a-zA-Z)])\(/g, '$1*(')       // 2( → 2*( , x( → x*( , )( → )*(
+    .replace(/\)([0-9a-zA-Z])/g, ')*$1')        // )x → )*x , )2 → )*2
+    .replace(/(\d)([a-zA-Z])/g, '$1*$2')        // 2x → 2*x
+    .replace(/([a-zA-Z])(\d)/g, '$1*$2');       // x2 → x*2
+}
+
+// Sort terms by exponent descending
+// ——— Reorder & combine like terms (single-variable polynomials) ———
+function reorderPolynomial(exprStr) {
+  // normalize: convert ** to ^, remove spaces and '*' multiplication signs
+  let s = exprStr.replace(/\*\*/g, '^').replace(/\s+/g, '').replace(/\*/g, '');
+
+  // split into terms while preserving leading + / - signs
+  const terms = s.match(/[+-]?[^+-]+/g) || [];
+
+  // aggregate coefficients by exponent
+  const coeffMap = {}; // exponent -> coefficient (number)
+  let detectedVar = null;
+
+  for (let term of terms) {
+    if (!term) continue;
+
+    // match: [sign and number][variable letters][^exponent]
+    const m = term.match(/^([+-]?\d*\.?\d*)([a-zA-Z]+)?(?:\^(\d+))?$/);
+    if (!m) {
+      // Not a simple monomial (e.g. contains functions/parentheses) — return cleaned expression
+      return s;
+    }
+
+    let [, coeffStr, variable, expStr] = m;
+    if (variable) detectedVar = variable; 
+
+    // interpret coefficient
+    let coeff;
+    if (coeffStr === '' || coeffStr === '+') coeff = 1;
+    else if (coeffStr === '-') coeff = -1;
+    else coeff = parseFloat(coeffStr);
+
+    // determine exponent
+    const exp = variable ? (expStr ? parseInt(expStr, 10) : 1) : 0;
+
+    coeffMap[exp] = (coeffMap[exp] || 0) + coeff;
+  }
+
+  // if nothing parsed, return '0' or cleaned input
+  const exps = Object.keys(coeffMap).map(k => parseInt(k, 10)).sort((a, b) => b - a);
+  if (exps.length === 0) return '0';
+
+  // build output terms, preserving the detected variable name (default 'x')
+  const v = detectedVar || 'x';
+  const outTerms = [];
+
+  for (const exp of exps) {
+    const c = coeffMap[exp];
+    if (Math.abs(c) < 1e-12) continue; 
+
+    // format coefficient string without unnecessary .0
+    const coeffIsInt = Math.abs(c - Math.round(c)) < 1e-12;
+    const cStr = coeffIsInt ? String(Math.round(c)) : String(Number(c));
+
+    let term;
+    if (exp === 0) {
+      term = cStr;
+    } else if (exp === 1) {
+      if (Math.abs(c - 1) < 1e-12) term = v;
+      else if (Math.abs(c + 1) < 1e-12) term = '-' + v;
+      else term = `${cStr}${v}`;
+    } else {
+      if (Math.abs(c - 1) < 1e-12) term = `${v}^${exp}`;
+      else if (Math.abs(c + 1) < 1e-12) term = `-${v}^${exp}`;
+      else term = `${cStr}${v}^${exp}`;
+    }
+    outTerms.push(term);
+  }
+
+  if (outTerms.length === 0) return '0';
+
+  // join with proper + / - spacing
+  let result = outTerms[0];
+  for (let i = 1; i < outTerms.length; i++) {
+    const t = outTerms[i];
+    if (t.startsWith('-')) result += ' - ' + t.slice(1);
+    else result += ' + ' + t;
+  }
+
+  return result;
+}
+
+function simplifyExpression(expr) {
+  try {
+    const fixedExpr = preprocess(expr);
+    const parsed = math.parse(fixedExpr);
+
+    // Expand with distributive property (works for constants too)
+    let expanded;
+    try {
+      expanded = math.simplify(parsed, math.simplify.rules, { expand: true });
+    } catch {
+      expanded = parsed;
+    }
+
+    // Combine like terms
+    const simplified = math.simplify(expanded);
+
+    // Reorder terms
+    const simplifiedStr = reorderPolynomial(
+      simplified.toString().replace(/\*\*/g, '^')
+    );
+
+    resultDisplay.innerHTML = `
+      <b>Final Simplified: ${simplifiedStr}</b><br/><br/>
+      <div style="font-size:0.9rem; opacity:0.85;">
+        <b>Step 1:</b> Preprocess → <code>${fixedExpr}</code><br/>
+        <b>Step 2:</b> Expand → <code>${expanded.toString().replace(/\*\*/g, '^')}</code><br/>
+        <b>Step 3:</b> Combine like terms → <code>${simplified.toString().replace(/\*\*/g, '^')}</code><br/>
+        <b>Step 4:</b> Reorder by power → <code>${simplifiedStr}</code>
+      </div>
+    `;
+    return true;
+  } catch (err) {
+    console.error(err.message);
+    resultDisplay.innerHTML = `<span style="color:#ff474c">Error: Invalid expression</span>`;
+    inputContainer.classList.add('error');
+    setTimeout(() => inputContainer.classList.remove('error'), 500);
+    return false;
+  }
+}
+
+
+    function handleSimplify() {
+  const value = input.value.trim();
+  if (value === '') {
+    inputContainer.classList.add('error');
+    resultDisplay.innerHTML = `<span style="color:#ff474c">Input cannot be empty</span>`;
+    setTimeout(() => inputContainer.classList.remove('error'), 500);
+    return;
+  }
+
+  const valid = simplifyExpression(value);
+  if (!valid) {
+    inputContainer.classList.add('error');
+    setTimeout(() => inputContainer.classList.remove('error'), 500); 
+  }
+}
+
+    // Theme toggle
+    themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("light");
+  });
+
+    input.addEventListener('input', () => {
+      inputContainer.classList.remove('error');
+    });
+
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleSimplify();
+    });
+    document.getElementById('inputContainer').addEventListener('click', () => {
+  input.focus();
+});
+  </script>
+</body>
+</html>
