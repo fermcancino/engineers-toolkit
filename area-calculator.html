@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>3D Carousel Area Calculator</title>
+  <style>
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+      font-family: 'Poppins', sans-serif; 
+    }
+
+    body {
+      background: linear-gradient(135deg, #1a1f2b, #4e4376);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      transition: 0.3s ease;
+    }
+
+    body.light {
+      background: linear-gradient(135deg, #dfe9f3, #ffffff);
+      color: #222;
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+
+    .error {
+      border: 1px solid #ff6b6b !important;
+      animation: shake 0.3s;
+    }
+
+    .error-message {
+      color: #ff6b6b;
+      font-size: 0.85rem;
+      text-align: center;
+      margin-top: 4px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .error-message.show { 
+      opacity: 1; 
+    }
+
+    /* Topbar */
+    .topbar {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      width: 100%;
+      max-width: 500px;
+      padding: 10px 20px;
+    }
+
+    .title {
+      font-size: 1.4rem;
+      font-weight: bold;
+    }
+    
+    /* Theme Toggle */
+    .switch {
+      width: 50px;
+      height: 28px;
+      background: linear-gradient(135deg, #1a1f2b, #4e4376); 
+      border-radius: 30px;
+      position: relative;
+      transition: background-color 0.3s ease;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+
+    .slider {
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, #8a8fb8, #b89ce0);
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translateX(0); 
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+
+    body.light .slider {
+      background: linear-gradient(135deg, #ffffff, #e0e0e0);
+    }
+
+    body.light .switch {
+      background: #cccccc; 
+      border: 1px solid #e0e0e0; 
+    }
+
+    body.light .switch .slider {
+      transform: translateX(20px); 
+    }
+    
+    .title {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    
+    main#carousel {
+      width: 100vw;
+      height: 500px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      perspective: 1200px;
+      --items: 5;
+      --position: 1;
+      pointer-events: none;
+    }
+
+    div.item {
+      text-align: center;
+      padding: 20px;
+      border-radius: 20px;
+      position: absolute;
+      width: 350px;
+      height: 370px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(15px) saturate(180%);
+      -webkit-backdrop-filter: blur(15px) saturate(180%);
+      border: 2px solid rgba(0, 255, 255, 0.5);
+      box-shadow: 
+        0 8px 25px rgba(0, 255, 255, 0.2), 
+        inset -2px -2px 6px rgba(255, 255, 255, 0.2), 
+        inset 3px 3px 8px rgba(0, 0, 0, 0.4); 
+      --r: calc(var(--position) - var(--offset));
+      --abs: max(calc(var(--r) * -1), var(--r));
+      transition: all 0.5s ease;
+      transform: rotateY(calc(-12deg * var(--r)))
+                 translateX(calc(-340px * var(--r))) 
+                 scale(calc(1 - (0.15 * var(--abs))));
+      z-index: calc((var(--position) - var(--abs)));
+      color: #e0f7ff;
+      pointer-events: auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    body.light .item {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.6); 
+      box-shadow:
+        0 8px 30px rgba(0, 150, 255, 0.2),  
+        0 0 14px rgba(255, 255, 255, 0.7) inset,
+        inset -2px -2px 6px rgba(255, 255, 255, 0.5),
+        inset 3px 3px 8px rgba(0, 0, 0, 0.08); 
+      color: #003344;
+    }
+
+    h3 { 
+      margin-bottom: 6px; 
+      font-size: 1.5rem;
+      background: linear-gradient(45deg, #00f2fe, #4facfe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    body.light h3 { 
+      background: linear-gradient(45deg, #0072ff, #00c6ff); 
+      -webkit-background-clip: text; 
+      -webkit-text-fill-color: transparent; 
+    }
+
+    .shape-diagram {
+      margin: 5px 0;
+      height: 80px;
+      filter: drop-shadow(3px 3px 5px rgba(0,0,0,0.5));
+    }
+
+    .formula { 
+      font-size: 1.2rem; 
+      margin-bottom: 8px; 
+      opacity: 0.8;
+    }
+
+    .input-row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      width: 90%;
+      margin: 8px auto;
+    }
+
+    .input-row input {
+      flex: 1;
+      text-align: center;
+    }
+
+    input {
+      width: 90%;
+      margin: 6px auto;
+      padding: 8px;
+      border-radius: 12px;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: inherit;
+      font-size: 1.2rem;
+      outline: none;
+      box-shadow: inset 3px 3px 5px rgba(0,0,0,0.5), 
+                  inset -3px -3px 5px rgba(255,255,255,0.05);
+      transition: 0.3s ease;
+    }
+    
+    input:focus {
+      box-shadow: 0 0 5px #00bcd4;
+      transform: scale(1.03);
+    }
+
+    input.result-highlight {
+      background: rgba(0, 255, 255, 0.2) !important;
+      box-shadow: 0 0 10px #00bcd4;
+      outline: 2px solid #00f2fe;
+      font-weight: bold;
+      transform: scale(1.05);
+    }
+
+    body.light input { 
+      background: rgba(0,0,0,0.05); 
+      color: #222; 
+    }
+
+    button {
+      width: 90%;
+      padding: 8px;
+      margin: 8px auto;
+      background: linear-gradient(135deg, #00f2fe, #4facfe);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 3px 3px 8px rgba(0,0,0,0.4);
+      transition: all 0.25s ease;
+    }
+
+    button:hover { 
+      transform: translateY(-3px) scale(1.03); 
+    }
+
+    button:active { 
+      transform: scale(0.97); 
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      width: 90%;
+      margin: 8px auto;
+    }
+
+    .calc-btn, 
+    .clear-btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      color: inherit;
+      background: rgba(255,255,255,0.08);
+      /* Neumorphic effect */
+      box-shadow:
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+    }
+
+    body.light .calc-btn, 
+    body.light .clear-btn {
+      background: #e0e5ec;
+      color: #222; 
+      box-shadow:
+        inset 3px 3px 6px rgba(163,177,198,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.8);
+    }
+
+    .calc-btn:hover {
+      box-shadow: 
+        0 0 12px rgba(79,172,254,0.9),
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+    }
+
+    .clear-btn:hover {
+      box-shadow: 
+        0 0 12px rgba(255,107,107,0.9),
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+    }
+
+    body.light .calc-btn:hover {
+      box-shadow: 
+        0 0 12px rgba(79,172,254,0.9),
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+    }
+
+    body.light .clear-btn:hover {
+      box-shadow: 
+        0 0 12px rgba(255,107,107,0.9),
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+    }
+
+    .calc-btn:active, 
+    .clear-btn:active,
+    body.light .calc-btn:active, 
+    body.light .clear-btn:active {
+      transform: scale(0.97);
+      box-shadow: 
+        inset 4px 4px 8px rgba(0,0,0,0.8),
+        inset -2px -2px 4px rgba(255,255,255,0.1);
+    }
+
+    .result {
+      margin: 12px auto;
+      padding: 8px;
+      font-size: 1rem;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.1);
+      box-shadow: inset 3px 3px 5px rgba(0,0,0,0.5), 
+                  inset -3px -3px 5px rgba(255,255,255,0.05);
+      width: 90%;
+    }
+
+    body.light .result { 
+      background: rgba(0,0,0,0.05); 
+    }
+
+    /* Positioning each card */
+    div.item:nth-of-type(1) { --offset: 1; }
+    div.item:nth-of-type(2) { --offset: 2; }
+    div.item:nth-of-type(3) { --offset: 3; }
+    div.item:nth-of-type(4) { --offset: 4; }
+    div.item:nth-of-type(5) { --offset: 5; }
+    div.item:nth-of-type(6) { --offset: 6; }
+    div.item:nth-of-type(7) { --offset: 7; }
+    div.item:nth-of-type(8) { --offset: 8; }
+    div.item:nth-of-type(9) { --offset: 9; }
+    div.item:nth-of-type(10) { --offset: 10; }
+    div.item:nth-of-type(11) { --offset: 11; }
+
+    /* Radio buttons */
+    input[type=radio] {
+      appearance: none;
+      width: 15px;
+      height: 15px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    input[type=radio]:checked {
+      background: #00f2fe;
+      box-shadow: 0 0 10px #00f2fe;
+    }
+
+    input[type=radio]:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Dot positions */
+    .radio-container {
+      display: flex;
+      gap: 12px;
+    }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <div class="title">Area Calculator</div>
+    <div id="themeToggle" class="switch">
+      <div class="slider"></div>
+    </div>
+  </div>
+
+  <!-- Carousel -->
+  <main id="carousel">
+    <!-- Circle -->
+    <div class="item">
+      <h3>Circle</h3>
+      <svg class="shape-diagram" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="40" stroke="#00f2fe" stroke-width="4" fill="none"/>
+      </svg>
+      <p class="formula">A = πr²</p>
+      <div class="input-row">
+        <input type="number" id="circleArea" placeholder="A">
+        <input type="number" id="radius" placeholder="r">
+      </div>
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcCircle()">Calculate</button>
+        <button class="clear-btn" onclick="clearInputs(['circleArea','radius'])">Clear</button>
+      </div>
+      <div class="error-message" id="circleError"></div>
+    </div>
+
+    <!-- Rectangle -->
+    <div class="item">
+      <h3>Rectangle</h3>
+      <svg class="shape-diagram" viewBox="0 0 100 60">
+        <rect x="10" y="10" width="80" height="40" stroke="#00f2fe" stroke-width="4" fill="none"/>
+      </svg>
+      <p class="formula">A = w × h</p>
+      <div class="input-row">
+        <input type="number" id="rectArea" placeholder="A">
+        <input type="number" id="width" placeholder="w">
+        <input type="number" id="height" placeholder="h">
+      </div>
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcRectangle()">Calculate</button>
+        <button class="clear-btn" onclick="clearInputs(['rectArea','width','height'])">Clear</button>
+      </div>
+      <div class="error-message" id="rectError"></div>
+    </div>
+
+    <!-- Triangle -->
+    <div class="item">
+      <h3>Triangle</h3>
+      <svg class="shape-diagram" viewBox="0 0 100 80">
+        <polygon points="10,70 50,10 90,70" stroke="#00f2fe" stroke-width="4" fill="none"/>
+      </svg>
+      <p class="formula">A = ½ b × h</p>
+      <div class="input-row">
+        <input type="number" id="triArea" placeholder="A">
+        <input type="number" id="base" placeholder="b">
+        <input type="number" id="triHeight" placeholder="h">
+      </div>
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcTriangle()">Calculate</button>
+        <button class="clear-btn" onclick="clearInputs(['triArea','base','triHeight'])">Clear</button>
+      </div>
+      <div class="error-message" id="triError"></div>
+    </div>
+
+    <!-- Square -->
+    <div class="item">
+      <h3>Square</h3>
+      <svg class="shape-diagram" viewBox="0 0 100 100">
+        <rect x="20" y="20" width="60" height="60" stroke="#00f2fe" stroke-width="4" fill="none"/>
+      </svg>
+      <p class="formula">A = s²</p>
+      <div class="input-row">
+        <input type="number" id="squareArea" placeholder="A">
+        <input type="number" id="side" placeholder="s">
+      </div>
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcSquare()">Calculate</button>
+        <button class="clear-btn" onclick="clearInputs(['squareArea','side'])">Clear</button>
+      </div>
+      <div class="error-message" id="squareError"></div>
+    </div>
+
+    <!-- Parallelogram -->
+    <div class="item">
+      <h3>Parallelogram</h3>
+      <svg class="shape-diagram" viewBox="0 0 120 80">
+        <polygon points="20,70 90,70 100,10 30,10" stroke="#00f2fe" stroke-width="4" fill="none"/>
+      </svg>
+      <p class="formula">A = b × h</p>
+      <div class="input-row">
+        <input type="number" id="paraArea" placeholder="A">
+        <input type="number" id="paraBase" placeholder="b">
+        <input type="number" id="paraHeight" placeholder="h">
+      </div>
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcParallelogram()">Calculate</button>
+        <button class="clear-btn" onclick="clearInputs(['paraArea','paraBase','paraHeight'])">Clear</button>
+      </div>
+      <div class="error-message" id="paraError"></div>
+    </div>
+
+    <!-- Trapezoid -->
+    <div class="item">
+      <h3>Trapezoid</h3>
+      <svg class="shape-diagram" viewBox="0 0 120 80">
+        <polygon points="20,70 100,70 80,20 40,20" stroke="#00f2fe" stroke-width="4" fill="none"/>
+      </svg>
+      <p class="formula">A = ½ (a + b) × h</p>
+      <div class="input-row">
+        <input type="number" id="trapArea" placeholder="A">
+        <input type="number" id="trapBase1" placeholder="a">
+        <input type="number" id="trapBase2" placeholder="b">
+        <input type="number" id="trapHeight" placeholder="h">
+      </div>
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcTrapezoid()">Calculate</button>
+        <button class="clear-btn" onclick="clearInputs(['trapArea','trapBase1','trapBase2','trapHeight'])">Clear</button>
+      </div>
+      <div class="error-message" id="trapError"></div>
+    </div>
+
+    <!-- Rhombus -->
+    <div class="item">
+      <h3>Rhombus</h3>
+      <svg class="shape-diagram" viewBox="0 0 120 80">
+        <polygon points="60,10 110,40 60,70 10,40" stroke="#00f2fe" stroke-width="4" fill="none"/>
+      </svg>
+      <p class="formula">A = (d₁ × d₂) ÷ 2</p>
+      <div class="input-row">
+        <input type="number" id="rhombusArea" placeholder="A">
+        <input type="number" id="diag1" placeholder="d₁">
+        <input type="number" id="diag2" placeholder="d₂">
+      </div>
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcRhombus()">Calculate</button>
+        <button class="clear-btn" onclick="clearInputs(['rhombusArea','diag1','diag2'])">Clear</button>
+      </div>
+      <div class="error-message" id="rhombusError"></div>
+    </div>
+
+    <!-- Equilateral Triangle -->
+    <div class="item">
+      <h3>Equilateral Triangle</h3>
+      <svg class="shape-diagram" viewBox="0 0 100 80">
+        <polygon points="10,70 50,10 90,70" stroke="#00f2fe" stroke-width="4" fill="none"/>
+      </svg>
+      <p class="formula">A = (√3 / 4) a²</p>
+      <div class="input-row">
+        <input type="number" id="eqTriArea" placeholder="A">
+        <input type="number" id="eqTriSide" placeholder="a">
+      </div>
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcEquilateralTriangle()">Calculate</button>
+        <button class="clear-btn" onclick="clearInputs(['eqTriArea','eqTriSide'])">Clear</button>
+      </div>
+      <div class="error-message" id="eqTriError"></div>
+    </div>
+
+    <!-- Ellipse -->
+    <div class="item">
+      <h3>Ellipse</h3>
+      <svg class="shape-diagram" viewBox="0 0 120 80">
+        <ellipse cx="60" cy="40" rx="50" ry="30" stroke="#00f2fe" stroke-width="4" fill="none"/>
+      </svg>
+      <p class="formula">A = π a b</p>
+      <div class="input-row">
+        <input type="number" id="ellipseArea" placeholder="A">
+        <input type="number" id="ellipseA" placeholder="a">
+        <input type="number" id="ellipseB" placeholder="b">
+      </div>
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcEllipse()">Calculate</button>
+        <button class="clear-btn" onclick="clearInputs(['ellipseArea','ellipseA','ellipseB'])">Clear</button>
+      </div>
+      <div class="error-message" id="ellipseError"></div>
+    </div>
+
+    <!-- Sector of Circle -->
+    <div class="item">
+      <h3>Sector of Circle</h3>
+      <svg class="shape-diagram" viewBox="0 0 100 100">
+        <path d="M50,50 L90,50 A40,40 0 0,1 70,86 Z" stroke="#00f2fe" stroke-width="4" fill="none"/>
+      </svg>
+      <p class="formula">A = (θ / 360) π r²</p>
+      <div class="input-row">
+        <input type="number" id="sectorArea" placeholder="A">
+        <input type="number" id="sectorRadius" placeholder="r">
+        <input type="number" id="sectorAngle" placeholder="θ">
+      </div>
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcSector()">Calculate</button>
+        <button class="clear-btn" onclick="clearInputs(['sectorArea','sectorRadius','sectorAngle'])">Clear</button>
+      </div>
+      <div class="error-message" id="sectorError"></div>
+    </div>
+
+    <!-- Regular Polygon -->
+    <div class="item">
+      <h3>Regular Polygon</h3>
+      <svg class="shape-diagram" viewBox="0 0 120 120">
+        <polygon points="60,10 110,40 90,100 30,100 10,40" stroke="#00f2fe" stroke-width="4" fill="none"/>
+      </svg>
+      <p class="formula">A = (n s²) / (4 tan(π/n))</p>
+      <div class="input-row">
+        <input type="number" id="polygonArea" placeholder="A">
+        <input type="number" id="polygonSide" placeholder="s">
+        <input type="number" id="polygonN" placeholder="n">
+      </div>
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcPolygon()">Calculate</button>
+        <button class="clear-btn" onclick="clearInputs(['polygonArea','polygonSide','polygonN'])">Clear</button>
+      </div>
+      <div class="error-message" id="polygonError"></div>
+    </div>
+  </main>
+
+  <div class="radio-container">
+    <input type="radio" name="position" checked />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+  </div>
+
+  <script>
+  // Theme toggle
+  themeToggle.addEventListener("click", () => {
+  document.body.classList.toggle("light");
+  });
+
+  // Circle
+  function calcCircle() {
+    const r = parseFloat(document.getElementById("radius").value);
+    const a = parseFloat(document.getElementById("circleArea").value);
+    if (!isNaN(r) && r > 0) {
+      const area = Math.PI * r * r;
+      document.getElementById("circleArea").value = area.toFixed(2);
+      highlightResult("circleArea");
+    } else if (!isNaN(a) && a > 0) {
+      const newR = Math.sqrt(a / Math.PI);
+      document.getElementById("radius").value = newR.toFixed(2);
+      highlightResult("radius");
+    } else {
+      showError(["circleArea","radius"], "circleError", "Enter at least one valid value");
+    }
+  }
+
+  // Rectangle
+  function calcRectangle() {
+    const w = parseFloat(document.getElementById("width").value);
+    const h = parseFloat(document.getElementById("height").value);
+    const a = parseFloat(document.getElementById("rectArea").value);
+    if (!isNaN(w) && !isNaN(h) && w > 0 && h > 0) {
+      const area = w * h;
+      document.getElementById("rectArea").value = area.toFixed(2);
+      highlightResult("rectArea");
+    } else if (!isNaN(a) && !isNaN(w) && a > 0 && w > 0) {
+      const newH = a / w;
+      document.getElementById("height").value = newH.toFixed(2);
+      highlightResult("height");
+    } else if (!isNaN(a) && !isNaN(h) && a > 0 && h > 0) {
+      const newW = a / h;
+      document.getElementById("width").value = newW.toFixed(2);
+      highlightResult("width");
+    } else {
+      showError(["rectArea","width","height"], "rectError", "Enter at least two valid values");
+    }
+  }
+
+  // Triangle
+  function calcTriangle() {
+    const b = parseFloat(document.getElementById("base").value);
+    const h = parseFloat(document.getElementById("triHeight").value);
+    const a = parseFloat(document.getElementById("triArea").value);
+    if (!isNaN(b) && !isNaN(h) && b > 0 && h > 0) {
+      const area = 0.5 * b * h;
+      document.getElementById("triArea").value = area.toFixed(2);
+      highlightResult("triArea");
+    } else if (!isNaN(a) && !isNaN(b) && a > 0 && b > 0) {
+      const newH = (2 * a) / b;
+      document.getElementById("triHeight").value = newH.toFixed(2);
+      highlightResult("triHeight");
+    } else if (!isNaN(a) && !isNaN(h) && a > 0 && h > 0) {
+      const newB = (2 * a) / h;
+      document.getElementById("base").value = newB.toFixed(2);
+      highlightResult("base");
+    } else {
+      showError(["triArea","base","triHeight"], "triError", "Enter at least two valid values");
+    }
+  }
+
+  // Square
+  function calcSquare() {
+    const s = parseFloat(document.getElementById("side").value);
+    const a = parseFloat(document.getElementById("squareArea").value);
+    if (!isNaN(s) && s > 0) {
+      const area = s * s;
+      document.getElementById("squareArea").value = area.toFixed(2);
+      highlightResult("squareArea");
+    } else if (!isNaN(a) && a > 0) {
+      const newS = Math.sqrt(a);
+      document.getElementById("side").value = newS.toFixed(2);
+      highlightResult("side");
+    } else {
+      showError(["squareArea","side"], "squareError", "Enter at least one valid value");
+    }
+  }
+
+  // Parallelogram
+  function calcParallelogram() {
+    const b = parseFloat(document.getElementById("paraBase").value);
+    const h = parseFloat(document.getElementById("paraHeight").value);
+    const a = parseFloat(document.getElementById("paraArea").value);
+    if (!isNaN(b) && !isNaN(h) && b > 0 && h > 0) {
+      const area = b * h;
+      document.getElementById("paraArea").value = area.toFixed(2);
+      highlightResult("paraArea");
+    } else if (!isNaN(a) && !isNaN(b) && a > 0 && b > 0) {
+      const newH = a / b;
+      document.getElementById("paraHeight").value = newH.toFixed(2);
+      highlightResult("paraHeight");
+    } else if (!isNaN(a) && !isNaN(h) && a > 0 && h > 0) {
+      const newB = a / h;
+      document.getElementById("paraBase").value = newB.toFixed(2);
+      highlightResult("paraBase");
+    } else {
+      showError(["paraArea","paraBase","paraHeight"], "paraError", "Enter at least two valid values");
+    }
+  }
+// Trapezoid
+function calcTrapezoid() {
+  const a1 = parseFloat(document.getElementById("trapBase1").value);
+  const a2 = parseFloat(document.getElementById("trapBase2").value);
+  const h = parseFloat(document.getElementById("trapHeight").value);
+  const A = parseFloat(document.getElementById("trapArea").value);
+
+  // Count how many inputs are valid
+  const values = [a1, a2, h, A].filter(v => !isNaN(v) && v > 0);
+
+  // We need at least 3 values to calculate the 4th
+  if (values.length < 3) {
+    showError(["trapArea","trapBase1","trapBase2","trapHeight"], "trapError", "Enter at least three values");
+    return;
+  }
+
+  // Case 1: Calculate Area
+  if (!isNaN(a1) && !isNaN(a2) && !isNaN(h) && isNaN(A)) {
+    const area = ((a1 + a2) / 2) * h;
+    document.getElementById("trapArea").value = area.toFixed(2);
+    highlightResult("trapArea");
+  }
+  // Case 2: Calculate Height
+  else if (!isNaN(a1) && !isNaN(a2) && !isNaN(A) && isNaN(h)) {
+    const newH = (2 * A) / (a1 + a2);
+    document.getElementById("trapHeight").value = newH.toFixed(2);
+    highlightResult("trapHeight");
+  }
+  // Case 3: Calculate Base1
+  else if (!isNaN(a2) && !isNaN(h) && !isNaN(A) && isNaN(a1)) {
+    const newA1 = (2 * A / h) - a2;
+    if (newA1 > 0) {
+      document.getElementById("trapBase1").value = newA1.toFixed(2);
+      highlightResult("trapBase1");
+    } else {
+      showError(["trapBase1"], "trapError", "Invalid values");
+    }
+  }
+  // Case 4: Calculate Base2
+  else if (!isNaN(a1) && !isNaN(h) && !isNaN(A) && isNaN(a2)) {
+    const newA2 = (2 * A / h) - a1;
+    if (newA2 > 0) {
+      document.getElementById("trapBase2").value = newA2.toFixed(2);
+      highlightResult("trapBase2");
+    } else {
+      showError(["trapBase2"], "trapError", "Invalid values");
+    }
+  }
+  else {
+    showError(["trapArea","trapBase1","trapBase2","trapHeight"], "trapError", "Provide any three values");
+  }
+}
+// Rhombus
+function calcRhombus() {
+  const d1 = parseFloat(document.getElementById("diag1").value);
+  const d2 = parseFloat(document.getElementById("diag2").value);
+  const A = parseFloat(document.getElementById("rhombusArea").value);
+
+  if (!isNaN(d1) && !isNaN(d2) && d1 > 0 && d2 > 0) {
+    const area = (d1 * d2) / 2;
+    document.getElementById("rhombusArea").value = area.toFixed(2);
+    highlightResult("rhombusArea");
+  } else if (!isNaN(A) && !isNaN(d1) && A > 0 && d1 > 0) {
+    const newD2 = (2 * A) / d1;
+    document.getElementById("diag2").value = newD2.toFixed(2);
+    highlightResult("diag2");
+  } else if (!isNaN(A) && !isNaN(d2) && A > 0 && d2 > 0) {
+    const newD1 = (2 * A) / d2;
+    document.getElementById("diag1").value = newD1.toFixed(2);
+    highlightResult("diag1");
+  } else {
+    showError(["rhombusArea","diag1","diag2"], "rhombusError", "Enter at least two valid values");
+  }
+}
+// Equilateral Triangle
+function calcEquilateralTriangle() {
+  const a = parseFloat(document.getElementById("eqTriSide").value);
+  const A = parseFloat(document.getElementById("eqTriArea").value);
+
+  if (!isNaN(a) && a > 0) {
+    const area = (Math.sqrt(3) / 4) * a * a;
+    document.getElementById("eqTriArea").value = area.toFixed(2);
+    highlightResult("eqTriArea");
+  } else if (!isNaN(A) && A > 0) {
+    const newSide = Math.sqrt((4 * A) / Math.sqrt(3));
+    document.getElementById("eqTriSide").value = newSide.toFixed(2);
+    highlightResult("eqTriSide");
+  } else {
+    showError(["eqTriArea","eqTriSide"], "eqTriError", "Enter at least one valid value");
+  }
+}
+// Ellipse
+function calcEllipse() {
+  const a = parseFloat(document.getElementById("ellipseA").value);
+  const b = parseFloat(document.getElementById("ellipseB").value);
+  const A = parseFloat(document.getElementById("ellipseArea").value);
+
+  if (!isNaN(a) && !isNaN(b) && a > 0 && b > 0) {
+    const area = Math.PI * a * b;
+    document.getElementById("ellipseArea").value = area.toFixed(2);
+    highlightResult("ellipseArea");
+  } else if (!isNaN(A) && !isNaN(a) && A > 0 && a > 0) {
+    const newB = A / (Math.PI * a);
+    document.getElementById("ellipseB").value = newB.toFixed(2);
+    highlightResult("ellipseB");
+  } else if (!isNaN(A) && !isNaN(b) && A > 0 && b > 0) {
+    const newA = A / (Math.PI * b);
+    document.getElementById("ellipseA").value = newA.toFixed(2);
+    highlightResult("ellipseA");
+  } else {
+    showError(["ellipseArea","ellipseA","ellipseB"], "ellipseError", "Enter at least two valid values");
+  }
+}
+// Sector of Circle
+function calcSector() {
+  const r = parseFloat(document.getElementById("sectorRadius").value);
+  const theta = parseFloat(document.getElementById("sectorAngle").value);
+  const A = parseFloat(document.getElementById("sectorArea").value);
+
+  if (!isNaN(r) && !isNaN(theta) && r > 0 && theta > 0) {
+    const area = (theta / 360) * Math.PI * r * r;
+    document.getElementById("sectorArea").value = area.toFixed(2);
+    highlightResult("sectorArea");
+  } else if (!isNaN(A) && !isNaN(r) && A > 0 && r > 0) {
+    const newTheta = (A * 360) / (Math.PI * r * r);
+    document.getElementById("sectorAngle").value = newTheta.toFixed(2);
+    highlightResult("sectorAngle");
+  } else if (!isNaN(A) && !isNaN(theta) && A > 0 && theta > 0) {
+    const newR = Math.sqrt((A * 360) / (Math.PI * theta));
+    document.getElementById("sectorRadius").value = newR.toFixed(2);
+    highlightResult("sectorRadius");
+  } else {
+    showError(["sectorArea","sectorRadius","sectorAngle"], "sectorError", "Enter at least two valid values");
+  }
+}
+// Regular Polygon
+function calcPolygon() {
+  const s = parseFloat(document.getElementById("polygonSide").value);
+  const n = parseFloat(document.getElementById("polygonN").value);
+  const A = parseFloat(document.getElementById("polygonArea").value);
+
+  if (!isNaN(s) && !isNaN(n) && s > 0 && n > 2) {
+    const area = (n * s * s) / (4 * Math.tan(Math.PI / n));
+    document.getElementById("polygonArea").value = area.toFixed(2);
+    highlightResult("polygonArea");
+  } else if (!isNaN(A) && !isNaN(n) && A > 0 && n > 2) {
+    const newS = Math.sqrt((4 * A * Math.tan(Math.PI / n)) / n);
+    document.getElementById("polygonSide").value = newS.toFixed(2);
+    highlightResult("polygonSide");
+  } else {
+    showError(["polygonArea","polygonSide","polygonN"], "polygonError", "Enter valid values (n > 2)");
+  }
+}
+
+  function showError(inputs, messageBox, message) {
+    inputs.forEach(id => document.getElementById(id).classList.add("error"));
+    const msg = document.getElementById(messageBox);
+    msg.textContent = message;
+    msg.classList.add("show");
+    setTimeout(() => {
+      inputs.forEach(id => document.getElementById(id).classList.remove("error"));
+      msg.classList.remove("show");
+    }, 1500);
+  }
+
+  function highlightResult(id) {
+    const el = document.getElementById(id);
+    el.classList.add("result-highlight");
+  }
+
+  function clearInputs(ids) {
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    el.value = "";
+    el.classList.remove("result-highlight");
+  });
+}
+
+  // Remove highlight on typing
+  document.querySelectorAll("input").forEach(input => {
+    input.addEventListener("input", () => input.classList.remove("result-highlight"));
+  });
+
+  // Carousel navigation
+  const radios = document.querySelectorAll("input[type=radio]");
+  const carousel = document.getElementById("carousel");
+  radios.forEach((radio, idx) => {
+    radio.addEventListener("change", () => {
+      carousel.style.setProperty("--position", idx + 1);
+    });
+  });
+</script>
+</body>
+</html>

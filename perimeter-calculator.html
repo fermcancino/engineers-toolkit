@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>3D Carousel Perimeter Calculator</title>
+  <style>
+  * { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    font-family: 'Poppins', sans-serif; 
+  }
+
+  body {
+    background: linear-gradient(135deg, #1a1f2b, #4e4376);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    transition: 0.3s ease;
+  }
+
+  body.light {
+    background: linear-gradient(135deg, #dfe9f3, #ffffff);
+    color: #222;
+  }
+
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+  }
+
+  .error {
+    border: 1px solid #ff6b6b !important;
+    animation: shake 0.3s;
+  }
+
+  .error-message {
+    color: #ff6b6b;
+    font-size: 0.85rem;
+    text-align: center;
+    margin-top: 4px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .error-message.show { 
+    opacity: 1; 
+  }
+
+  /* Topbar */
+  .topbar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    max-width: 500px;
+    padding: 10px 20px;
+  }
+
+  .title {
+    font-size: 1.4rem;
+    font-weight: bold;
+  }
+  
+    /* Theme Toggle */
+    .switch {
+      width: 50px;
+      height: 28px;
+      background: linear-gradient(135deg, #1a1f2b, #4e4376); 
+      border-radius: 30px;
+      position: relative;
+      transition: background-color 0.3s ease;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+
+    .slider {
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, #8a8fb8, #b89ce0);
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translateX(0); 
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+
+    body.light .slider {
+      background: linear-gradient(135deg, #ffffff, #e0e0e0);
+    }
+
+    body.light .switch {
+      background: #cccccc; 
+      border: 1px solid #e0e0e0; 
+    }
+
+    body.light .switch .slider {
+      transform: translateX(20px); 
+    }
+  
+  .title {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  main#carousel {
+    width: 100vw;
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transform-style: preserve-3d;
+    perspective: 1200px;
+    --items: 5;
+    --position: 1;
+    pointer-events: none;
+  }
+
+  div.item {
+    text-align: center;
+    padding: 20px;
+    border-radius: 20px;
+    position: absolute;
+    width: 350px;
+    height: 370px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(0, 255, 255, 0.6);
+    box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3), inset 2px 2px 5px rgba(255,255,255,0.1);
+    --r: calc(var(--position) - var(--offset));
+    --abs: max(calc(var(--r) * -1), var(--r));
+    transition: all 0.5s ease;
+    transform: rotateY(calc(-12deg * var(--r)))
+    translateX(calc(-340px * var(--r))) scale(calc(1 - (0.15 * var(--abs))));
+    z-index: calc((var(--position) - var(--abs)));
+    color: inherit;
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  body.light .item {
+    border: 2px solid rgba(0, 150, 255, 0.6);
+    box-shadow: 0 5px 15px rgba(0, 150, 255, 0.3), inset 2px 2px 5px rgba(0,0,0,0.05);
+  }
+
+  h3 { 
+    margin-bottom: 6px; 
+    font-size: 1.5rem;
+    background: linear-gradient(45deg, #00f2fe, #4facfe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  body.light h3 { 
+    background: linear-gradient(45deg, #0072ff, #00c6ff); 
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent; 
+  }
+
+  .formula { 
+    font-size: 1.2rem; 
+    margin-bottom: 8px; 
+    opacity: 0.8;
+  }
+
+  .input-row {
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+    width: 90%;
+    margin: 8px auto;
+  }
+
+  .input-row input {
+    flex: 1;
+    text-align: center;
+  }
+
+  input {
+    width: 90%;
+    margin: 6px auto;
+    padding: 8px;
+    border-radius: 12px;
+    border: none;
+    background: rgba(255,255,255,0.1);
+    color: inherit;
+    font-size: 1.1rem;
+    outline: none;
+    box-shadow: inset 3px 3px 5px rgba(0,0,0,0.5), inset -3px -3px 5px rgba(255,255,255,0.05);
+    transition: 0.3s ease;
+  }
+  
+  input:focus {
+    box-shadow: 0 0 5px #00bcd4;
+    transform: scale(1.03);
+  }
+
+  input.result-highlight {
+    background: rgba(0, 255, 255, 0.2) !important;
+    box-shadow: 0 0 10px #00bcd4;
+    outline: 2px solid #00f2fe;
+    font-weight: bold;
+    transform: scale(1.05);
+  }
+
+  body.light input { 
+    background: rgba(0,0,0,0.05); 
+    color: #222; 
+  }
+
+  button {
+    width: 90%;
+    padding: 8px;
+    margin: 8px auto;
+    background: linear-gradient(135deg, #00f2fe, #4facfe);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.4);
+    transition: all 0.25s ease;
+  }
+
+  button:hover { 
+    transform: translateY(-3px) scale(1.03); 
+  }
+
+  button:active { 
+    transform: scale(0.97); 
+  }
+
+  .button-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    width: 90%;
+    margin: 8px auto;
+  }
+
+  .calc-btn, .clear-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    color: inherit;
+    background: rgba(255,255,255,0.08);
+    /* Neumorphic effect */
+    box-shadow:
+      inset 3px 3px 6px rgba(0,0,0,0.6),
+      inset -3px -3px 6px rgba(255,255,255,0.1);
+  }
+
+  body.light .calc-btn, 
+  body.light .clear-btn {
+    background: #e0e5ec;
+    color: #222; 
+    box-shadow:
+      inset 3px 3px 6px rgba(163,177,198,0.6),
+      inset -3px -3px 6px rgba(255,255,255,0.8);
+  }
+
+  .calc-btn:hover {
+    box-shadow: 
+      0 0 12px rgba(79,172,254,0.9),
+      inset 3px 3px 6px rgba(0,0,0,0.6),
+      inset -3px -3px 6px rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+  }
+
+  .clear-btn:hover {
+    box-shadow: 
+      0 0 12px rgba(255,107,107,0.9),
+      inset 3px 3px 6px rgba(0,0,0,0.6),
+      inset -3px -3px 6px rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+  }
+
+  body.light .calc-btn:hover {
+    box-shadow: 
+      0 0 12px rgba(79,172,254,0.9),
+      inset 3px 3px 6px rgba(0,0,0,0.6),
+      inset -3px -3px 6px rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+  }
+
+  body.light .clear-btn:hover {
+    box-shadow: 
+      0 0 12px rgba(255,107,107,0.9),
+      inset 3px 3px 6px rgba(0,0,0,0.6),
+      inset -3px -3px 6px rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+  }
+
+  .calc-btn:active, 
+  .clear-btn:active,
+  body.light .calc-btn:active, 
+  body.light .clear-btn:active {
+    transform: scale(0.97);
+    box-shadow: 
+      inset 4px 4px 8px rgba(0,0,0,0.8),
+      inset -2px -2px 4px rgba(255,255,255,0.1);
+  }
+
+  .result {
+    margin: 12px auto;
+    padding: 8px;
+    font-size: 1rem;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.1);
+    box-shadow: inset 3px 3px 5px rgba(0,0,0,0.5), inset -3px -3px 5px rgba(255,255,255,0.05);
+    width: 90%;
+  }
+
+  body.light .result { 
+    background: rgba(0,0,0,0.05); 
+  }
+
+  /* Positioning each card */
+  div.item:nth-of-type(1) { --offset: 1; }
+  div.item:nth-of-type(2) { --offset: 2; }
+  div.item:nth-of-type(3) { --offset: 3; }
+  div.item:nth-of-type(4) { --offset: 4; }
+  div.item:nth-of-type(5) { --offset: 5; }
+  div.item:nth-of-type(6) { --offset: 6; }
+  div.item:nth-of-type(7) { --offset: 7; }
+  div.item:nth-of-type(8) { --offset: 8; }
+
+  /* Radio buttons */
+  input[type=radio] {
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  input[type=radio]:checked {
+    background: #00f2fe;
+    box-shadow: 0 0 10px #00f2fe;
+  }
+
+  /* Dot positions */
+  .radio-container {
+    display: flex;
+    gap: 12px;
+  }
+
+  input[type=radio]:hover {
+    transform: translateY(-2px);
+  }
+
+  .shape-diagram {
+    margin: 5px 0;
+    height: 80px;
+    filter: drop-shadow(3px 3px 5px rgba(0,0,0,0.5));
+  }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <div class="title">Perimeter Calculator</div>
+    <div id="themeToggle" class="switch">
+      <div class="slider"></div>
+    </div>
+  </div>
+
+  <!-- Carousel -->
+  <main id="carousel">
+    <!-- Circle -->
+    <div class="item">
+      <h3>Circle</h3>
+      <svg class="shape-diagram" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="40" stroke="#00f2fe" stroke-width="4" fill="none"/>
+      </svg>
+      <p class="formula">C = 2πr</p>
+      <div class="input-row">
+        <input type="number" id="circlePeri" placeholder="C">
+        <input type="number" id="radius" placeholder="r">
+      </div>
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcCircle()">Calculate</button>
+        <button class="clear-btn" onclick="clearInputs(['circlePeri','radius'])">Clear</button>
+      </div>
+      <div class="error-message" id="circleError"></div>
+    </div>
+
+    <!-- Rectangle -->
+    <div class="item">
+      <h3>Rectangle</h3>
+      <svg class="shape-diagram" viewBox="0 0 100 60">
+        <rect x="10" y="10" width="80" height="40" stroke="#00f2fe" stroke-width="4" fill="none"/>
+      </svg>
+      <p class="formula">P = 2(w + h)</p>
+      <div class="input-row">
+        <input type="number" id="rectPeri" placeholder="P">
+        <input type="number" id="width" placeholder="w">
+        <input type="number" id="height" placeholder="h">
+      </div>
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcRectangle()">Calculate</button>
+        <button class="clear-btn" onclick="clearInputs(['rectPeri','width','height'])">Clear</button>
+      </div>
+      <div class="error-message" id="rectError"></div>
+    </div>
+
+    <!-- Triangle -->
+    <div class="item">
+      <h3>Triangle</h3>
+      <svg class="shape-diagram" viewBox="0 0 100 80">
+        <polygon points="10,70 50,10 90,70" stroke="#00f2fe" stroke-width="4" fill="none"/>
+      </svg>
+      <p class="formula">P = a + b + c</p>
+      <div class="input-row">
+        <input type="number" id="triPeri" placeholder="P">
+        <input type="number" id="sideA" placeholder="a">
+        <input type="number" id="sideB" placeholder="b">
+        <input type="number" id="sideC" placeholder="c">
+      </div>
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcTriangle()">Calculate</button>
+        <button class="clear-btn" onclick="clearInputs(['triPeri','sideA','sideB','sideC'])">Clear</button>
+      </div>
+      <div class="error-message" id="triError"></div>
+    </div>
+
+    <!-- Square -->
+    <div class="item">
+      <h3>Square</h3>
+      <svg class="shape-diagram" viewBox="0 0 100 100">
+        <rect x="20" y="20" width="60" height="60" stroke="#00f2fe" stroke-width="4" fill="none"/>
+      </svg>
+      <p class="formula">P = 4a</p>
+      <div class="input-row">
+        <input type="number" id="squarePeri" placeholder="P">
+        <input type="number" id="squareSide" placeholder="a">
+      </div>
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcSquare()">Calculate</button>
+        <button class="clear-btn" onclick="clearInputs(['squarePeri','squareSide'])">Clear</button>
+      </div>
+      <div class="error-message" id="squareError"></div>
+    </div>
+
+    <!-- Parallelogram -->
+    <div class="item">
+      <h3>Parallelogram</h3>
+      <svg class="shape-diagram" viewBox="0 0 120 80">
+        <polygon points="20,70 100,70 80,10 0,10" stroke="#00f2fe" stroke-width="4" fill="none"/>
+      </svg>
+      <p class="formula">P = 2(a + b)</p>
+      <div class="input-row">
+        <input type="number" id="paraPeri" placeholder="P">
+        <input type="number" id="paraBase" placeholder="a">
+        <input type="number" id="paraSide" placeholder="b">
+      </div>
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcParallelogram()">Calculate</button>
+        <button class="clear-btn" onclick="clearInputs(['paraPeri','paraBase','paraSide'])">Clear</button>
+      </div>
+      <div class="error-message" id="paraError"></div>
+    </div>
+
+    <!-- Trapezoid -->
+    <div class="item">
+      <h3>Trapezoid</h3>
+      <svg class="shape-diagram" viewBox="0 0 120 80">
+        <polygon points="20,70 100,70 80,20 40,20" stroke="#00f2fe" stroke-width="4" fill="none"/>
+      </svg>
+      <p class="formula">P = a + b + c + d</p>
+      <div class="input-row">
+        <input type="number" id="trapPeri" placeholder="P">
+        <input type="number" id="trapA" placeholder="a">
+        <input type="number" id="trapB" placeholder="b">
+        <input type="number" id="trapC" placeholder="c">
+        <input type="number" id="trapD" placeholder="d">
+      </div>
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcTrapezoid()">Calculate</button>
+        <button class="clear-btn" onclick="clearInputs(['trapPeri','trapA','trapB','trapC','trapD'])">Clear</button>
+      </div>
+      <div class="error-message" id="trapError"></div>
+    </div>
+
+    <!-- Regular Polygon -->
+    <div class="item">
+      <h3>Regular Polygon</h3>
+      <svg class="shape-diagram" viewBox="0 0 100 100">
+        <polygon points="50,10 85,35 70,80 30,80 15,35" stroke="#00f2fe" stroke-width="4" fill="none"/>
+      </svg>
+      <p class="formula">P = n × a</p>
+      <div class="input-row">
+        <input type="number" id="polyPeri" placeholder="P">
+        <input type="number" id="polySide" placeholder="a">
+        <input type="number" id="polyN" placeholder="n(sides)">
+      </div>
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcPolygon()">Calculate</button>
+        <button class="clear-btn" onclick="clearInputs(['polyPeri','polySide','polyN'])">Clear</button>
+      </div>
+      <div class="error-message" id="polyError"></div>
+    </div>
+
+    <!-- Ellipse -->
+    <div class="item">
+      <h3>Ellipse</h3>
+      <svg class="shape-diagram" viewBox="0 0 120 80">
+        <ellipse cx="60" cy="40" rx="50" ry="25" stroke="#00f2fe" stroke-width="4" fill="none"/>
+      </svg>
+      <p class="formula">P ≈ 2π √((a² + b²)/2)</p>
+      <div class="input-row">
+        <input type="number" id="ellipsePeri" placeholder="P" readonly>
+        <input type="number" id="ellipseA" placeholder="a(major)">
+        <input type="number" id="ellipseB" placeholder="b(minor)">
+      </div>
+      <div class="button-row">
+        <button class="calc-btn" onclick="calcEllipse()">Calculate</button>
+        <button class="clear-btn" onclick="clearInputs(['ellipsePeri','ellipseA','ellipseB'])">Clear</button>
+      </div>
+      <div class="error-message" id="ellipseError"></div>
+    </div>
+  </main>
+
+  <div class="radio-container">
+    <input type="radio" name="position" checked />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+  </div>
+  
+  <script>
+  // Theme toggle
+  themeToggle.addEventListener("click", () => {
+  document.body.classList.toggle("light");
+  });
+
+// Circle Perimeter
+function calcCircle() {
+  const r = parseFloat(document.getElementById("radius").value);
+  const c = parseFloat(document.getElementById("circlePeri").value);
+  if (!isNaN(r) && r > 0) {
+    const peri = 2 * Math.PI * r;
+    document.getElementById("circlePeri").value = peri.toFixed(2);
+    highlightResult("circlePeri");
+  } else if (!isNaN(c) && c > 0) {
+    const newR = c / (2 * Math.PI);
+    document.getElementById("radius").value = newR.toFixed(2);
+    highlightResult("radius");
+  } else {
+    showError(["circlePeri","radius"], "circleError", "Enter at least one valid value");
+  }
+}
+
+// Rectangle Perimeter
+function calcRectangle() {
+  const w = parseFloat(document.getElementById("width").value);
+  const h = parseFloat(document.getElementById("height").value);
+  const p = parseFloat(document.getElementById("rectPeri").value);
+  if (!isNaN(w) && !isNaN(h) && w > 0 && h > 0) {
+    const peri = 2 * (w + h);
+    document.getElementById("rectPeri").value = peri.toFixed(2);
+    highlightResult("rectPeri");
+  } else if (!isNaN(p) && !isNaN(w) && p > 0 && w > 0) {
+    const hNew = (p / 2) - w;
+    document.getElementById("height").value = hNew.toFixed(2);
+    highlightResult("height");
+  } else if (!isNaN(p) && !isNaN(h) && p > 0 && h > 0) {
+    const wNew = (p / 2) - h;
+    document.getElementById("width").value = wNew.toFixed(2);
+    highlightResult("width");
+  } else {
+    showError(["rectPeri","width","height"], "rectError", "Enter at least two valid values");
+  }
+}
+
+// Triangle Perimeter (bi-directional)
+function calcTriangle() {
+  const p = parseFloat(document.getElementById("triPeri").value);
+  const a = parseFloat(document.getElementById("sideA").value);
+  const b = parseFloat(document.getElementById("sideB").value);
+  const c = parseFloat(document.getElementById("sideC").value);
+
+  const sides = [a, b, c].filter(v => !isNaN(v) && v > 0);
+
+  // Case 1: All 3 sides → calculate perimeter
+  if (sides.length === 3) {
+    const peri = a + b + c;
+    document.getElementById("triPeri").value = peri.toFixed(2);
+    highlightResult("triPeri");
+  }
+  // Case 2: Perimeter & 2 sides → find missing side
+  else if (!isNaN(p) && p > 0 && sides.length === 2) {
+    const missing = p - (isNaN(a) ? 0 : a) - (isNaN(b) ? 0 : b) - (isNaN(c) ? 0 : c);
+    if (missing > 0) {
+      if (isNaN(a)) document.getElementById("sideA").value = missing.toFixed(2);
+      else if (isNaN(b)) document.getElementById("sideB").value = missing.toFixed(2);
+      else if (isNaN(c)) document.getElementById("sideC").value = missing.toFixed(2);
+      highlightResult(isNaN(a) ? "sideA" : isNaN(b) ? "sideB" : "sideC");
+    } else {
+      showError(["sideA","sideB","sideC","triPeri"], "triError", "Invalid perimeter or sides");
+    }
+  }
+  else {
+    showError(["sideA","sideB","sideC","triPeri"], "triError", "Enter perimeter + 2 sides or all 3 sides");
+  }
+}
+// Square Perimeter
+function calcSquare() {
+  const a = parseFloat(document.getElementById("squareSide").value);
+  const p = parseFloat(document.getElementById("squarePeri").value);
+  if (!isNaN(a) && a > 0) {
+    const peri = 4 * a;
+    document.getElementById("squarePeri").value = peri.toFixed(2);
+    highlightResult("squarePeri");
+  } else if (!isNaN(p) && p > 0) {
+    const side = p / 4;
+    document.getElementById("squareSide").value = side.toFixed(2);
+    highlightResult("squareSide");
+  } else {
+    showError(["squarePeri","squareSide"], "squareError", "Enter at least one valid value");
+  }
+}
+// Parallelogram Perimeter
+function calcParallelogram() {
+  const p = parseFloat(document.getElementById("paraPeri").value);
+  const a = parseFloat(document.getElementById("paraBase").value);
+  const b = parseFloat(document.getElementById("paraSide").value);
+
+  // Case 1: Base & side → calculate perimeter
+  if (!isNaN(a) && !isNaN(b) && a > 0 && b > 0) {
+    const peri = 2 * (a + b);
+    document.getElementById("paraPeri").value = peri.toFixed(2);
+    highlightResult("paraPeri");
+  }
+  // Case 2: Perimeter & one side → find missing side
+  else if (!isNaN(p) && p > 0 && ((!isNaN(a) && a > 0) || (!isNaN(b) && b > 0))) {
+    const known = !isNaN(a) ? a : b;
+    const missing = (p / 2) - known;
+    if (missing > 0) {
+      if (isNaN(a)) document.getElementById("paraBase").value = missing.toFixed(2);
+      else document.getElementById("paraSide").value = missing.toFixed(2);
+      highlightResult(isNaN(a) ? "paraBase" : "paraSide");
+    } else {
+      showError(["paraPeri","paraBase","paraSide"], "paraError", "Invalid values");
+    }
+  }
+  else {
+    showError(["paraPeri","paraBase","paraSide"], "paraError", "Enter perimeter + one side or base & side");
+  }
+}
+// Trapezoid Perimeter (bi-directional)
+function calcTrapezoid() {
+  const p = parseFloat(document.getElementById("trapPeri").value);
+  const a = parseFloat(document.getElementById("trapA").value);
+  const b = parseFloat(document.getElementById("trapB").value);
+  const c = parseFloat(document.getElementById("trapC").value);
+  const d = parseFloat(document.getElementById("trapD").value);
+
+  const sides = [a, b, c, d].filter(v => !isNaN(v) && v > 0);
+
+  // Case 1: All 4 sides → calculate perimeter
+  if (sides.length === 4) {
+    const peri = a + b + c + d;
+    document.getElementById("trapPeri").value = peri.toFixed(2);
+    highlightResult("trapPeri");
+  }
+  // Case 2: Perimeter & 3 sides → find missing side
+  else if (!isNaN(p) && p > 0 && sides.length === 3) {
+    const missing = p - (isNaN(a) ? 0 : a) - (isNaN(b) ? 0 : b) - (isNaN(c) ? 0 : c) - (isNaN(d) ? 0 : d);
+    if (missing > 0) {
+      if (isNaN(a)) document.getElementById("trapA").value = missing.toFixed(2);
+      else if (isNaN(b)) document.getElementById("trapB").value = missing.toFixed(2);
+      else if (isNaN(c)) document.getElementById("trapC").value = missing.toFixed(2);
+      else if (isNaN(d)) document.getElementById("trapD").value = missing.toFixed(2);
+      highlightResult(isNaN(a) ? "trapA" : isNaN(b) ? "trapB" : isNaN(c) ? "trapC" : "trapD");
+    } else {
+      showError(["trapPeri","trapA","trapB","trapC","trapD"], "trapError", "Invalid values");
+    }
+  }
+  else {
+    showError(["trapPeri","trapA","trapB","trapC","trapD"], "trapError", "Enter perimeter + 3 sides or all 4 sides");
+  }
+}
+// Regular Polygon Perimeter
+function calcPolygon() {
+  const p = parseFloat(document.getElementById("polyPeri").value);
+  const a = parseFloat(document.getElementById("polySide").value);
+  const n = parseInt(document.getElementById("polyN").value);
+
+  // Case 1: n & a → perimeter
+  if (!isNaN(n) && n > 2 && !isNaN(a) && a > 0) {
+    const peri = n * a;
+    document.getElementById("polyPeri").value = peri.toFixed(2);
+    highlightResult("polyPeri");
+  }
+  // Case 2: n & perimeter → side
+  else if (!isNaN(n) && n > 2 && !isNaN(p) && p > 0) {
+    const side = p / n;
+    document.getElementById("polySide").value = side.toFixed(2);
+    highlightResult("polySide");
+  } 
+  else {
+    showError(["polyPeri","polySide","polyN"], "polyError", "Enter n & side or n & perimeter");
+  }
+}
+// Ellipse Perimeter
+function calcEllipse() {
+  const a = parseFloat(document.getElementById("ellipseA").value);
+  const b = parseFloat(document.getElementById("ellipseB").value);
+
+  if (!isNaN(a) && !isNaN(b) && a > 0 && b > 0) {
+    const perimeter = 2 * Math.PI * Math.sqrt((a*a + b*b) / 2);
+    document.getElementById("ellipsePeri").value = perimeter.toFixed(2);
+    highlightResult("ellipsePeri");
+  } else {
+    showError(["ellipseA","ellipseB"], "ellipseError", "Enter valid semi-major and semi-minor axes");
+  }
+}
+
+  function showError(inputs, messageBox, message) {
+    inputs.forEach(id => document.getElementById(id).classList.add("error"));
+    const msg = document.getElementById(messageBox);
+    msg.textContent = message;
+    msg.classList.add("show");
+    setTimeout(() => {
+      inputs.forEach(id => document.getElementById(id).classList.remove("error"));
+      msg.classList.remove("show");
+    }, 1500);
+  }
+
+  function highlightResult(id) {
+    const el = document.getElementById(id);
+    el.classList.add("result-highlight");
+  }
+
+  function clearInputs(ids) {
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    el.value = "";
+    el.classList.remove("result-highlight");
+  });
+}
+
+  // Remove highlight on typing
+  document.querySelectorAll("input").forEach(input => {
+    input.addEventListener("input", () => input.classList.remove("result-highlight"));
+  });
+
+  // Carousel navigation
+  const radios = document.querySelectorAll("input[type=radio]");
+  const carousel = document.getElementById("carousel");
+  radios.forEach((radio, idx) => {
+    radio.addEventListener("change", () => {
+      carousel.style.setProperty("--position", idx + 1);
+    });
+  });
+</script>
+</body>
+</html>

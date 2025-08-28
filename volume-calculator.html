@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>3D Carousel Volume Calculator</title>
+  <style>
+  * { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    font-family: 'Poppins', sans-serif; 
+  }
+
+  body {
+    background: linear-gradient(135deg, #1a1f2b, #4e4376);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    transition: 0.3s ease;
+  }
+
+  body.light { 
+    background: linear-gradient(135deg, #dfe9f3, #ffffff); 
+    color: #222; 
+  }
+
+  /* Shake animation */
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+  }
+
+  .error {
+    border: 1px solid #ff6b6b !important;
+    animation: shake 0.3s;
+  }
+
+  .error-message {
+    color: #ff6b6b;
+    font-size: 0.85rem;
+    text-align: center;
+    margin-top: 4px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .error-message.show { 
+    opacity: 1; 
+  }
+
+  /* Topbar */
+  .topbar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    max-width: 500px;
+    padding: 10px 20px;
+  }
+
+  .title {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+
+  /* Theme Toggle */
+  .switch {
+    width: 50px;
+    height: 28px;
+    background: linear-gradient(135deg, #1a1f2b, #4e4376); 
+    border-radius: 30px;
+    position: relative;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    padding: 2px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  }
+
+  .slider {
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, #8a8fb8, #b89ce0);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    transform: translateX(0); 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  }
+
+  body.light .slider {
+    background: linear-gradient(135deg, #ffffff, #e0e0e0);
+  }
+
+  body.light .switch {
+    background: #cccccc; 
+    border: 1px solid #e0e0e0; 
+  }
+
+  body.light .switch .slider {
+    transform: translateX(20px); 
+  }
+
+  main#carousel {
+    width: 100vw;
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transform-style: preserve-3d;
+    perspective: 1200px;
+    --items: 5;
+    --position: 1;
+    pointer-events: none;
+  }
+
+  div.item {
+    text-align: center;
+    padding: 20px;
+    border-radius: 20px;
+    position: absolute;
+    width: 350px;
+    height: 370px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(0, 255, 255, 0.6);
+    box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3), inset 2px 2px 5px rgba(255,255,255,0.1);
+    --r: calc(var(--position) - var(--offset));
+    --abs: max(calc(var(--r) * -1), var(--r));
+    transition: all 0.5s ease;
+    transform: rotateY(calc(-12deg * var(--r)))
+               translateX(calc(-340px * var(--r))) 
+               scale(calc(1 - (0.15 * var(--abs))));
+    z-index: calc((var(--position) - var(--abs)));
+    color: inherit;
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  body.light .item {
+    border: 2px solid rgba(0, 150, 255, 0.6);
+    box-shadow: 0 5px 15px rgba(0, 150, 255, 0.3), inset 2px 2px 5px rgba(0,0,0,0.05);
+  }
+
+  h3 { 
+    margin-bottom: 6px; 
+    font-size: 1.5rem;
+    background: linear-gradient(45deg, #00f2fe, #4facfe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  body.light h3 { 
+    background: linear-gradient(45deg, #0072ff, #00c6ff); 
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent; 
+  }
+
+  .formula { 
+    font-size: 1.2rem; 
+    margin-bottom: 8px; 
+    opacity: 0.8;
+  }
+
+  .input-row {
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+    width: 90%;
+    margin: 8px auto;
+  }
+
+  .input-row input {
+    flex: 1;
+    text-align: center;
+  }
+
+  input {
+    width: 90%;
+    margin: 6px auto;
+    padding: 8px;
+    border-radius: 12px;
+    border: none;
+    background: rgba(255,255,255,0.1);
+    color: inherit;
+    font-size: 1.1rem;
+    outline: none;
+    box-shadow: inset 3px 3px 5px rgba(0,0,0,0.5), inset -3px -3px 5px rgba(255,255,255,0.05);
+    transition: 0.3s ease;
+  }
+
+  input:focus {
+    box-shadow: 0 0 5px #00bcd4;
+    transform: scale(1.03);
+  }
+
+  input.result-highlight {
+    background: rgba(0, 255, 255, 0.2) !important;
+    box-shadow: 0 0 10px #00bcd4;
+    outline: 2px solid #00f2fe;
+    font-weight: bold;
+    transform: scale(1.05);
+  }
+
+  body.light input { 
+    background: rgba(0,0,0,0.05); 
+    color: #222; 
+  }
+
+  button {
+    width: 90%;
+    padding: 8px;
+    margin: 8px auto;
+    background: linear-gradient(135deg, #00f2fe, #4facfe);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.4);
+    transition: all 0.25s ease;
+  }
+
+  button:hover { 
+    transform: translateY(-3px) scale(1.03); 
+  }
+
+  button:active { 
+    transform: scale(0.97); 
+  }
+
+  .button-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    width: 90%;
+    margin: 8px auto;
+  }
+
+  .calc-btn, .clear-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    color: inherit;
+    background: rgba(255,255,255,0.08);
+    box-shadow: inset 3px 3px 6px rgba(0,0,0,0.6),
+                inset -3px -3px 6px rgba(255,255,255,0.1);
+  }
+
+  body.light .calc-btn, 
+  body.light .clear-btn {
+    background: #e0e5ec;
+    color: #222; 
+    box-shadow: inset 3px 3px 6px rgba(163,177,198,0.6),
+                inset -3px -3px 6px rgba(255,255,255,0.8);
+  }
+
+  .calc-btn:hover {
+    box-shadow: 0 0 12px rgba(79,172,254,0.9),
+                inset 3px 3px 6px rgba(0,0,0,0.6),
+                inset -3px -3px 6px rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+  }
+
+  .clear-btn:hover {
+    box-shadow: 0 0 12px rgba(255,107,107,0.9),
+                inset 3px 3px 6px rgba(0,0,0,0.6),
+                inset -3px -3px 6px rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+  }
+
+  body.light .calc-btn:hover {
+    box-shadow: 0 0 12px rgba(79,172,254,0.9),
+                inset 3px 3px 6px rgba(0,0,0,0.6),
+                inset -3px -3px 6px rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+  }
+
+  body.light .clear-btn:hover {
+    box-shadow: 0 0 12px rgba(255,107,107,0.9),
+                inset 3px 3px 6px rgba(0,0,0,0.6),
+                inset -3px -3px 6px rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+  }
+
+  .calc-btn:active, 
+  .clear-btn:active,
+  body.light .calc-btn:active, 
+  body.light .clear-btn:active {
+    transform: scale(0.97);
+    box-shadow: inset 4px 4px 8px rgba(0,0,0,0.8),
+                inset -2px -2px 4px rgba(255,255,255,0.1);
+  }
+
+  .result {
+    margin: 12px auto;
+    padding: 8px;
+    font-size: 1rem;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.1);
+    box-shadow: inset 3px 3px 5px rgba(0,0,0,0.5), 
+                inset -3px -3px 5px rgba(255,255,255,0.05);
+    width: 90%;
+  }
+
+  body.light .result { 
+    background: rgba(0,0,0,0.05); 
+  }
+
+  /* Positioning each card */
+  div.item:nth-of-type(1) { --offset: 1; }
+  div.item:nth-of-type(2) { --offset: 2; }
+  div.item:nth-of-type(3) { --offset: 3; }
+  div.item:nth-of-type(4) { --offset: 4; }
+  div.item:nth-of-type(5) { --offset: 5; }
+  div.item:nth-of-type(6) { --offset: 6; }
+  div.item:nth-of-type(7) { --offset: 7; }
+  div.item:nth-of-type(8) { --offset: 8; }
+  div.item:nth-of-type(9) { --offset: 9; }
+
+  /* Radio buttons */
+  input[type=radio] {
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  input[type=radio]:checked {
+    background: #00f2fe;
+    box-shadow: 0 0 10px #00f2fe;
+  }
+
+  /* Dot positions */
+  .radio-container {
+    display: flex;
+    gap: 12px;
+  }
+
+  input[type=radio]:hover {
+    transform: translateY(-2px);
+  }
+
+  .shape-diagram {
+    margin: 5px 0;
+    height: 80px;
+    filter: drop-shadow(3px 3px 5px rgba(0,0,0,0.5));
+  }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <div class="title">Volume Calculator</div>
+    <div id="themeToggle" class="switch">
+      <div class="slider"></div>
+    </div>
+  </div>
+
+  <!-- Carousel -->
+  <main id="carousel">
+    <!-- Sphere -->
+<div class="item">
+  <h3>Sphere</h3>
+  <svg class="shape-diagram" viewBox="0 0 100 100">
+  <defs>
+    <radialGradient id="sphereGrad" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#00f2fe" />
+      <stop offset="70%" stop-color="#004e92" />
+    </radialGradient>
+  </defs>
+  <circle cx="50" cy="50" r="40" fill="url(#sphereGrad)" stroke="#00f2fe" stroke-width="2"/>
+</svg>
+
+  <p class="formula">V = (4/3)πr³</p>
+  <div class="input-row">
+    <input type="number" id="sphereVol" placeholder="V">
+    <input type="number" id="sphereRadius" placeholder="r">
+  </div>
+  <div class="button-row">
+    <button class="calc-btn" onclick="calcSphere()">Calculate</button>
+    <button class="clear-btn" onclick="clearInputs(['sphereVol','sphereRadius'])">Clear</button>
+  </div>
+  <div class="error-message" id="sphereError"></div>
+</div>
+<!-- Cube -->
+<div class="item">
+  <h3>Cube</h3>
+  <svg class="shape-diagram" viewBox="0 0 120 120">
+  <defs>
+    <!-- Front face gradient -->
+    <linearGradient id="cubeFront" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="100%" stop-color="#004e92"/>
+    </linearGradient>
+    <!-- Top face gradient -->
+    <linearGradient id="cubeTop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#66f5ff"/>
+      <stop offset="100%" stop-color="#0094cc"/>
+    </linearGradient>
+    <!-- Shadow filter -->
+    <filter id="cubeShadow">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.4)" />
+    </filter>
+  </defs>
+  
+  <!-- Front face -->
+  <polygon points="30,50 90,50 90,110 30,110" fill="url(#cubeFront)" stroke="#00f2fe" stroke-width="2" filter="url(#cubeShadow)" />
+  <!-- Top face -->
+  <polygon points="30,50 50,30 110,30 90,50" fill="url(#cubeTop)" stroke="#00f2fe" stroke-width="2" />
+  <!-- Side face -->
+  <polygon points="90,50 110,30 110,90 90,110" fill="url(#cubeFront)" stroke="#00f2fe" stroke-width="2" />
+</svg>
+  <p class="formula">V = a³</p>
+  <div class="input-row">
+    <input type="number" id="cubeVol" placeholder="V">
+    <input type="number" id="cubeSide" placeholder="a">
+  </div>
+  <div class="button-row">
+    <button class="calc-btn" onclick="calcCube()">Calculate</button>
+    <button class="clear-btn" onclick="clearInputs(['cubeVol','cubeSide'])">Clear</button>
+  </div>
+  <div class="error-message" id="cubeError"></div>
+</div>
+
+<!-- Rectangular Prism -->
+<div class="item">
+  <h3>Rectangular Prism</h3>
+  <svg class="shape-diagram" viewBox="0 0 120 100">
+  <defs>
+    <!-- Gradient for front face -->
+    <linearGradient id="prismFront" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="100%" stop-color="#004e92"/>
+    </linearGradient>
+    <!-- Gradient for top face -->
+    <linearGradient id="prismTop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#66f5ff"/>
+      <stop offset="100%" stop-color="#0094cc"/>
+    </linearGradient>
+    <!-- Shadow -->
+    <filter id="shadow">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.4)" />
+    </filter>
+  </defs>
+  
+  <!-- Front face -->
+  <polygon points="20,40 100,40 100,90 20,90" fill="url(#prismFront)" stroke="#00f2fe" stroke-width="2" filter="url(#shadow)" />
+  <!-- Top face -->
+  <polygon points="20,40 40,20 120,20 100,40" fill="url(#prismTop)" stroke="#00f2fe" stroke-width="2" />
+  <!-- Side face -->
+  <polygon points="100,40 120,20 120,70 100,90" fill="url(#prismFront)" stroke="#00f2fe" stroke-width="2" />
+</svg>
+  <p class="formula">V = l × w × h</p>
+  <div class="input-row">
+    <input type="number" id="prismVol" placeholder="V">
+    <input type="number" id="prismL" placeholder="l">
+    <input type="number" id="prismW" placeholder="w">
+    <input type="number" id="prismH" placeholder="h">
+  </div>
+  <div class="button-row">
+    <button class="calc-btn" onclick="calcPrism()">Calculate</button>
+    <button class="clear-btn" onclick="clearInputs(['prismVol','prismL','prismW','prismH'])">Clear</button>
+  </div>
+  <div class="error-message" id="prismError"></div>
+</div>
+
+<!-- Cylinder -->
+<div class="item">
+  <h3>Cylinder</h3>
+  <svg class="shape-diagram" viewBox="0 0 140 140">
+  <defs>
+    <!-- Side gradient -->
+    <linearGradient id="cylSide" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="100%" stop-color="#004e92"/>
+    </linearGradient>
+    <!-- Top ellipse gradient -->
+    <radialGradient id="cylTop" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#66f5ff"/>
+      <stop offset="100%" stop-color="#0094cc"/>
+    </radialGradient>
+    <!-- Shadow filter -->
+    <filter id="cylShadow">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.4)" />
+    </filter>
+  </defs>
+
+  <!-- Side (rectangle) -->
+  <rect x="30" y="40" width="80" height="80" fill="url(#cylSide)" stroke="#00f2fe" stroke-width="2" filter="url(#cylShadow)" />
+  <!-- Top ellipse -->
+  <ellipse cx="70" cy="40" rx="40" ry="12" fill="url(#cylTop)" stroke="#00f2fe" stroke-width="2" />
+  <!-- Bottom ellipse (slightly darker) -->
+  <ellipse cx="70" cy="120" rx="40" ry="12" fill="url(#cylTop)" stroke="#00f2fe" stroke-width="2" opacity="0.8"/>
+</svg>
+  <p class="formula">V = πr²h</p>
+  <div class="input-row">
+    <input type="number" id="cylVol" placeholder="V">
+    <input type="number" id="cylRadius" placeholder="r">
+    <input type="number" id="cylHeight" placeholder="h">
+  </div>
+  <div class="button-row">
+    <button class="calc-btn" onclick="calcCylinder()">Calculate</button>
+    <button class="clear-btn" onclick="clearInputs(['cylVol','cylRadius','cylHeight'])">Clear</button>
+  </div>
+  <div class="error-message" id="cylError"></div>
+</div>
+
+<!-- Cone -->
+<div class="item">
+  <h3>Cone</h3>
+  <svg class="shape-diagram" viewBox="0 0 140 140">
+  <defs>
+    <!-- Side gradient -->
+    <linearGradient id="coneSide" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="100%" stop-color="#004e92"/>
+    </linearGradient>
+    <!-- Base ellipse gradient -->
+    <radialGradient id="coneBase" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#66f5ff"/>
+      <stop offset="100%" stop-color="#0094cc"/>
+    </radialGradient>
+    <!-- Shadow filter -->
+    <filter id="coneShadow">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.4)" />
+    </filter>
+  </defs>
+  
+  <!-- Cone body -->
+  <polygon points="30,120 110,120 70,20" fill="url(#coneSide)" stroke="#00f2fe" stroke-width="2" filter="url(#coneShadow)" />
+  <!-- Base ellipse -->
+  <ellipse cx="70" cy="120" rx="40" ry="12" fill="url(#coneBase)" stroke="#00f2fe" stroke-width="2" />
+</svg>
+  <p class="formula">V = (1/3)πr²h</p>
+  <div class="input-row">
+    <input type="number" id="coneVol" placeholder="V">
+    <input type="number" id="coneRadius" placeholder="r">
+    <input type="number" id="coneHeight" placeholder="h">
+  </div>
+  <div class="button-row">
+    <button class="calc-btn" onclick="calcCone()">Calculate</button>
+    <button class="clear-btn" onclick="clearInputs(['coneVol','coneRadius','coneHeight'])">Clear</button>
+  </div>
+  <div class="error-message" id="coneError"></div>
+</div>
+
+<!-- Pyramid -->
+<div class="item">
+  <h3>Pyramid</h3>
+  <svg class="shape-diagram" viewBox="0 0 160 140">
+  <defs>
+    <!-- Front face gradient -->
+    <linearGradient id="pyrFront" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="100%" stop-color="#004e92"/>
+    </linearGradient>
+    <!-- Side face gradient -->
+    <linearGradient id="pyrSide" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#66f5ff"/>
+      <stop offset="100%" stop-color="#0094cc"/>
+    </linearGradient>
+    <!-- Shadow filter -->
+    <filter id="pyrShadow">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.4)" />
+    </filter>
+  </defs>
+
+  <!-- Front slanted face -->
+  <polygon points="40,120 110,120 80,40" 
+           fill="url(#pyrFront)" 
+           stroke="#00f2fe" stroke-width="2" 
+           filter="url(#pyrShadow)" />
+  <!-- Side slanted face -->
+  <polygon points="110,120 140,120 80,40" 
+           fill="url(#pyrSide)" 
+           stroke="#00f2fe" stroke-width="2" />
+</svg>
+  <p class="formula">V = (1/3)lwh</p>
+  <div class="input-row">
+    <input type="number" id="pyrVol" placeholder="V">
+    <input type="number" id="pyrL" placeholder="l">
+    <input type="number" id="pyrW" placeholder="w">
+    <input type="number" id="pyrH" placeholder="h">
+  </div>
+  <div class="button-row">
+    <button class="calc-btn" onclick="calcPyramid()">Calculate</button>
+    <button class="clear-btn" onclick="clearInputs(['pyrVol','pyrL','pyrW','pyrH'])">Clear</button>
+  </div>
+  <div class="error-message" id="pyrError"></div>
+</div>
+
+<!-- Triangular Prism -->
+<div class="item">
+  <h3>Triangular Prism</h3>
+  <svg class="shape-diagram" viewBox="0 0 160 140">
+  <defs>
+    <!-- Front triangular face -->
+    <linearGradient id="triPrismFront" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="100%" stop-color="#004e92"/>
+    </linearGradient>
+    <!-- Side rectangular face -->
+    <linearGradient id="triPrismSide" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#66f5ff"/>
+      <stop offset="100%" stop-color="#0094cc"/>
+    </linearGradient>
+    <!-- Shadow -->
+    <filter id="triPrismShadow">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.4)" />
+    </filter>
+  </defs>
+
+  <!-- Front triangle -->
+  <polygon points="40,100 100,100 70,40" fill="url(#triPrismFront)" stroke="#00f2fe" stroke-width="2" filter="url(#triPrismShadow)" />
+  <!-- Side rectangle -->
+  <polygon points="100,100 140,100 110,40 70,40" fill="url(#triPrismSide)" stroke="#00f2fe" stroke-width="2" />
+  <!-- Top side -->
+  <polygon points="70,40 110,40 140,100 100,100" fill="none" stroke="#00f2fe" stroke-width="2" />
+</svg>
+  <p class="formula">V = (1/2)bhL</p>
+  <div class="input-row">
+    <input type="number" id="triPrismVol" placeholder="V">
+    <input type="number" id="triPrismBase" placeholder="b">
+    <input type="number" id="triPrismHeight" placeholder="h">
+    <input type="number" id="triPrismLength" placeholder="L">
+  </div>
+  <div class="button-row">
+    <button class="calc-btn" onclick="calcTriPrism()">Calculate</button>
+    <button class="clear-btn" onclick="clearInputs(['triPrismVol','triPrismBase','triPrismHeight','triPrismLength'])">Clear</button>
+  </div>
+  <div class="error-message" id="triPrismError"></div>
+</div>
+
+<!-- Hemisphere -->
+<div class="item">
+  <h3>Hemisphere</h3>
+  <svg class="shape-diagram" viewBox="0 0 160 120">
+  <defs>
+    <!-- Dome gradient -->
+    <radialGradient id="hemiGrad" cx="40%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#66f5ff"/>
+      <stop offset="100%" stop-color="#004e92"/>
+    </radialGradient>
+    <!-- Base gradient -->
+    <radialGradient id="hemiBase" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="100%" stop-color="#0094cc"/>
+    </radialGradient>
+    <!-- Shadow -->
+    <filter id="hemiShadow">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.4)" />
+    </filter>
+  </defs>
+
+  <!-- Hemisphere dome (closed shape) -->
+  <path d="M30 60 A50 40 0 0 1 130 60 L130 70 A50 10 0 0 1 30 70 Z" 
+        fill="url(#hemiGrad)" 
+        stroke="#00f2fe" stroke-width="2" 
+        filter="url(#hemiShadow)" />
+  <!-- Base ellipse -->
+  <ellipse cx="80" cy="70" rx="50" ry="10" 
+           fill="url(#hemiBase)" 
+           stroke="#00f2fe" stroke-width="2" />
+</svg>
+  <p class="formula">V = (2/3)πr³</p>
+  <div class="input-row">
+    <input type="number" id="hemiVol" placeholder="V">
+    <input type="number" id="hemiRadius" placeholder="r">
+  </div>
+  <div class="button-row">
+    <button class="calc-btn" onclick="calcHemisphere()">Calculate</button>
+    <button class="clear-btn" onclick="clearInputs(['hemiVol','hemiRadius'])">Clear</button>
+  </div>
+  <div class="error-message" id="hemiError"></div>
+</div>
+
+<!-- Ellipsoid -->
+<div class="item">
+  <h3>Ellipsoid</h3>
+  <svg class="shape-diagram" viewBox="0 0 160 120">
+  <defs>
+    <!-- Ellipsoid gradient -->
+    <radialGradient id="ellipGrad" cx="40%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#66f5ff"/>
+      <stop offset="100%" stop-color="#004e92"/>
+    </radialGradient>
+    <!-- Shadow -->
+    <filter id="ellipShadow">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.4)" />
+    </filter>
+  </defs>
+
+  <!-- Ellipsoid shape -->
+  <ellipse cx="80" cy="60" rx="60" ry="35" 
+           fill="url(#ellipGrad)" 
+           stroke="#00f2fe" stroke-width="2" 
+           filter="url(#ellipShadow)" />
+</svg>
+  <p class="formula">V = (4/3)πabc</p>
+  <div class="input-row">
+    <input type="number" id="ellipVol" placeholder="V">
+    <input type="number" id="ellipA" placeholder="a">
+    <input type="number" id="ellipB" placeholder="b">
+    <input type="number" id="ellipC" placeholder="c">
+  </div>
+  <div class="button-row">
+    <button class="calc-btn" onclick="calcEllipsoid()">Calculate</button>
+    <button class="clear-btn" onclick="clearInputs(['ellipVol','ellipA','ellipB','ellipC'])">Clear</button>
+  </div>
+  <div class="error-message" id="ellipError"></div>
+</div>
+
+  </main>
+
+  <div class="radio-container">
+    <input type="radio" name="position" checked />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+  </div>
+
+  <script>
+  // Theme toggle
+  themeToggle.addEventListener("click", () => {
+  document.body.classList.toggle("light");
+  });
+
+// Sphere Volume
+function calcSphere() {
+  const v = parseFloat(document.getElementById("sphereVol").value);
+  const r = parseFloat(document.getElementById("sphereRadius").value);
+
+  // Case 1: r → volume
+  if (!isNaN(r) && r > 0) {
+    const volume = (4/3) * Math.PI * Math.pow(r,3);
+    document.getElementById("sphereVol").value = volume.toFixed(2);
+    highlightResult("sphereVol");
+  }
+  // Case 2: V → radius
+  else if (!isNaN(v) && v > 0) {
+    const radius = Math.cbrt((3*v) / (4*Math.PI));
+    document.getElementById("sphereRadius").value = radius.toFixed(2);
+    highlightResult("sphereRadius");
+  } 
+  else {
+    showError(["sphereVol","sphereRadius"], "sphereError", "Enter radius or volume");
+  }
+}
+// Cube
+function calcCube() {
+  const v = parseFloat(document.getElementById("cubeVol").value);
+  const a = parseFloat(document.getElementById("cubeSide").value);
+
+  if (!isNaN(a) && a > 0) { 
+    const volume = Math.pow(a, 3);
+    document.getElementById("cubeVol").value = volume.toFixed(2);
+    highlightResult("cubeVol");
+  } 
+  else if (!isNaN(v) && v > 0) { 
+    const side = Math.cbrt(v);
+    document.getElementById("cubeSide").value = side.toFixed(2);
+    highlightResult("cubeSide");
+  } 
+  else {
+    showError(["cubeVol","cubeSide"], "cubeError", "Enter side or volume");
+  }
+}
+// Rectangular Prism
+function calcPrism() {
+  const vField = document.getElementById("prismVol");
+  const lField = document.getElementById("prismL");
+  const wField = document.getElementById("prismW");
+  const hField = document.getElementById("prismH");
+
+  const v = parseFloat(vField.value);
+  const l = parseFloat(lField.value);
+  const w = parseFloat(wField.value);
+  const h = parseFloat(hField.value);
+
+  const inputs = [!isNaN(v) && v > 0, !isNaN(l) && l > 0, !isNaN(w) && w > 0, !isNaN(h) && h > 0];
+  const filledCount = inputs.filter(Boolean).length;
+
+  // All 4 filled → show warning
+  if (filledCount === 4) {
+    showError(["prismVol","prismL","prismW","prismH"], "prismError", "All fields are filled. Clear one to solve.");
+    return;
+  }
+
+  // Less than 3 filled → error
+  if (filledCount < 3) {
+    showError(["prismVol","prismL","prismW","prismH"], "prismError", "Enter at least 3 values to solve the 4th");
+    return;
+  }
+
+  // Clear previous error
+  document.getElementById("prismError").innerText = "";
+
+  // Solve missing field
+  if (isNaN(v) || v <= 0) { // Solve Volume
+    vField.value = (l * w * h).toFixed(2);
+    highlightResult("prismVol");
+  } 
+  else if (isNaN(l) || l <= 0) { // Solve Length
+    lField.value = (v / (w * h)).toFixed(2);
+    highlightResult("prismL");
+  } 
+  else if (isNaN(w) || w <= 0) { // Solve Width
+    wField.value = (v / (l * h)).toFixed(2);
+    highlightResult("prismW");
+  } 
+  else if (isNaN(h) || h <= 0) { // Solve Height
+    hField.value = (v / (l * w)).toFixed(2);
+    highlightResult("prismH");
+  }
+}
+
+// Cylinder
+function calcCylinder() {
+  const vField = document.getElementById("cylVol");
+  const rField = document.getElementById("cylRadius");
+  const hField = document.getElementById("cylHeight");
+
+  const v = parseFloat(vField.value);
+  const r = parseFloat(rField.value);
+  const h = parseFloat(hField.value);
+
+  const inputs = [!isNaN(v) && v > 0, !isNaN(r) && r > 0, !isNaN(h) && h > 0];
+  const filledCount = inputs.filter(Boolean).length;
+
+  // All 3 filled → warn
+  if (filledCount === 3) {
+    showError(["cylVol","cylRadius","cylHeight"], "cylError", "All fields are filled. Clear one to solve.");
+    return;
+  }
+
+  // Less than 2 → error
+  if (filledCount < 2) {
+    showError(["cylVol","cylRadius","cylHeight"], "cylError", "Enter at least 2 values to solve the 3rd");
+    return;
+  }
+
+  // Clear previous error
+  document.getElementById("cylError").innerText = "";
+
+  // Solve the missing one
+  if (isNaN(v) || v <= 0) { // Solve Volume
+    const volume = Math.PI * Math.pow(r, 2) * h;
+    vField.value = volume.toFixed(2);
+    highlightResult("cylVol");
+  } 
+  else if (isNaN(r) || r <= 0) { // Solve Radius
+    const radius = Math.sqrt(v / (Math.PI * h));
+    rField.value = radius.toFixed(2);
+    highlightResult("cylRadius");
+  } 
+  else if (isNaN(h) || h <= 0) { // Solve Height
+    const height = v / (Math.PI * Math.pow(r, 2));
+    hField.value = height.toFixed(2);
+    highlightResult("cylHeight");
+  }
+}
+
+// Cone
+function calcCone() {
+  const vField = document.getElementById("coneVol");
+  const rField = document.getElementById("coneRadius");
+  const hField = document.getElementById("coneHeight");
+
+  const v = parseFloat(vField.value);
+  const r = parseFloat(rField.value);
+  const h = parseFloat(hField.value);
+
+  const inputs = [!isNaN(v) && v > 0, !isNaN(r) && r > 0, !isNaN(h) && h > 0];
+  const filledCount = inputs.filter(Boolean).length;
+
+  if (filledCount === 3) { 
+    showError(["coneVol","coneRadius","coneHeight"], "coneError", "All fields are filled. Clear one to solve."); 
+    return; 
+  }
+  if (filledCount < 2) { 
+    showError(["coneVol","coneRadius","coneHeight"], "coneError", "Enter at least 2 values to solve the 3rd"); 
+    return; 
+  }
+  document.getElementById("coneError").innerText = "";
+
+  if (isNaN(v) || v <= 0) { 
+    vField.value = ((1/3) * Math.PI * Math.pow(r,2) * h).toFixed(2); 
+    highlightResult("coneVol"); 
+  } 
+  else if (isNaN(r) || r <= 0) { 
+    rField.value = Math.sqrt((3*v) / (Math.PI * h)).toFixed(2); 
+    highlightResult("coneRadius"); 
+  } 
+  else if (isNaN(h) || h <= 0) { 
+    hField.value = ((3*v) / (Math.PI * Math.pow(r,2))).toFixed(2); 
+    highlightResult("coneHeight"); 
+  }
+}
+
+// Pyramid
+function calcPyramid() {
+  const vField = document.getElementById("pyrVol");
+  const lField = document.getElementById("pyrL");
+  const wField = document.getElementById("pyrW");
+  const hField = document.getElementById("pyrH");
+
+  const v = parseFloat(vField.value);
+  const l = parseFloat(lField.value);
+  const w = parseFloat(wField.value);
+  const h = parseFloat(hField.value);
+
+  const inputs = [!isNaN(v) && v > 0, !isNaN(l) && l > 0, !isNaN(w) && w > 0, !isNaN(h) && h > 0];
+  const filledCount = inputs.filter(Boolean).length;
+
+  if (filledCount === 4) { 
+    showError(["pyrVol","pyrL","pyrW","pyrH"], "pyrError", "All fields are filled. Clear one to solve."); 
+    return; 
+  }
+  if (filledCount < 3) { 
+    showError(["pyrVol","pyrL","pyrW","pyrH"], "pyrError", "Enter at least 3 values to solve the 4th"); 
+    return; 
+  }
+  document.getElementById("pyrError").innerText = "";
+
+  if (isNaN(v) || v <= 0) { 
+    vField.value = ((1/3) * l * w * h).toFixed(2); 
+    highlightResult("pyrVol"); 
+  } 
+  else if (isNaN(l) || l <= 0) { 
+    lField.value = ((3*v) / (w*h)).toFixed(2); 
+    highlightResult("pyrL"); 
+  } 
+  else if (isNaN(w) || w <= 0) { 
+    wField.value = ((3*v) / (l*h)).toFixed(2); 
+    highlightResult("pyrW"); 
+  } 
+  else if (isNaN(h) || h <= 0) { 
+    hField.value = ((3*v) / (l*w)).toFixed(2); 
+    highlightResult("pyrH"); 
+  }
+}
+
+// Triangular Prism
+function calcTriPrism() {
+  const vField = document.getElementById("triPrismVol");
+  const bField = document.getElementById("triPrismBase");
+  const hField = document.getElementById("triPrismHeight");
+  const lField = document.getElementById("triPrismLength");
+
+  const v = parseFloat(vField.value);
+  const b = parseFloat(bField.value);
+  const h = parseFloat(hField.value);
+  const L = parseFloat(lField.value);
+
+  const inputs = [!isNaN(v) && v > 0, !isNaN(b) && b > 0, !isNaN(h) && h > 0, !isNaN(L) && L > 0];
+  const filledCount = inputs.filter(Boolean).length;
+
+  if (filledCount === 4) { 
+    showError(["triPrismVol","triPrismBase","triPrismHeight","triPrismLength"], "triPrismError", "All fields are filled. Clear one to solve."); 
+    return; 
+  }
+  if (filledCount < 3) { 
+    showError(["triPrismVol","triPrismBase","triPrismHeight","triPrismLength"], "triPrismError", "Enter at least 3 values to solve the 4th"); 
+    return; 
+  }
+  document.getElementById("triPrismError").innerText = "";
+
+  if (isNaN(v) || v <= 0) { 
+    vField.value = (0.5 * b * h * L).toFixed(2); 
+    highlightResult("triPrismVol"); 
+  } 
+  else if (isNaN(b) || b <= 0) { 
+    bField.value = ((2*v) / (h*L)).toFixed(2); 
+    highlightResult("triPrismBase"); 
+  } 
+  else if (isNaN(h) || h <= 0) { 
+    hField.value = ((2*v) / (b*L)).toFixed(2); 
+    highlightResult("triPrismHeight"); 
+  } 
+  else if (isNaN(L) || L <= 0) { 
+    lField.value = ((2*v) / (b*h)).toFixed(2); 
+    highlightResult("triPrismLength"); 
+  }
+}
+
+// Hemisphere
+function calcHemisphere() {
+  const v = parseFloat(document.getElementById("hemiVol").value);
+  const r = parseFloat(document.getElementById("hemiRadius").value);
+
+  if (!isNaN(r) && r > 0) {
+    const volume = (2/3) * Math.PI * Math.pow(r,3);
+    document.getElementById("hemiVol").value = volume.toFixed(2);
+    highlightResult("hemiVol");
+  }
+  else if (!isNaN(v) && v > 0) {
+    const radius = Math.cbrt((3*v) / (2*Math.PI));
+    document.getElementById("hemiRadius").value = radius.toFixed(2);
+    highlightResult("hemiRadius");
+  }
+  else {
+    showError(["hemiVol","hemiRadius"], "hemiError", "Enter radius or volume");
+  }
+}
+
+// Ellipsoid
+function calcEllipsoid() {
+  const vField = document.getElementById("ellipVol");
+  const aField = document.getElementById("ellipA");
+  const bField = document.getElementById("ellipB");
+  const cField = document.getElementById("ellipC");
+
+  const v = parseFloat(vField.value);
+  const a = parseFloat(aField.value);
+  const b = parseFloat(bField.value);
+  const c = parseFloat(cField.value);
+
+  const inputs = [!isNaN(v) && v > 0, !isNaN(a) && a > 0, !isNaN(b) && b > 0, !isNaN(c) && c > 0];
+  const filledCount = inputs.filter(Boolean).length;
+
+  if (filledCount === 4) { 
+    showError(["ellipVol","ellipA","ellipB","ellipC"], "ellipError", "All fields are filled. Clear one to solve."); 
+    return; 
+  }
+  if (filledCount < 3) { 
+    showError(["ellipVol","ellipA","ellipB","ellipC"], "ellipError", "Enter at least 3 values to solve the 4th"); 
+    return; 
+  }
+  document.getElementById("ellipError").innerText = "";
+
+  if (isNaN(v) || v <= 0) { // Solve Volume
+    vField.value = ((4/3) * Math.PI * a * b * c).toFixed(2);
+    highlightResult("ellipVol");
+  } 
+  else if (isNaN(a) || a <= 0) { // Solve A
+    aField.value = ((3*v) / (4*Math.PI*b*c)).toFixed(2);
+    highlightResult("ellipA");
+  } 
+  else if (isNaN(b) || b <= 0) { // Solve B
+    bField.value = ((3*v) / (4*Math.PI*a*c)).toFixed(2);
+    highlightResult("ellipB");
+  } 
+  else if (isNaN(c) || c <= 0) { // Solve C
+    cField.value = ((3*v) / (4*Math.PI*a*b)).toFixed(2);
+    highlightResult("ellipC");
+  }
+}
+
+  function showError(inputs, messageBox, message) {
+    inputs.forEach(id => document.getElementById(id).classList.add("error"));
+    const msg = document.getElementById(messageBox);
+    msg.textContent = message;
+    msg.classList.add("show");
+    setTimeout(() => {
+      inputs.forEach(id => document.getElementById(id).classList.remove("error"));
+      msg.classList.remove("show");
+    }, 1500);
+  }
+
+  function highlightResult(id) {
+    const el = document.getElementById(id);
+    el.classList.add("result-highlight");
+  }
+
+  function clearInputs(ids) {
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    el.value = "";
+    el.classList.remove("result-highlight");
+  });
+}
+
+  // Remove highlight on typing
+  document.querySelectorAll("input").forEach(input => {
+    input.addEventListener("input", () => input.classList.remove("result-highlight"));
+  });
+
+  // Carousel navigation
+  const radios = document.querySelectorAll("input[type=radio]");
+  const carousel = document.getElementById("carousel");
+  radios.forEach((radio, idx) => {
+    radio.addEventListener("change", () => {
+      carousel.style.setProperty("--position", idx + 1);
+    });
+  });
+</script>
+</body>
+</html>

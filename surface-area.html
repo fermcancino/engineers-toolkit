@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>3D Carousel Surface Area Calculator</title>
+  <style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  body {
+    background: linear-gradient(135deg, #1a1f2b, #4e4376);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    transition: 0.3s ease;
+  }
+
+  body.light {
+    background: linear-gradient(135deg, #dfe9f3, #ffffff);
+    color: #222;
+  }
+
+  /* Shake animation */
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+  }
+
+  .error {
+    border: 1px solid #ff6b6b !important;
+    animation: shake 0.3s;
+  }
+
+  .error-message {
+    color: #ff6b6b;
+    font-size: 0.85rem;
+    text-align: center;
+    margin-top: 4px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .error-message.show {
+    opacity: 1;
+  }
+
+  /* Topbar */
+  .topbar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    max-width: 500px;
+    padding: 10px 20px;
+  }
+
+  .title {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+
+  /* Theme Toggle */
+  .switch {
+    width: 50px;
+    height: 28px;
+    background: linear-gradient(135deg, #1a1f2b, #4e4376);
+    border-radius: 30px;
+    position: relative;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    padding: 2px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  }
+
+  .slider {
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, #8a8fb8, #b89ce0);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    transform: translateX(0);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  }
+
+  body.light .slider {
+    background: linear-gradient(135deg, #ffffff, #e0e0e0);
+  }
+
+  body.light .switch {
+    background: #cccccc;
+    border: 1px solid #e0e0e0;
+  }
+
+  body.light .switch .slider {
+    transform: translateX(20px);
+  }
+
+  main#carousel {
+    margin-top: 10px;
+    width: 100vw;
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transform-style: preserve-3d;
+    perspective: 900px;
+    --items: 5;
+    --position: 1;
+    pointer-events: none;
+  }
+
+  div.item {
+    text-align: center;
+    padding: 20px;
+    border-radius: 20px;
+    position: absolute;
+    width: 350px;
+    height: 370px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(0, 255, 255, 0.6);
+    box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3),
+                inset 2px 2px 5px rgba(255,255,255,0.1);
+    --r: calc(var(--position) - var(--offset));
+    --abs: max(calc(var(--r) * -1), var(--r));
+    transition: all 0.5s ease;
+    transform: rotateY(calc(-12deg * var(--r)))
+               translateX(calc(-340px * var(--r)))
+               scale(calc(1 - (0.15 * var(--abs))));
+    z-index: calc((var(--position) - var(--abs)));
+    color: inherit;
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  body.light .item {
+    border: 2px solid rgba(0, 150, 255, 0.6);
+    box-shadow: 0 5px 15px rgba(0, 150, 255, 0.3),
+                inset 2px 2px 5px rgba(0,0,0,0.05);
+  }
+
+  h3 {
+    margin-bottom: 6px;
+    font-size: 1.5rem;
+    background: linear-gradient(45deg, #00f2fe, #4facfe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  body.light h3 {
+    background: linear-gradient(45deg, #0072ff, #00c6ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .formula {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    opacity: 0.8;
+  }
+
+  .input-row {
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+    width: 90%;
+    margin: 8px auto;
+  }
+
+  .input-row input {
+    flex: 1;
+    text-align: center;
+  }
+
+  input {
+    width: 90%;
+    margin: 6px auto;
+    padding: 8px;
+    border-radius: 12px;
+    border: none;
+    background: rgba(255,255,255,0.1);
+    color: inherit;
+    font-size: 1.1rem;
+    outline: none;
+    box-shadow: inset 3px 3px 5px rgba(0,0,0,0.5),
+                inset -3px -3px 5px rgba(255,255,255,0.05);
+    transition: 0.3s ease;
+  }
+
+  input:focus {
+    box-shadow: 0 0 5px #00bcd4;
+    transform: scale(1.03);
+  }
+
+  input.result-highlight {
+    background: rgba(0, 255, 255, 0.2) !important;
+    box-shadow: 0 0 10px #00bcd4;
+    outline: 2px solid #00f2fe;
+    font-weight: bold;
+    transform: scale(1.05);
+  }
+
+  body.light input {
+    background: rgba(0,0,0,0.05);
+    color: #222;
+  }
+
+  button {
+    width: 90%;
+    padding: 8px;
+    margin: 8px auto;
+    background: linear-gradient(135deg, #00f2fe, #4facfe);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.4);
+    transition: all 0.25s ease;
+  }
+
+  button:hover {
+    transform: translateY(-3px) scale(1.03);
+  }
+
+  button:active {
+    transform: scale(0.97);
+  }
+
+  .button-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    width: 90%;
+    margin: 8px auto;
+  }
+
+  .calc-btn,
+  .clear-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    color: inherit;
+    background: rgba(255,255,255,0.08);
+    /* Neumorphic effect */
+    box-shadow: inset 3px 3px 6px rgba(0,0,0,0.6),
+                inset -3px -3px 6px rgba(255,255,255,0.1);
+  }
+
+  body.light .calc-btn,
+  body.light .clear-btn {
+    background: #e0e5ec;
+    color: #222;
+    box-shadow: inset 3px 3px 6px rgba(163,177,198,0.6),
+                inset -3px -3px 6px rgba(255,255,255,0.8);
+  }
+
+  .calc-btn:hover {
+    box-shadow: 0 0 12px rgba(79,172,254,0.9),
+                inset 3px 3px 6px rgba(0,0,0,0.6),
+                inset -3px -3px 6px rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+  }
+
+  .clear-btn:hover {
+    box-shadow: 0 0 12px rgba(255,107,107,0.9),
+                inset 3px 3px 6px rgba(0,0,0,0.6),
+                inset -3px -3px 6px rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+  }
+
+  body.light .calc-btn:hover {
+    box-shadow: 0 0 12px rgba(79,172,254,0.9),
+                inset 3px 3px 6px rgba(0,0,0,0.6),
+                inset -3px -3px 6px rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+  }
+
+  body.light .clear-btn:hover {
+    box-shadow: 0 0 12px rgba(255,107,107,0.9),
+                inset 3px 3px 6px rgba(0,0,0,0.6),
+                inset -3px -3px 6px rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+  }
+
+  .calc-btn:active,
+  .clear-btn:active,
+  body.light .calc-btn:active,
+  body.light .clear-btn:active {
+    transform: scale(0.97);
+    box-shadow: inset 4px 4px 8px rgba(0,0,0,0.8),
+                inset -2px -2px 4px rgba(255,255,255,0.1);
+  }
+
+  .result {
+    margin: 12px auto;
+    padding: 8px;
+    font-size: 1rem;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.1);
+    box-shadow: inset 3px 3px 5px rgba(0,0,0,0.5),
+                inset -3px -3px 5px rgba(255,255,255,0.05);
+    width: 90%;
+  }
+
+  body.light .result {
+    background: rgba(0,0,0,0.05);
+  }
+
+  /* Positioning each card */
+  div.item:nth-of-type(1) { --offset: 1; }
+  div.item:nth-of-type(2) { --offset: 2; }
+  div.item:nth-of-type(3) { --offset: 3; }
+  div.item:nth-of-type(4) { --offset: 4; }
+  div.item:nth-of-type(5) { --offset: 5; }
+  div.item:nth-of-type(6) { --offset: 6; }
+  div.item:nth-of-type(7) { --offset: 7; }
+
+  /* Radio buttons */
+  input[type=radio] {
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  input[type=radio]:checked {
+    background: #00f2fe;
+    box-shadow: 0 0 10px #00f2fe;
+  }
+
+  /* Dot positions */
+  .radio-container {
+    display: flex;
+    gap: 12px;
+  }
+
+  input[type=radio]:hover {
+    transform: translateY(-2px);
+  }
+
+  .shape-diagram {
+    margin: 5px 0;
+    height: 80px;
+    filter: drop-shadow(3px 3px 5px rgba(0,0,0,0.5));
+  }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <div class="title">Surface Area Calculator</div>
+    <div id="themeToggle" class="switch">
+      <div class="slider"></div>
+    </div>
+  </div>
+
+  <!-- Carousel -->
+  <main id="carousel">
+    
+<!-- Sphere -->
+<div class="item">
+  <h3>Sphere</h3>
+  <svg class="shape-diagram" viewBox="0 0 100 100">
+  <defs>
+    <radialGradient id="sphereGrad" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#00f2fe" />
+      <stop offset="70%" stop-color="#004e92" />
+    </radialGradient>
+  </defs>
+  <circle cx="50" cy="50" r="40" fill="url(#sphereGrad)" stroke="#00f2fe" stroke-width="2"/>
+</svg>
+  <p class="formula">SA = 4πr²</p>
+  <div class="input-row">
+    <input type="number" id="sphereSA" placeholder="SA">
+    <input type="number" id="sphereR" placeholder="r">
+  </div>
+  <div class="button-row">
+    <button class="calc-btn" onclick="calcSphereSA()">Calculate</button>
+    <button class="clear-btn" onclick="clearInputs(['sphereSA','sphereR'])">Clear</button>
+  </div>
+  <div class="error-message" id="sphereError"></div>
+</div>
+
+<!-- Cube -->
+<div class="item">
+  <h3>Cube</h3>
+  <svg class="shape-diagram" viewBox="0 0 120 120">
+  <defs>
+    <!-- Front face gradient -->
+    <linearGradient id="cubeFront" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="100%" stop-color="#004e92"/>
+    </linearGradient>
+    <!-- Top face gradient -->
+    <linearGradient id="cubeTop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#66f5ff"/>
+      <stop offset="100%" stop-color="#0094cc"/>
+    </linearGradient>
+    <!-- Shadow filter -->
+    <filter id="cubeShadow">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.4)" />
+    </filter>
+  </defs>
+  
+  <!-- Front face -->
+  <polygon points="30,50 90,50 90,110 30,110" fill="url(#cubeFront)" stroke="#00f2fe" stroke-width="2" filter="url(#cubeShadow)" />
+  <!-- Top face -->
+  <polygon points="30,50 50,30 110,30 90,50" fill="url(#cubeTop)" stroke="#00f2fe" stroke-width="2" />
+  <!-- Side face -->
+  <polygon points="90,50 110,30 110,90 90,110" fill="url(#cubeFront)" stroke="#00f2fe" stroke-width="2" />
+</svg>
+  <p class="formula">SA = 6a²</p>
+  <div class="input-row">
+    <input type="number" id="cubeSA" placeholder="SA">
+    <input type="number" id="cubeA" placeholder="a">
+  </div>
+  <div class="button-row">
+    <button class="calc-btn" onclick="calcCubeSA()">Calculate</button>
+    <button class="clear-btn" onclick="clearInputs(['cubeSA','cubeA'])">Clear</button>
+  </div>
+  <div class="error-message" id="cubeError"></div>
+</div>
+
+<!-- Rectangular Prism -->
+<div class="item">
+  <h3>Rectangular Prism</h3>
+  <svg class="shape-diagram" viewBox="0 0 120 100">
+  <defs>
+    <!-- Gradient for front face -->
+    <linearGradient id="prismFront" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="100%" stop-color="#004e92"/>
+    </linearGradient>
+    <!-- Gradient for top face -->
+    <linearGradient id="prismTop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#66f5ff"/>
+      <stop offset="100%" stop-color="#0094cc"/>
+    </linearGradient>
+    <!-- Shadow -->
+    <filter id="shadow">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.4)" />
+    </filter>
+  </defs>
+  
+  <!-- Front face -->
+  <polygon points="20,40 100,40 100,90 20,90" fill="url(#prismFront)" stroke="#00f2fe" stroke-width="2" filter="url(#shadow)" />
+  <!-- Top face -->
+  <polygon points="20,40 40,20 120,20 100,40" fill="url(#prismTop)" stroke="#00f2fe" stroke-width="2" />
+  <!-- Side face -->
+  <polygon points="100,40 120,20 120,70 100,90" fill="url(#prismFront)" stroke="#00f2fe" stroke-width="2" />
+</svg>
+  <p class="formula">SA = 2(lw + lh + wh)</p>
+  <div class="input-row">
+    <input type="number" id="prismSA" placeholder="SA">
+    <input type="number" id="prismL" placeholder="l">
+    <input type="number" id="prismW" placeholder="w">
+    <input type="number" id="prismH" placeholder="h">
+  </div>
+  <div class="button-row">
+    <button class="calc-btn" onclick="calcPrismSA()">Calculate</button>
+    <button class="clear-btn" onclick="clearInputs(['prismSA','prismL','prismW','prismH'])">Clear</button>
+  </div>
+  <div class="error-message" id="prismError"></div>
+</div>
+
+<!-- Cylinder -->
+<div class="item">
+  <h3>Cylinder</h3>
+  <svg class="shape-diagram" viewBox="0 0 140 140">
+  <defs>
+    <!-- Side gradient -->
+    <linearGradient id="cylSide" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="100%" stop-color="#004e92"/>
+    </linearGradient>
+    <!-- Top ellipse gradient -->
+    <radialGradient id="cylTop" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#66f5ff"/>
+      <stop offset="100%" stop-color="#0094cc"/>
+    </radialGradient>
+    <!-- Shadow filter -->
+    <filter id="cylShadow">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.4)" />
+    </filter>
+  </defs>
+
+  <!-- Side (rectangle) -->
+  <rect x="30" y="40" width="80" height="80" fill="url(#cylSide)" stroke="#00f2fe" stroke-width="2" filter="url(#cylShadow)" />
+  <!-- Top ellipse -->
+  <ellipse cx="70" cy="40" rx="40" ry="12" fill="url(#cylTop)" stroke="#00f2fe" stroke-width="2" />
+  <!-- Bottom ellipse (slightly darker) -->
+  <ellipse cx="70" cy="120" rx="40" ry="12" fill="url(#cylTop)" stroke="#00f2fe" stroke-width="2" opacity="0.8"/>
+</svg>
+  <p class="formula">SA = 2πr(h + r)</p>
+  <div class="input-row">
+    <input type="number" id="cylSA" placeholder="SA">
+    <input type="number" id="cylR" placeholder="r">
+    <input type="number" id="cylH" placeholder="h">
+  </div>
+  <div class="button-row">
+    <button class="calc-btn" onclick="calcCylSA()">Calculate</button>
+    <button class="clear-btn" onclick="clearInputs(['cylSA','cylR','cylH'])">Clear</button>
+  </div>
+  <div class="error-message" id="cylError"></div>
+</div>
+
+<!-- Cone -->
+<div class="item">
+  <h3>Cone</h3>
+  <svg class="shape-diagram" viewBox="0 0 140 140">
+  <defs>
+    <!-- Side gradient -->
+    <linearGradient id="coneSide" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="100%" stop-color="#004e92"/>
+    </linearGradient>
+    <!-- Base ellipse gradient -->
+    <radialGradient id="coneBase" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#66f5ff"/>
+      <stop offset="100%" stop-color="#0094cc"/>
+    </radialGradient>
+    <!-- Shadow filter -->
+    <filter id="coneShadow">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.4)" />
+    </filter>
+  </defs>
+  
+  <!-- Cone body -->
+  <polygon points="30,120 110,120 70,20" fill="url(#coneSide)" stroke="#00f2fe" stroke-width="2" filter="url(#coneShadow)" />
+  <!-- Base ellipse -->
+  <ellipse cx="70" cy="120" rx="40" ry="12" fill="url(#coneBase)" stroke="#00f2fe" stroke-width="2" />
+</svg>
+  <p class="formula">SA = πr(l + r)</p>
+  <div class="input-row">
+    <input type="number" id="coneSA" placeholder="SA">
+    <input type="number" id="coneR" placeholder="r">
+    <input type="number" id="coneL" placeholder="l">
+  </div>
+  <div class="button-row">
+    <button class="calc-btn" onclick="calcConeSA()">Calculate</button>
+    <button class="clear-btn" onclick="clearInputs(['coneSA','coneR','coneL'])">Clear</button>
+  </div>
+  <div class="error-message" id="coneError"></div>
+</div>
+
+<!-- Square Pyramid -->
+<div class="item">
+  <h3>Square Pyramid</h3>
+  <svg class="shape-diagram" viewBox="0 0 180 160">
+  <defs>
+    <!-- Front face gradient -->
+    <linearGradient id="pyrFront" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="100%" stop-color="#004e92"/>
+    </linearGradient>
+    <!-- Side face gradient -->
+    <linearGradient id="pyrSide" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#66f5ff"/>
+      <stop offset="100%" stop-color="#0094cc"/>
+    </linearGradient>
+    <!-- Base gradient -->
+    <linearGradient id="pyrBase" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0094cc"/>
+      <stop offset="100%" stop-color="#004e92"/>
+    </linearGradient>
+    <!-- Shadow filter -->
+    <filter id="pyrShadow">
+      <feDropShadow dx="3" dy="3" stdDeviation="3" flood-color="rgba(0,0,0,0.4)" />
+    </filter>
+  </defs>
+
+  <!-- Base (visible) -->
+  <polygon points="40,120 120,120 150,140 70,140" 
+           fill="url(#pyrBase)" 
+           stroke="#00f2fe" stroke-width="2" />
+
+  <!-- Front slanted face -->
+  <polygon points="40,120 120,120 80,40" 
+           fill="url(#pyrFront)" 
+           stroke="#00f2fe" stroke-width="2" 
+           filter="url(#pyrShadow)" />
+  
+  <!-- Side slanted face -->
+  <polygon points="120,120 150,140 80,40" 
+           fill="url(#pyrSide)" 
+           stroke="#00f2fe" stroke-width="2" />
+</svg>
+  <p class="formula">SA = a² + 2al</p>
+  <div class="input-row">
+    <input type="number" id="pyrSA" placeholder="SA">
+    <input type="number" id="pyrA" placeholder="a">
+    <input type="number" id="pyrL" placeholder="l">
+  </div>
+  <div class="button-row">
+    <button class="calc-btn" onclick="calcPyramidSA()">Calculate</button>
+    <button class="clear-btn" onclick="clearInputs(['pyrSA','pyrA','pyrL'])">Clear</button>
+  </div>
+  <div class="error-message" id="pyrError"></div>
+</div>
+
+<!-- Triangular Prism -->
+<div class="item">
+  <h3>Triangular Prism</h3>
+  <svg class="shape-diagram" viewBox="0 0 160 140">
+  <defs>
+    <!-- Front triangular face -->
+    <linearGradient id="triPrismFront" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="100%" stop-color="#004e92"/>
+    </linearGradient>
+    <!-- Side rectangular face -->
+    <linearGradient id="triPrismSide" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#66f5ff"/>
+      <stop offset="100%" stop-color="#0094cc"/>
+    </linearGradient>
+    <!-- Shadow -->
+    <filter id="triPrismShadow">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.4)" />
+    </filter>
+  </defs>
+
+  <!-- Front triangle -->
+  <polygon points="40,100 100,100 70,40" fill="url(#triPrismFront)" stroke="#00f2fe" stroke-width="2" filter="url(#triPrismShadow)" />
+  <!-- Side rectangle -->
+  <polygon points="100,100 140,100 110,40 70,40" fill="url(#triPrismSide)" stroke="#00f2fe" stroke-width="2" />
+  <!-- Top side -->
+  <polygon points="70,40 110,40 140,100 100,100" fill="none" stroke="#00f2fe" stroke-width="2" />
+</svg>
+  <p class="formula">SA = bh + (a+b+c)L</p>
+  <div class="input-row">
+    <input type="number" id="triPrismSA" placeholder="SA">
+    <input type="number" id="triPrismB" placeholder="b">
+    <input type="number" id="triPrismH" placeholder="h">
+    <input type="number" id="triPrismA" placeholder="a">
+    <input type="number" id="triPrismC" placeholder="c">
+    <input type="number" id="triPrismL" placeholder="L">
+  </div>
+  <div class="button-row">
+    <button class="calc-btn" onclick="calcTriPrismSA()">Calculate</button>
+    <button class="clear-btn" onclick="clearInputs(['triPrismSA','triPrismB','triPrismH','triPrismA','triPrismC','triPrismL'])">Clear</button>
+  </div>
+  <div class="error-message" id="triPrismError"></div>
+</div>
+  </main>
+
+  <div class="radio-container">
+    <input type="radio" name="position" checked />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+    <input type="radio" name="position" />
+  </div>
+
+  <script>
+  // Theme toggle
+  themeToggle.addEventListener("click", () => {
+  document.body.classList.toggle("light");
+  });
+
+// Sphere
+function calcSphereSA() {
+  const sa = parseFloat(document.getElementById("sphereSA").value);
+  const r = parseFloat(document.getElementById("sphereR").value);
+  const values = {sa, r};
+  const missing = Object.entries(values).filter(([k, v]) => isNaN(v));
+  if (missing.length !== 1) {
+    showError(["sphereSA","sphereR"], "sphereError", "Enter exactly one missing value");
+    return;
+  }
+  if (isNaN(sa)) { // compute SA
+    const surface = 4 * Math.PI * Math.pow(r, 2);
+    document.getElementById("sphereSA").value = surface.toFixed(2);
+    highlightResult("sphereSA");
+  } else { // compute r
+    const radius = Math.sqrt(sa / (4 * Math.PI));
+    document.getElementById("sphereR").value = radius.toFixed(2);
+    highlightResult("sphereR");
+  }
+}
+
+// Cube
+function calcCubeSA() {
+  const sa = parseFloat(document.getElementById("cubeSA").value);
+  const a = parseFloat(document.getElementById("cubeA").value);
+  const values = {sa, a};
+  const missing = Object.entries(values).filter(([k, v]) => isNaN(v));
+  if (missing.length !== 1) {
+    showError(["cubeSA","cubeA"], "cubeError", "Enter exactly one missing value");
+    return;
+  }
+  if (isNaN(sa)) { // compute SA
+    const surface = 6 * Math.pow(a, 2);
+    document.getElementById("cubeSA").value = surface.toFixed(2);
+    highlightResult("cubeSA");
+  } else { // compute a
+    const side = Math.sqrt(sa / 6);
+    document.getElementById("cubeA").value = side.toFixed(2);
+    highlightResult("cubeA");
+  }
+}
+
+// Rectangular Prism
+function calcPrismSA() {
+  const sa = parseFloat(document.getElementById("prismSA").value);
+  const l = parseFloat(document.getElementById("prismL").value);
+  const w = parseFloat(document.getElementById("prismW").value);
+  const h = parseFloat(document.getElementById("prismH").value);
+  const values = {sa, l, w, h};
+  const missing = Object.entries(values).filter(([k, v]) => isNaN(v));
+  if (missing.length !== 1) {
+    showError(["prismSA","prismL","prismW","prismH"], "prismError", "Leave exactly one field empty");
+    return;
+  }
+  if (isNaN(sa)) { // compute SA
+    const surface = 2 * (l*w + l*h + w*h);
+    document.getElementById("prismSA").value = surface.toFixed(2);
+    highlightResult("prismSA");
+  } else if (isNaN(l)) {
+    const L = (sa/2 - w*h - w*h) / (w+h);
+    document.getElementById("prismL").value = L.toFixed(2);
+    highlightResult("prismL");
+  } else if (isNaN(w)) {
+    const W = (sa/2 - l*h - l*h) / (l+h);
+    document.getElementById("prismW").value = W.toFixed(2);
+    highlightResult("prismW");
+  } else if (isNaN(h)) {
+    const H = (sa/2 - l*w - l*w) / (l+w);
+    document.getElementById("prismH").value = H.toFixed(2);
+    highlightResult("prismH");
+  }
+}
+
+// Cylinder
+function calcCylSA() {
+  const sa = parseFloat(document.getElementById("cylSA").value);
+  const r = parseFloat(document.getElementById("cylR").value);
+  const h = parseFloat(document.getElementById("cylH").value);
+  const values = {sa, r, h};
+  const missing = Object.entries(values).filter(([k, v]) => isNaN(v));
+  if (missing.length !== 1) {
+    showError(["cylSA","cylR","cylH"], "cylError", "Leave exactly one field empty");
+    return;
+  }
+  if (isNaN(sa)) {
+    const surface = 2 * Math.PI * r * (h + r);
+    document.getElementById("cylSA").value = surface.toFixed(2);
+    highlightResult("cylSA");
+  } else if (isNaN(h)) {
+    const H = (sa/(2*Math.PI*r)) - r;
+    document.getElementById("cylH").value = H.toFixed(2);
+    highlightResult("cylH");
+  } else if (isNaN(r)) {
+    // Solving r from SA & h is complex (quadratic), skipping or can add later if needed
+    showError(["cylSA","cylR","cylH"], "cylError", "Can't solve r from SA & h directly");
+  }
+}
+
+// Cone
+function calcConeSA() {
+  const sa = parseFloat(document.getElementById("coneSA").value);
+  const r = parseFloat(document.getElementById("coneR").value);
+  const l = parseFloat(document.getElementById("coneL").value);
+  const values = {sa, r, l};
+  const missing = Object.entries(values).filter(([k, v]) => isNaN(v));
+  if (missing.length !== 1) {
+    showError(["coneSA","coneR","coneL"], "coneError", "Leave exactly one field empty");
+    return;
+  }
+  if (isNaN(sa)) {
+    const surface = Math.PI * r * (l + r);
+    document.getElementById("coneSA").value = surface.toFixed(2);
+    highlightResult("coneSA");
+  } else if (isNaN(l)) {
+    const L = (sa/(Math.PI*r)) - r;
+    document.getElementById("coneL").value = L.toFixed(2);
+    highlightResult("coneL");
+  } else if (isNaN(r)) {
+    showError(["coneSA","coneR","coneL"], "coneError", "Can't solve r directly");
+  }
+}
+
+// Square Pyramid
+function calcPyramidSA() {
+  const sa = parseFloat(document.getElementById("pyrSA").value);
+  const a = parseFloat(document.getElementById("pyrA").value);
+  const l = parseFloat(document.getElementById("pyrL").value);
+  const values = {sa, a, l};
+  const missing = Object.entries(values).filter(([k, v]) => isNaN(v));
+  if (missing.length !== 1) {
+    showError(["pyrSA","pyrA","pyrL"], "pyrError", "Leave exactly one field empty");
+    return;
+  }
+  if (isNaN(sa)) {
+    const surface = Math.pow(a,2) + 2*a*l;
+    document.getElementById("pyrSA").value = surface.toFixed(2);
+    highlightResult("pyrSA");
+  } else if (isNaN(l)) {
+    const L = (sa - Math.pow(a,2)) / (2*a);
+    document.getElementById("pyrL").value = L.toFixed(2);
+    highlightResult("pyrL");
+  } else if (isNaN(a)) {
+    showError(["pyrSA","pyrA","pyrL"], "pyrError", "Can't solve a directly");
+  }
+}
+
+// Triangular Prism
+function calcTriPrismSA() {
+  const sa = parseFloat(document.getElementById("triPrismSA").value);
+  const b = parseFloat(document.getElementById("triPrismB").value);
+  const h = parseFloat(document.getElementById("triPrismH").value);
+  const a = parseFloat(document.getElementById("triPrismA").value);
+  const c = parseFloat(document.getElementById("triPrismC").value);
+  const L = parseFloat(document.getElementById("triPrismL").value);
+  const values = {sa,b,h,a,c,L};
+  const missing = Object.entries(values).filter(([k, v]) => isNaN(v));
+  if (missing.length !== 1) {
+    showError(["triPrismSA","triPrismB","triPrismH","triPrismA","triPrismC","triPrismL"], "triPrismError", "Leave exactly one field empty");
+    return;
+  }
+  if (isNaN(sa)) {
+    const surface = (0.5*b*h*2) + (a+b+c)*L;
+    document.getElementById("triPrismSA").value = surface.toFixed(2);
+    highlightResult("triPrismSA");
+  } else {
+    showError(["triPrismSA","triPrismB","triPrismH","triPrismA","triPrismC","triPrismL"], "triPrismError", "Solving individual side not implemented");
+  }
+}
+
+  function showError(inputs, messageBox, message) {
+    inputs.forEach(id => document.getElementById(id).classList.add("error"));
+    const msg = document.getElementById(messageBox);
+    msg.textContent = message;
+    msg.classList.add("show");
+    setTimeout(() => {
+      inputs.forEach(id => document.getElementById(id).classList.remove("error"));
+      msg.classList.remove("show");
+    }, 1500);
+  }
+
+  function highlightResult(id) {
+    const el = document.getElementById(id);
+    el.classList.add("result-highlight");
+  }
+
+  function clearInputs(ids) {
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    el.value = "";
+    el.classList.remove("result-highlight");
+  });
+}
+
+  // Remove highlight on typing
+  document.querySelectorAll("input").forEach(input => {
+    input.addEventListener("input", () => input.classList.remove("result-highlight"));
+  });
+
+  // Carousel navigation
+  const radios = document.querySelectorAll("input[type=radio]");
+  const carousel = document.getElementById("carousel");
+  radios.forEach((radio, idx) => {
+    radio.addEventListener("change", () => {
+      carousel.style.setProperty("--position", idx + 1);
+    });
+  });
+</script>
+</body>
+</html>
