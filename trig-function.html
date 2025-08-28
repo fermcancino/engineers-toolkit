@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trigonometric Functions</title>
+  <style>
+    * {
+      margin:0; 
+      padding:0; 
+      box-sizing:border-box; 
+      font-family:'Poppins',sans-serif; 
+      transition:background-color 0.3s, color 0.3s;
+    }
+    body {
+      height:100vh; 
+      display:flex;
+      flex-direction: column; 
+      justify-content:center; 
+      align-items:center; 
+      background:#1e1e1e; 
+      color:#fff;
+      margin: 0;
+      padding: 0;
+    }
+    .light {
+      background:#e0e0e0; 
+      color:#333;
+    }
+
+    /* Topbar */
+    .topbar {
+      width: 100%;
+      max-width: 450px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 40px;
+      margin-bottom: 20px;
+      font-size: 1.2em;
+      font-weight: bold;
+      background: linear-gradient(135deg, #3a3a3a, #1e1e1e);
+      color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      letter-spacing: 1px;
+    }
+    .light .topbar {
+      background:linear-gradient(135deg,#f1f1f1,#d8d8d8); 
+      color:#222;
+    }
+    /* Theme Toggle */
+    .switch {
+      width: 50px;
+      height: 28px;
+      background-color: #555;
+      box-shadow: 0 2px 6px rgba(255,255,255,0.15);
+      border-radius: 30px;
+      position: relative;
+      transition: background-c0lor 0.3s ease;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+    .slider {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translateX(0);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    body.light .switch {
+      background: #f0f0f0;
+      border: 1px solid #bbb;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+
+    body.light .switch .slider {
+      transform: translateX(20px);
+    }
+    /* Carousel */
+    .carousel-container {
+      width: 95%;
+      max-width: 420px;
+      height: 480px;
+      perspective: 1200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      margin: 20px auto;
+    }
+    .carousel {
+      width:100%; 
+      height:100%; 
+      position:relative; 
+      transform-style:preserve-3d;
+      transition:transform 0.8s;
+      transform: translateZ(-175px);
+    }
+    .card {
+      position:absolute; 
+      width:100%;       
+      height:100%; 
+      border-radius:30px; 
+      background:#2a2a2a;
+      box-shadow:8px 8px 18px rgba(0,0,0,0.6), 
+                -8px -8px 18px rgba(70,70,70,0.4);
+      padding: 30px 20px; 
+      display:flex; 
+      flex-direction:column; 
+      justify-content:center; 
+      align-items:center; 
+      backface-visibility:hidden; 
+      opacity:0.4; 
+      transition:opacity 0.4s ease;
+    }
+    .card.active {
+      opacity:1;
+    }
+    .light .card {
+      background:#e0e0e0; 
+      box-shadow:8px 8px 18px #b8b9be, 
+                -8px -8px 18px #ffffff;
+    }
+    .card h1 {
+      font-size:1.1em; 
+      letter-spacing: 1px;
+      margin-bottom:20px; 
+      text-align:center; 
+    }
+    .card h3 {
+      font-size:1.1em; 
+      display:flex; 
+      justify-content:center; 
+      align-items:center; 
+      gap:15px; 
+      margin-top: 30px;
+      margin-bottom:10px;
+    }
+     
+    
+    .card .result-field,
+    .card .buttons-row {
+      width: 90%;         
+      max-width: 400px;    
+      margin: 8px auto;     
+      display: flex;
+      justify-content: center;
+    }
+    input {
+      padding:12px; 
+      font-size:1.2em; 
+      text-align:center; 
+      border:none; 
+      outline:none; 
+      border-radius:15px;
+      box-shadow:inset 4px 4px 6px #141414, 
+      inset -4px -4px 6px #3a3a3a; 
+      background:#3a3a3a; 
+      color:#fff;
+    }
+    .light input {
+      background:#f3f3f3; 
+      color:#222; 
+      box-shadow:inset 4px 4px 6px #b8b9be, 
+      inset -4px -4px 6px #ffffff;
+    }
+    input::placeholder {
+      color:#aaa;
+    }
+
+    .input-group {
+      display: flex;
+      justify-content: center;
+      width: 95%;  
+      margin: 10px auto;
+    }
+    .input-group input {
+      width: 95%;
+      padding: 10px;
+      box-sizing: border-box; 
+      text-align: center; 
+    }
+    .buttons-row {
+      display:flex; 
+      justify-content:center; 
+      gap:15px; 
+      margin-top:15px;
+    }
+    .card .buttons-row button {
+      flex: 1;            
+      padding: 12px;
+    }
+    button {
+      min-width:95px; 
+      flex:1; 
+      padding:12px; 
+      font-size:1.1em; 
+      border:none; 
+      border-radius:25px; 
+      cursor:pointer; 
+      background:#2a2a2a; 
+      color:inherit;
+      box-shadow:4px 4px 6px #141414, 
+      -4px -4px 6px #3a3a3a; 
+      transition:transform 0.2s;
+    }
+    .light button {
+      background:#e0e0e0; 
+      box-shadow:4px 4px 6px #b8b9be, 
+      -4px -4px 6px #ffffff;
+    }
+    button:hover {     
+      box-shadow:         
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+      
+    }
+    .light button:hover {
+      box-shadow: 
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+    }
+    button:active {
+      animation:bounce3D 0.4s ease forwards; 
+      box-shadow: 
+        0 0 12px rgba(79,172,254,0.9),
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+    }
+    .light button:active {
+      animation:bounce3D 0.4s ease forwards; box-shadow: 
+        0 0 12px rgba(79,172,254,0.9),
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+    }
+    button .btn-clr {
+      grid-column: span 3;
+      font-size: 1rem;
+      padding: 8px;
+      height: 50px;
+      cursor: pointer;
+    }
+    .btn-clr:active {
+      box-shadow: 
+        0 0 12px rgba(255, 128, 128, 0.9),         
+        inset 3px 3px 6px rgba(0, 0, 0, 0.6),     
+        inset -3px -3px 6px rgba(255, 128, 128, 0.2) !important; 
+      animation: bounce3D 0.3s ease;
+    }
+  
+    .button-two {
+      display: flex;
+      width: 95%;
+      gap: 30px;
+      margin-top: 20px;
+    }
+
+    .button-two button {
+      flex: 1;
+    }
+     
+    @keyframes bounce3D {
+        0%{transform:scale(1);}
+        50%{transform:scale(1.08);}
+        100%{transform:scale(1);}
+    }
+
+    .result-field {
+      margin-top:10px; 
+      width:100%; 
+      padding:10px; 
+      font-size:1.1em; 
+      border-radius:25px; 
+      border:1px solid #00c6ff;
+      box-shadow:0 0 7px #00bcd4;
+      color:#000; 
+      font-weight:bold;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      height:62px; 
+      background:#3a3a3a; color:#fff;
+      resize: none;
+    }
+    .light .result-field {
+      border:1px solid #00aaff;
+      color: black;
+      box-shadow:0 0 7px #00bcd4;
+      background:#f3f3f3;
+    }
+    
+    .result-flash { 
+      font-weight:bold; 
+      border:2px solid #00c6ff; 
+      box-shadow:0 0 10px rgba(0, 255, 128, 0.7); 
+      animation:bounce3D 0.4s ease forwards;
+    }
+    
+    .light .result-flash { 
+      font-weight:bold; 
+      border:2px solid #00c6ff; 
+      box-shadow:0 0 10px rgba(0, 255, 128, 0.7);
+     }
+    
+    
+    .controls {
+      position:absolute; 
+      bottom:-60px; 
+      width:100%; 
+      display:flex; 
+      justify-content:space-between;
+    }
+    .controls button {
+      width:50px; 
+      height:50px; 
+      border-radius:50%; 
+      font-size:1.5em;
+    }
+    .controls button:active {
+      animation: bounce3D 0.4s ease forwards;
+      box-shadow: 
+        0 0 12px rgba(0, 255, 128, 0.9),
+        inset 3px 3px 6px rgba(0, 0, 0, 0.6),
+        inset -3px -3px 6px rgba(0, 255, 128, 0.2);
+      transform: translateY(-2px);
+    }
+    
+    .input-error {
+      border:2px solid #ff6b6b !important; 
+      box-shadow:0 0 8px rgba(255,107,107,0.8); 
+    }
+    .light .input-error {
+      border:2px solid #ff6b6b !important; 
+      box-shadow:0 0 8px rgba(255,107,107,0.8); 
+    }
+    .error-message {
+      color:#ff6b6b ; 
+      font-size:0.80em; 
+      margin-top:4px; 
+      text-align:center; 
+      opacity:0; 
+      transition:opacity 0.3s;
+    }
+    .show-error {
+      opacity:1;
+    }
+    .shake {
+      animation:shake 0.3s;
+    }
+    @keyframes shake {
+        0%{transform:translateX(0);}
+        25%{transform:translateX(-5px);}
+        50%{transform:translateX(5px);}
+        75%{transform:translateX(-5px);}
+        100%{transform:translateX(0);}
+    }
+    input.input-error::placeholder {
+      color: #ff8a8a;
+    }
+    select {
+      background: #3a3a3a;
+      color: inherit;
+      border: none;
+      border-radius: 12px;
+      padding: 9px 16px;
+      font-size: 1em;
+      letter-spacing: 1px;
+      box-shadow: 
+        inset 4px 4px 6px #141414, 
+        inset -4px -4px 6px #3a3a3a;
+    }
+    .light select {
+      background: #f3f3f3;
+      color: #222;
+      box-shadow: inset 4px 4px 6px #b8b9be, inset -4px -4px 6px #ffffff;
+    }
+
+    .swap-btn {  
+      background:none; 
+      border:none; 
+      min-width:38px; 
+      height:38px; 
+      border-radius:20px; 
+      font-size:1em;
+      cursor:pointer; 
+      color:inherit;  
+      display:inline-flex; 
+      align-items:center; 
+      justify-content:center;
+      transition:transform 0.6s ease; 
+      transform:rotate(0deg);
+    }
+    .swap-btn:active {
+      background:rgba(255,255,255,0.1); 
+      transform:scale(0.95);
+    }
+    .swap-btn .arrow {
+      display:inline-block; 
+      transition:transform 0.6s ease;
+    }
+    .swap-btn.spin .arrow {
+      transform:rotate(360deg);
+    }
+    .input-three {
+      display: flex;
+      align-items: center; 
+      justify-content: center;
+      gap: 10px; 
+      margin: 15px auto;
+      margin: 15px auto;
+      width: 95%;
+      max-width: 400px;
+    }
+    .input-three input {
+      flex: 1;             
+      min-width: 0;        
+      padding: 10px;
+      text-align: center;
+    }
+    .input-three input:focus {
+      border-color: #4a90e2;
+      box-shadow:inset 1px 1px 2px #00f2fe, inset -1px -1px 2px #00c6ff;
+    }
+
+    .input-three h2 {
+      flex: 0 0 auto;
+      margin: 0;
+      font-size: 1.7rem;
+      font-weight: bold;
+      color: #ffffff;
+      background: transparent;
+      user-select: none; 
+    }
+    .light .input-three h2 {
+      color: #000000;
+    }
+
+  </style>
+</head>
+<body class="dark">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div>Trigonometric Functions</div>
+    <div id="themeToggle" class="switch">
+      <div class="slider"></div>
+    </div>
+  </div>
+
+  <!-- Carousel Container -->
+  <div class="carousel-container">
+    <div class="carousel" id="carousel">
+
+      <!-- Card 1: Basic Trig -->
+      <div class="card">
+        <h1>Basic Trig Functions</h1>
+        <div class="input-group">
+          <input type="text" id="angleInput" placeholder="Enter angle">
+        </div>
+
+        <textarea id="trigResult" class="result-field" placeholder="Results:
+Degrees & Radians"></textarea>
+
+        <div class="buttons-row">
+          <button onclick="calculateTrig('sin')">sin</button>
+          <button onclick="calculateTrig('cos')">cos</button>
+          <button onclick="calculateTrig('tan')">tan</button>
+        </div>
+
+        <div class="buttons-row">
+          <button onclick="calculateTrig('cot')">cot</button>
+          <button onclick="calculateTrig('sec')">sec</button>
+          <button onclick="calculateTrig('csc')">csc</button>
+        </div>
+
+        <div class="buttons-row">
+          <button class="btn-clr" onclick="clearTrig()">Clear</button>
+        </div>
+      </div>
+
+      <!-- Card 2: Inverse Trig -->
+      <div class="card">
+        <h1>Inverse Trig Functions</h1>
+        <div class="input-group">
+          <input type="text" id="inverseInput" placeholder="Enter value">
+          <div class="error-message" id="inverse-error"></div>
+        </div>
+
+        <textarea id="invResult" class="result-field" placeholder="Results:
+Degrees & Radians"></textarea>
+
+        <div class="buttons-row">
+          <button onclick="calculateInverse('asin')">sin⁻¹</button>
+          <button onclick="calculateInverse('acos')">cos⁻¹</button>
+          <button onclick="calculateInverse('atan')">tan⁻¹</button>
+        </div>
+
+        <div class="buttons-row">
+          <button onclick="calculateInverse('acsc')">csc⁻¹</button>
+          <button onclick="calculateInverse('asec')">sec⁻¹</button>
+          <button onclick="calculateInverse('acot')">cot⁻¹</button>
+        </div>
+
+        <div class="buttons-row"> 
+          <button class="btn-clr" onclick="clearInverse()">Clear</button>
+        </div>
+      </div>
+   
+      <!-- Card 3: Angle Conversions -->
+      <div class="card">
+        <h1>Angle Conversions</h1>
+
+        <h3>
+          <select id="angle-left" aria-label="From unit">
+            <option value="deg" selected>Degrees</option>
+            <option value="rad">Radians</option>
+            <option value="grad">Gradians</option>
+          </select>
+
+          <button class="swap-btn" onclick="swapAngleUnits()" title="Swap units">
+            <span class="arrow">→</span>
+          </button>
+
+          <select id="angle-right" aria-label="To unit">
+            <option value="deg">Degrees</option>
+            <option value="rad">Radians</option>
+            <option value="grad" selected>Gradians</option>
+          </select>
+        </h3>
+
+        <div class="input-three">
+          <input type="text" id="angleConvInput" placeholder="Angle">
+          <h2>⇆</h2>
+          <input type="text" id="angleConvResult" placeholder="Result">
+        </div>
+
+        <!-- Convert / Clear -->
+        <div class="button-two">
+          <button onclick="convertAngle()">Convert</button>
+          <button class="btn-clr" onclick="clearAngleConv()">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carousel Controls -->
+    <div class="controls">
+      <button onclick="prevCard()">‹</button>
+      <button onclick="nextCard()">›</button>
+    </div>
+  </div>
+
+<script>
+/* Carousel */
+function updateCarouselLayout(){
+  const carousel=document.getElementById('carousel');
+  const cards=document.querySelectorAll('.card');
+  const numCards=cards.length;
+  const cardWidth=carousel.offsetWidth;
+  const translateZ=Math.round((cardWidth/2)/Math.tan(Math.PI/numCards));
+  const angleStep=360/numCards;
+  let currentIndex=window.carouselData?window.carouselData.currentIndex:0;
+  cards.forEach((card,index)=>{card.style.transform=`rotateY(${index*angleStep}deg) translateZ(${translateZ}px)`;});
+  window.carouselData={translateZ,angleStep,currentIndex,total:numCards};
+  const newAngle=-currentIndex*angleStep;
+  carousel.style.transform=`translateZ(-${translateZ}px) rotateY(${newAngle}deg)`;
+  cards.forEach((card,i)=>{card.classList.toggle('active',i===currentIndex);});
+}
+function nextCard(){rotateToIndex(window.carouselData.currentIndex+1);}
+function prevCard(){rotateToIndex(window.carouselData.currentIndex-1);}
+function rotateToIndex(index){
+  const {translateZ,angleStep,total}=window.carouselData;
+  window.carouselData.currentIndex=(index+total)%total;
+  const newAngle=-window.carouselData.currentIndex*angleStep;
+  document.getElementById('carousel').style.transform=`translateZ(-${translateZ}px) rotateY(${newAngle}deg)`;
+  const cards=document.querySelectorAll('.card');
+  cards.forEach((card,i)=>{card.classList.toggle('active',i===window.carouselData.currentIndex);});
+}
+window.addEventListener('load',updateCarouselLayout);
+window.addEventListener('resize',updateCarouselLayout);
+updateCarouselLayout();
+
+/* Theme Toggle */
+  themeToggle.addEventListener("click", () => {
+  document.body.classList.toggle("light");
+  });
+
+/* Helper: Error */
+function showError(inputId, msgId, msg) {
+  const input = document.getElementById(inputId);
+  input.classList.add('shake', 'input-error');
+
+  // Save the original placeholder
+  const originalPlaceholder = input.placeholder;
+
+  // Clear the value and show error inside input as placeholder
+  input.value = '';
+  input.placeholder = msg;
+
+  setTimeout(() => {
+    input.classList.remove('shake');
+  }, 500);
+
+  setTimeout(() => {
+    input.classList.remove('input-error');
+    input.placeholder = originalPlaceholder;
+  }, 3000);
+}
+
+/* Flash */
+function emphasizeResult(fieldId){
+  let field=document.getElementById(fieldId);
+  field.classList.remove("result-flash");
+  void field.offsetWidth;
+  field.classList.add("result-flash");
+}
+
+/*1. Basic Trig */
+function calculateTrig(func) {
+  let input = document.getElementById("angleInput").value.trim();
+  if (!input || isNaN(input)) {
+    showError("angleInput", "basic-error", "Enter a valid number");
+    return;
+  }
+  let angle = parseFloat(input);
+
+  // Degrees version
+  let radDeg = angle * Math.PI / 180;
+  let resultDeg;
+  // Radians version
+  let radRad = angle;
+  let resultRad;
+
+  switch(func) {
+    case "sin": 
+      resultDeg = Math.sin(radDeg);
+      resultRad = Math.sin(radRad);
+      break;
+    case "cos": 
+      resultDeg = Math.cos(radDeg);
+      resultRad = Math.cos(radRad);
+      break;
+    case "tan": 
+      resultDeg = Math.tan(radDeg);
+      resultRad = Math.tan(radRad);
+      break;
+    case "cot": 
+      resultDeg = 1 / Math.tan(radDeg);
+      resultRad = 1 / Math.tan(radRad);
+      break;
+    case "sec": 
+      resultDeg = 1 / Math.cos(radDeg);
+      resultRad = 1 / Math.cos(radRad);
+      break;
+    case "csc": 
+      resultDeg = 1 / Math.sin(radDeg);
+      resultRad = 1 / Math.sin(radRad);
+      break;
+  }
+
+  document.getElementById("trigResult").value = 
+    `${func} (${angle}°) = ${resultDeg.toFixed(4)}\n` +
+    `${func} (${angle}rad) = ${resultRad.toFixed(4)}`;
+  emphasizeResult("trigResult");
+}
+function clearTrig() {
+  const resultField = document.getElementById("trigResult");
+  document.getElementById("angleInput").value = '';
+  resultField.value = '';
+  resultField.classList.remove("result-flash");
+}
+/*2. Inverse Trig */
+function calculateInverse(func) {
+  const inputField = document.getElementById("inverseInput");
+  const resultField = document.getElementById("invResult");
+
+  const input = inputField.value.trim();
+
+  if (input === "") {
+    showError("inverseInput", "inverse-error", "Please enter a value");
+    resultField.value = "";
+    return;
+  }
+
+  let x = parseFloat(input);
+
+  if (isNaN(x)) {
+    showError("inverseInput", "inverse-error", "Invalid number");
+    resultField.value = "";
+    return;
+  }
+
+  let resultRad;
+
+  switch (func) {
+    case "asin":
+      if (x < -1 || x > 1) {
+        showError("inverseInput", "inverse-error", "arcsin (-1 to 1)");
+        resultField.value = "";
+        return;
+      }
+      resultRad = Math.asin(x);
+      break;
+    case "acos":
+      if (x < -1 || x > 1) {
+        showError("inverseInput", "inverse-error", "arccos (-1 to 1)");
+        resultField.value = "";
+        return;
+      }
+      resultRad = Math.acos(x);
+      break;
+    case "atan":
+      resultRad = Math.atan(x);
+      break;
+    case "acot":
+      resultRad = x === 0 ? Math.PI / 2 : Math.atan(1 / x);
+      break;
+    case "asec":
+      if (Math.abs(x) < 1) {
+        showError("inverseInput", "inverse-error", "arcsec (≤ -1 or ≥ 1)");
+        resultField.value = "";
+        return;
+      }
+      resultRad = Math.acos(1 / x);
+      break;
+    case "acsc":
+      if (Math.abs(x) < 1) {
+        showError("inverseInput", "inverse-error", "arccsc (≤ -1 or ≥ 1)");
+        resultField.value = "";
+        return;
+      }
+      resultRad = Math.asin(1 / x);
+      break;
+    default:
+      showError("inverseInput", "inverse-error", "Unknown function");
+      resultField.value = "";
+      return;
+  }
+
+  const resultDeg = resultRad * (180 / Math.PI);
+
+  // Restore input field color if it had an error
+  inputField.style.color = ""; 
+  inputField.value = x; 
+  // Show result in two lines
+  resultField.value = `Degrees = ${resultDeg.toFixed(4)}°\nRadians = ${resultRad.toFixed(4)} rad`;
+  emphasizeResult("invResult");
+}
+function clearInverse() {
+  const inputField = document.getElementById("inverseInput");
+  const resultField = document.getElementById("invResult");
+  inputField.value = "";
+  inputField.placeholder = "Enter value";
+  inputField.style.color = "";
+  inputField.classList.remove("input-error");
+  resultField.value = '';
+  resultField.classList.remove("result-flash");
+}
+
+/* 3. Angle conversion helpers:
+   - deg <-> rad:  rad = deg * PI / 180
+   - deg <-> grad: grad = deg * 10/9  (1 grad = 0.9 deg)
+   - rad <-> grad: grad = rad * 200 / PI
+*/
+
+function toDegrees(value, unit) {
+  if (unit === 'deg') return value;
+  if (unit === 'rad') return value * (180 / Math.PI);
+  if (unit === 'grad') return value * 0.9; // 1 grad = 0.9 degrees
+  return NaN;
+}
+
+function fromDegrees(degValue, unit) {
+  if (unit === 'deg') return degValue;
+  if (unit === 'rad') return degValue * (Math.PI / 180);
+  if (unit === 'grad') return degValue * (10 / 9); // deg -> grad
+  return NaN;
+}
+
+function convertAngle() {
+  const inField = document.getElementById('angleConvInput');
+  const outField = document.getElementById('angleConvResult');
+  const fromUnit = document.getElementById('angle-left').value;
+  const toUnit = document.getElementById('angle-right').value;
+  const text = inField.value.trim();
+
+  if (text === '') {
+    showError('angleConvInput', '', 'Enter a value');
+    outField.value = '';
+    return;
+  }
+
+  // Accept decimal numbers, allow leading +/-, and scientific notation.
+  const parsed = parseFloat(text);
+  if (isNaN(parsed)) {
+    showError('angleConvInput', '', 'Invalid number');
+    outField.value = '';
+    return;
+  }
+
+  // Convert by normalizing to degrees first, then to target unit.
+  const deg = toDegrees(parsed, fromUnit);
+  if (!isFinite(deg)) {
+    showError('angleConvInput', '', 'Conversion error');
+    outField.value = '';
+    return;
+  }
+  const result = fromDegrees(deg, toUnit);
+
+  // Nicely format depending on magnitude; keep up to 8 decimals but trim trailing zeros.
+  const formatted = formatFloatSmart(result, 8);
+
+  outField.value = `${formatted} ${unitLabel(toUnit)}`;
+  emphasizeResult('angleConvResult');
+}
+
+function clearAngleConv() {
+  const inField = document.getElementById('angleConvInput');
+  const outField = document.getElementById('angleConvResult');
+  
+  inField.value = '';
+  outField.value = '';
+  inField.placeholder = 'Enter value (from unit)';
+  inField.classList.remove('input-error');
+  outField.classList.remove('result-flash');
+}
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('angle-left').addEventListener('change', clearAngleConv);
+});
+
+function swapAngleUnits() {
+  clearAngleConv();
+
+  const left = document.getElementById('angle-left');
+  const right = document.getElementById('angle-right');
+  const inField = document.getElementById('angleConvInput');
+  const outField = document.getElementById('angleConvResult');
+  const swapBtn = document.querySelector('.swap-btn');
+
+  // Spin animation
+  swapBtn.classList.add('spin');
+  setTimeout(() => swapBtn.classList.remove('spin'), 600);
+
+  // swap selects
+  const tmpUnit = left.value;
+  left.value = right.value;
+  right.value = tmpUnit;
+
+  // swap values (strip old unit from inField)
+  const tmpVal = inField.value.replace(/\s*(°|rad|gon|grad)$/i, '');
+  inField.value = outField.value
+    ? outField.value.replace(/\s*(°|rad|gon|grad)$/i, '')
+    : '';
+  outField.value = tmpVal ? `${tmpVal} ${unitLabel(right.value)}` : '';
+
+  // update placeholder and append new unit to input
+  inField.placeholder = `Enter value (${unitLabel(left.value)})`;
+  if (inField.value) {
+    inField.value = `${inField.value} ${unitLabel(left.value)}`;
+  }
+}
+
+/* helper: smart float formatting */
+function formatFloatSmart(x, maxDecimals) {
+  if (!isFinite(x)) return String(x);
+  // If it's effectively an integer, show no decimals
+  if (Math.abs(x - Math.round(x)) < 1e-12) return String(Math.round(x));
+  // Otherwise limit decimals but remove trailing zeros
+  return Number.parseFloat(x.toFixed(maxDecimals)).toString();
+}
+
+function unitLabel(unit) {
+  if (unit === 'deg') return '°';
+  if (unit === 'rad') return 'rad';
+  if (unit === 'grad') return 'gon';
+  return '';
+}
+/*4. Trigonometric Equations */
+function solveTrigEquation() {
+  const inputField = document.getElementById("trigEqInput");
+  const resultField = document.getElementById("trigEqResult");
+
+  const input = inputField.value.trim();
+
+  if (input === "") {
+    showError("trigEqInput", "trigEq-error", "Please enter an equation");
+    resultField.value = "";
+    return;
+  }
+
+  // Match: sin(x)=0.5 or tan(x) = -1
+  const match = input.match(/^(sin|cos|tan|cot|sec|csc)\(x\)\s*=\s*([+-]?\d+(\.\d+)?)$/i);
+  if (!match) {
+    showError("trigEqInput", "trigEq-error", "Invalid format (e.g. sin(x)=0.5)");
+    resultField.value = "";
+    return;
+  }
+
+  const func = match[1].toLowerCase();
+  const val = parseFloat(match[2]);
+  let principalRad;
+
+  // Validation + principal value
+  switch (func) {
+    case "sin":
+      if (val < -1 || val > 1) {
+        showError("trigEqInput", "trigEq-error", "sin value must be between -1 and 1");
+        resultField.value = "";
+        return;
+      }
+      principalRad = Math.asin(val);
+      break;
+    case "cos":
+      if (val < -1 || val > 1) {
+        showError("trigEqInput", "trigEq-error", "cos value must be between -1 and 1");
+        resultField.value = "";
+        return;
+      }
+      principalRad = Math.acos(val);
+      break;
+    case "tan":
+      principalRad = Math.atan(val);
+      break;
+    case "cot":
+      principalRad = val === 0 ? Math.PI / 2 : Math.atan(1 / val);
+      break;
+    case "sec":
+      if (Math.abs(val) < 1) {
+        showError("trigEqInput", "trigEq-error", "sec value must be ≤ -1 or ≥ 1");
+        resultField.value = "";
+        return;
+      }
+      principalRad = Math.acos(1 / val);
+      break;
+    case "csc":
+      if (Math.abs(val) < 1) {
+        showError("trigEqInput", "trigEq-error", "csc value must be ≤ -1 or ≥ 1");
+        resultField.value = "";
+        return;
+      }
+      principalRad = Math.asin(1 / val);
+      break;
+    default:
+      showError("trigEqInput", "trigEq-error", "Unknown function");
+      resultField.value = "";
+      return;
+  }
+
+  const principalDeg = principalRad * (180 / Math.PI);
+
+  // Generate general solutions for 0°–360°
+  let solutionsDeg = [];
+  if (["sin", "csc"].includes(func)) {
+    solutionsDeg = [principalDeg, 180 - principalDeg];
+  } else if (["cos", "sec"].includes(func)) {
+    solutionsDeg = [principalDeg, 360 - principalDeg];
+  } else if (["tan", "cot"].includes(func)) {
+    solutionsDeg = [principalDeg, principalDeg + 180];
+  }
+
+  // Normalize to 0–360
+  solutionsDeg = solutionsDeg.map(d => ((d % 360) + 360) % 360);
+
+  // Convert to radians
+  const solutionsRad = solutionsDeg.map(d => d * Math.PI / 180);
+
+  // Output result
+  inputField.style.color = "";
+  let resultText = `Degrees: ${solutionsDeg.map(d => d.toFixed(4) + "°").join(", ")}\n` +
+                   `Radians: ${solutionsRad.map(r => r.toFixed(4) + " rad").join(", ")}`;
+  resultField.value = resultText;
+  emphasizeResult("trigEqResult");
+}
+
+function clearTrigEquation() {
+  const inputField = document.getElementById("trigEqInput");
+  const resultField = document.getElementById("trigEqResult");
+  inputField.value = "";
+  inputField.placeholder = "e.g. sin(x)=0.5";
+  inputField.style.color = "";
+  inputField.classList.remove("input-error");
+  resultField.value = '';
+  resultField.classList.remove("result-flash");
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trigonometry Calculator</title>
+  <style>
+    * {
+      margin:0; 
+      padding:0; 
+      box-sizing:border-box; 
+      font-family:'Poppins',sans-serif; 
+      transition:background-color 0.3s, color 0.3s;
+    }
+    body {
+      height:100vh; 
+      display:flex;
+      flex-direction: column; 
+      justify-content:center; 
+      align-items:center; 
+      background:#1e1e1e; 
+      color:#fff;
+      margin: 0;
+      padding: 0;
+    }
+    .light {
+      background:#e0e0e0; 
+      color:#333;
+    }
+
+    /* Topbar */
+    .topbar {
+      width: 100%;
+      max-width: 450px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 40px;
+      margin-bottom: 20px;
+      font-size: 1.2em;
+      font-weight: bold;
+      background: linear-gradient(135deg, #3a3a3a, #1e1e1e);
+      color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      letter-spacing: 1px;
+    }
+    .light .topbar {
+      background:linear-gradient(135deg,#f1f1f1,#d8d8d8); 
+      color:#222;
+    }
+    /* Theme Toggle */
+    .switch {
+      width: 50px;
+      height: 28px;
+      background-color: #555;
+      box-shadow: 0 2px 6px rgba(255,255,255,0.15);
+      border-radius: 30px;
+      position: relative;
+      transition: background-c0lor 0.3s ease;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+    .slider {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translateX(0);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    body.light .switch {
+      background: #f0f0f0;
+      border: 1px solid #bbb;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+
+    body.light .switch .slider {
+      transform: translateX(20px);
+    }
+    /* Carousel */
+    .carousel-container {
+      width: 95%;
+      max-width: 420px;
+      height: 520px;
+      perspective: 1200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      margin: 20px auto;
+    }
+    .carousel {
+      width:100%; 
+      height:100%; 
+      position:relative; 
+      transform-style:preserve-3d;
+      transition:transform 0.8s;
+      transform: translateZ(-175px);
+    }
+    .card {
+      position:absolute; 
+      width:100%;       
+      height:100%; 
+      border-radius:30px; 
+      background:#2a2a2a;
+      box-shadow:8px 8px 18px rgba(0,0,0,0.6), 
+                -8px -8px 18px rgba(70,70,70,0.4);
+      padding: 30px 20px; 
+      display:flex; 
+      flex-direction:column; 
+      justify-content:center; 
+      align-items:center; 
+      backface-visibility:hidden; 
+      opacity:0.4; 
+      transition:opacity 0.4s ease;
+    }
+    .card.active {
+      opacity:1;
+    }
+    .light .card {
+      background:#e0e0e0; 
+      box-shadow:8px 8px 18px #b8b9be, 
+                -8px -8px 18px #ffffff;
+    }
+    .card h1 {
+      font-size:1.1em; 
+      letter-spacing: 1px;
+      margin-bottom:20px; 
+      text-align:center; 
+    } 
+
+    .card .buttons-row {
+      width: 90%;         
+      max-width: 400px;    
+      margin: 8px auto;     
+      display: flex;
+      justify-content: center;
+    }
+    .input-group {
+      margin:15px 10; 
+      width:90%;
+    }
+    input {
+      width:100%; 
+      padding:12px; 
+      font-size:1.2em; 
+      text-align:center; 
+      border:none; 
+      outline:none; 
+      border-radius:15px;
+      box-shadow:inset 4px 4px 6px #141414, 
+                 inset -4px -4px 6px #3a3a3a; 
+      background:#3a3a3a; 
+      color:#fff;
+    }
+    .light input {
+      background:#f3f3f3; 
+      color:#222; 
+      box-shadow:inset 4px 4px 6px #b8b9be, 
+      inset -4px -4px 6px #ffffff;
+    }
+    input::placeholder {
+        color:#aaa;
+    }
+
+    .buttons-row {
+      display:flex; 
+      justify-content:center; 
+      gap:15px; 
+      margin-top:15px;
+    }
+    button {
+      min-width:80px; 
+      flex:1; 
+      padding:12px; 
+      font-size:1.1em; 
+      border:none; 
+      border-radius:25px; 
+      cursor:pointer; 
+      background:#2a2a2a; 
+      color:inherit;
+      box-shadow:4px 4px 6px #141414, 
+                -4px -4px 6px #3a3a3a; 
+      transition:transform 0.2s;
+    }
+    .light button {
+      background:#e0e0e0; 
+      box-shadow:4px 4px 6px #b8b9be, 
+                -4px -4px 6px #ffffff;
+    }
+    button:hover {     
+      box-shadow:         
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+      
+    }
+    .light button:hover {
+      box-shadow: 
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+    }
+    button:active {
+      animation:bounce3D 0.4s ease forwards; 
+      box-shadow: 
+        0 0 12px rgba(79,172,254,0.9),
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+    }
+    .light button:active {
+      animation:bounce3D 0.4s ease forwards; box-shadow: 
+        0 0 12px rgba(79,172,254,0.9),
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+    }
+  
+    .btn-clr:active {
+      box-shadow: 
+        0 0 12px rgba(255, 128, 128, 0.9),  
+        inset 3px 3px 6px rgba(0, 0, 0, 0.6),
+        inset -3px -3px 6px rgba(255, 128, 128, 0.2) !important; 
+      animation: bounce3D 0.3s ease;
+}
+  
+    .button-two {
+      display: flex;
+      width: 90%;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .button-two button {
+      flex: 1;
+    }
+     
+    @keyframes bounce3D {
+        0%{transform:scale(1);}
+        50%{transform:scale(1.08);}
+        100%{transform:scale(1);}
+    }
+
+    
+    .result-field {
+      margin:10px auto; 
+      width:90%; 
+      padding:10px; 
+      font-size:1.1em; 
+      border-radius:25px; 
+      border:1px solid #00c6ff;
+      box-shadow:0 0 7px #00bcd4;
+       color:#000; 
+      font-weight:bold;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      height:62px; 
+      background:#3a3a3a; color:#fff;
+      resize: none;
+    }
+    .light .result-field {
+      border:1px solid #00aaff;
+      color: black;
+      box-shadow:0 0 7px #00bcd4;
+      background:#f3f3f3;
+    }
+    
+    .result-flash {
+      font-weight:bold; 
+      border:2px solid #00c6ff; 
+      box-shadow:0 0 10px rgba(0, 255, 128, 0.7); 
+      animation:bounce3D 0.4s ease forwards;
+    }
+    
+    .light .result-flash { 
+      font-weight:bold; 
+      border:2px solid #00c6ff; 
+      box-shadow:0 0 10px rgba(0, 255, 128, 0.7);
+     }
+    
+    
+    .controls {
+      position:absolute; 
+      bottom:-60px; 
+      width:100%; 
+      display:flex; 
+      justify-content:space-between;
+    }
+    .controls button {
+      width:50px; 
+      height:50px; 
+      border-radius:50%; 
+      font-size:1.5em;
+    }
+    .controls button:active {
+      animation: bounce3D 0.4s ease forwards;
+      box-shadow: 
+        0 0 12px rgba(0, 255, 128, 0.9),
+        inset 3px 3px 6px rgba(0, 0, 0, 0.6),
+        inset -3px -3px 6px rgba(0, 255, 128, 0.2);
+      transform: translateY(-2px);
+    }
+    
+    .input-error {
+      border:2px solid #ff6b6b !important; 
+      box-shadow:0 0 8px rgba(255,107,107,0.8); 
+    }
+    .light .input-error {
+      border:2px solid #ff6b6b !important; 
+      box-shadow:0 0 8px rgba(255,107,107,0.8); 
+    }
+    .error-message {
+      color:#ff6b6b ; 
+      font-size:0.80em; 
+      margin-top:4px; 
+      text-align:center; 
+      opacity:0; 
+      transition:opacity 0.3s;
+    }
+    .show-error {
+      opacity:1;
+    }
+    .shake {
+      animation:shake 0.3s;
+    }
+    @keyframes shake {
+        0%{transform:translateX(0);}
+        25%{transform:translateX(-5px);}
+        50%{transform:translateX(5px);}
+        75%{transform:translateX(-5px);}
+        100%{transform:translateX(0);}
+    }
+    input.input-error::placeholder {
+      color: #ff8a8a;
+    }
+    select {
+      background: #3a3a3a;
+      color: inherit;
+      border: none;
+      border-radius: 12px;
+      padding: 9px 16px;
+      font-size: 1em;
+      letter-spacing: 1px;
+      box-shadow: 
+        inset 4px 4px 6px #141414, 
+        inset -4px -4px 6px #3a3a3a;
+    }
+    .light select {
+      background: #f3f3f3;
+      color: #222;
+      box-shadow: inset 4px 4px 6px #b8b9be, inset -4px -4px 6px #ffffff;
+    }
+
+    .input-three {
+      display: flex;
+      gap: 10px; 
+      align-items: center;
+      margin-top: 15px;
+      flex-direction: row;
+    
+    }
+
+    .input-three select,
+    .input-three input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 15px;
+      font-size: 1.1em;
+      max-width: 200px;
+    }
+
+  </style>
+</head>
+<body class="dark">
+  <div class="topbar">
+    <div>Equations Solver & Checker</div>
+    <div id="themeToggle" class="switch">
+      <div class="slider"></div>
+    </div>
+  </div>
+
+  <div class="carousel-container">
+    <div class="carousel" id="carousel">
+    
+<!-- Card 1: Trigonometric Equations -->
+<div class="card">
+  <h1>Trigonometric Equations</h1>
+  <div class="input-group">
+    <input type="text" id="trigEqInput" placeholder="e.g. sin(x)=0.5">
+  </div>
+  <textarea id="trigEqResult" class="result-field" placeholder="Solutions will appear here" readonly></textarea>
+
+  <!-- Buttons grid -->
+  <div class="buttons-row">
+    <button onclick="insertTrigEq('sin(')">sin</button>
+    <button onclick="insertTrigEq('cos(')">cos</button>
+    <button onclick="insertTrigEq('tan(')">tan</button>
+  </div>  
+  <div class="buttons-row">
+    <button onclick="insertTrigEq('cot(')">cot</button>
+    <button onclick="insertTrigEq('sec(')">sec</button>
+    <button onclick="insertTrigEq('csc(')">csc</button>
+  </div>
+ 
+  <div class="button-two">
+    <button onclick="solveTrigEquation()">Solve</button>
+    <button class="btn-clr" onclick="clearTrigEquation()">Clear</button>
+  </div>
+</div>
+    <!-- CARD 2: Trigonometric Identities Checker -->
+<div class="card">
+  <h1>Trigonometric Identities Checker</h1>
+  
+  <label for="identityExpr">Expression:</label>
+  <div class="input-group">
+  <input type="text" id="identityExpr" placeholder="e.g. sin(x)^2 + cos(x)^2">
+  </div>
+
+<div class="input-three" >
+  <select  id="identityAngleUnit">
+    <option value="deg">Degrees</option>
+    <option value="rad">Radians</option>
+  </select>
+  <input type="number" id="identityX" placeholder="Angle(x)">
+ </div> 
+ 
+ <textarea id="identityResult" class="result-field" placeholder="Result"></textarea> 
+<!-- Buttons grid -->
+<div class="buttons-row">
+  <button onclick="insertIdentityText('sin(')">sin</button>
+  <button onclick="insertIdentityText('cos(')">cos</button>
+  <button onclick="insertIdentityText('tan(')">tan</button>
+</div>  
+<div class="buttons-row">
+  <button onclick="insertIdentityText('cot(')">cot</button>
+  <button onclick="insertIdentityText('sec(')">sec</button>
+  <button onclick="insertIdentityText('csc(')">csc</button>
+</div>
+  <!-- Action buttons -->
+<div class="button-two">
+  <button onclick="checkIdentity()">Check</button>
+  <button class="btn-clr" onclick="clearAll()">Clear</button>
+   </div>
+  </div>
+
+      </div>
+   
+    <!-- Carousel Controls -->
+    <div class="controls">
+      <button onclick="prevCard()">‹</button>
+      <button onclick="nextCard()">›</button>
+    </div>
+  </div>
+
+<script>
+/* Carousel */
+function updateCarouselLayout(){
+  const carousel=document.getElementById('carousel');
+  const cards=document.querySelectorAll('.card');
+  const numCards=cards.length;
+  const cardWidth=carousel.offsetWidth;
+  const translateZ=Math.round((cardWidth/2)/Math.tan(Math.PI/numCards));
+  const angleStep=360/numCards;
+  let currentIndex=window.carouselData?window.carouselData.currentIndex:0;
+  cards.forEach((card,index)=>{card.style.transform=`rotateY(${index*angleStep}deg) translateZ(${translateZ}px)`;});
+  window.carouselData={translateZ,angleStep,currentIndex,total:numCards};
+  const newAngle=-currentIndex*angleStep;
+  carousel.style.transform=`translateZ(-${translateZ}px) rotateY(${newAngle}deg)`;
+  cards.forEach((card,i)=>{card.classList.toggle('active',i===currentIndex);});
+}
+function nextCard(){rotateToIndex(window.carouselData.currentIndex+1);}
+function prevCard(){rotateToIndex(window.carouselData.currentIndex-1);}
+function rotateToIndex(index){
+  const {translateZ,angleStep,total}=window.carouselData;
+  window.carouselData.currentIndex=(index+total)%total;
+  const newAngle=-window.carouselData.currentIndex*angleStep;
+  document.getElementById('carousel').style.transform=`translateZ(-${translateZ}px) rotateY(${newAngle}deg)`;
+  const cards=document.querySelectorAll('.card');
+  cards.forEach((card,i)=>{card.classList.toggle('active',i===window.carouselData.currentIndex);});
+}
+window.addEventListener('load',updateCarouselLayout);
+window.addEventListener('resize',updateCarouselLayout);
+updateCarouselLayout();
+
+/* Theme Toggle */
+  themeToggle.addEventListener("click", () => {
+  document.body.classList.toggle("light");
+  });
+
+/* Helper: Error */
+function showError(inputId, msg) {
+  const input = document.getElementById(inputId);
+  input.classList.add('shake', 'input-error');
+
+  const originalPlaceholder = input.placeholder;
+
+  input.value = '';
+  input.placeholder = msg;
+
+  setTimeout(() => {
+    input.classList.remove('shake');
+  }, 500);
+
+  setTimeout(() => {
+    input.classList.remove('input-error');
+    input.placeholder = originalPlaceholder;
+  }, 3000);
+}
+
+/* Flash */
+function emphasizeResult(fieldId){
+  let field = document.getElementById(fieldId);
+  field.classList.remove("result-flash");
+  void field.offsetWidth; // trigger reflow
+  field.classList.add("result-flash");
+}
+
+/*1. Trigonometric Equations */
+function insertTrigEq(text) {
+  const input = document.getElementById("trigEqInput");
+  input.value += text;
+}
+
+function clearTrigEquation() {
+  const input = document.getElementById("trigEqInput");
+  const result = document.getElementById("trigEqResult");
+  input.value = "";
+  input.placeholder = "e.g. sin(x)=0.5";
+  input.classList.remove("input-error");
+  result.value = "";
+  result.classList.remove("result-flash");
+}
+
+function solveTrigEquation() {
+  const input = document.getElementById("trigEqInput");
+  const result = document.getElementById("trigEqResult");
+  const equation = input.value.trim().toLowerCase();
+
+  if (equation === "") {
+    showError("trigEqInput", "Please enter an equation");
+    result.value = "";
+    return;
+  }
+
+  try {
+    const match = equation.match(/(sin|cos|tan|csc|sec|cot)\(x\)\s*=\s*(-?\d+(\.\d+)?)/);
+
+    if (!match) {
+      showError("trigEqInput", "Invalid format. Use f(x)=value");
+      result.value = "";
+      return;
+    }
+
+    const func = match[1];
+    const value = parseFloat(match[2]);
+
+    const solutions = solveTrig(func, value);
+
+    if (solutions.error) {
+      showError("trigEqInput", solutions.error);
+      result.value = "";
+      return;
+    }
+
+    input.classList.remove("input-error");
+    input.style.color = "";
+
+    result.value = `General solution:\n${solutions.general}\n\nSolutions in [0°, 360°):\n${solutions.specific.join(', ')}°`;
+    emphasizeResult("trigEqResult");
+
+  } catch (err) {
+    showError("trigEqInput", "Error parsing or solving the equation");
+    result.value = "";
+  }
+}
+
+function solveTrig(func, value) {
+  const radToDeg = rad => rad * (180 / Math.PI);
+  const degToRad = deg => deg * (Math.PI / 180);
+  const round = x => Math.round(x * 10000) / 10000;
+
+  if (["sin", "cos"].includes(func) && (value < -1 || value > 1)) {
+    return { error: `${func}(x) must be in [-1, 1]` };
+  }
+
+  let angle1Deg, angle2Deg;
+
+  switch (func) {
+    case "sin":
+      angle1Deg = radToDeg(Math.asin(value));
+      angle2Deg = 180 - angle1Deg;
+      return {
+        general: `x = ${round(angle1Deg)}° + 360°k, x = ${round(angle2Deg)}° + 360°k`,
+        specific: filterAngles([angle1Deg, angle2Deg])
+      };
+    case "cos":
+      angle1Deg = radToDeg(Math.acos(value));
+      angle2Deg = 360 - angle1Deg;
+      return {
+        general: `x = ${round(angle1Deg)}° + 360°k, x = ${round(angle2Deg)}° + 360°k`,
+        specific: filterAngles([angle1Deg, angle2Deg])
+      };
+    case "tan":
+      angle1Deg = radToDeg(Math.atan(value));
+      return {
+        general: `x = ${round(angle1Deg)}° + 180°k`,
+        specific: filterAngles([angle1Deg])
+      };
+    case "cot":
+      if (value === 0) return { error: "cot(x)=0 has no defined value" };
+      angle1Deg = radToDeg(Math.atan(1 / value));
+      return {
+        general: `x = ${round(angle1Deg)}° + 180°k`,
+        specific: filterAngles([angle1Deg])
+      };
+    case "sec":
+      if (Math.abs(value) < 1) return { error: "sec(x) must be ≤ -1 or ≥ 1" };
+      angle1Deg = radToDeg(Math.acos(1 / value));
+      angle2Deg = 360 - angle1Deg;
+      return {
+        general: `x = ${round(angle1Deg)}° + 360°k, x = ${round(angle2Deg)}° + 360°k`,
+        specific: filterAngles([angle1Deg, angle2Deg])
+      };
+    case "csc":
+      if (Math.abs(value) < 1) return { error: "csc(x) must be ≤ -1 or ≥ 1" };
+      angle1Deg = radToDeg(Math.asin(1 / value));
+      angle2Deg = 180 - angle1Deg;
+      return {
+        general: `x = ${round(angle1Deg)}° + 360°k, x = ${round(angle2Deg)}° + 360°k`,
+        specific: filterAngles([angle1Deg, angle2Deg])
+      };
+    default:
+      return { error: "Unknown function" };
+  }
+}
+
+function filterAngles(angles) {
+  return [...new Set(angles.map(a => {
+    const angle = ((a % 360) + 360) % 360;
+    return Math.round(angle * 10000) / 10000;
+  }))].sort((a, b) => a - b);
+}
+
+function emphasizeResult(id) {
+  const el = document.getElementById(id);
+  el.classList.add("result-flash");
+  setTimeout(() => el.classList.remove("result-flash"), 1000);
+}
+/* 2. Trigonometric Identities Checker */
+function insertIdentityText(text) {
+  const input = document.getElementById("identityExpr");
+  input.value += text;
+}
+
+function checkIdentity() {
+  const exprInput = document.getElementById("identityExpr");
+  const angleUnit = document.getElementById("identityAngleUnit").value;
+  const xValue = document.getElementById("identityX").value.trim();
+  const resultBox = document.getElementById("identityResult");
+
+  // Reset result box
+  resultBox.value = "";
+  resultBox.className = "result-field";
+
+  // Validation
+  if (!exprInput.value.trim()) {
+    showError("identityExpr", "identity-error", "Please enter an expression");
+    return;
+  }
+  if (xValue === "") {
+    showError("identityX", "identity-error", "Please enter a value for x");
+    return;
+  }
+
+  // Parse x value
+  let x = parseFloat(xValue);
+  if (isNaN(x)) {
+    showError("identityX", "identity-error", "x must be a number");
+    return;
+  }
+  if (angleUnit === "deg") {
+    x = x * Math.PI / 180; // convert degrees to radians
+  }
+
+  try {
+
+    let exprEval = exprInput.value
+      .replace(/sin\(/gi, `Math.sin(`)
+      .replace(/cos\(/gi, `Math.cos(`)
+      .replace(/tan\(/gi, `Math.tan(`)
+      .replace(/csc\(/gi, `(1/Math.sin(`)
+      .replace(/sec\(/gi, `(1/Math.cos(`)
+      .replace(/cot\(/gi, `(1/Math.tan(`)
+      .replace(/\^/g, "**")
+      .replace(/x/g, `(${x})`);
+
+    // Evaluate
+    let value = eval(exprEval);
+
+    // Compare with 1 for identity check
+    if (Math.abs(value - 1) < 1e-10) {
+      resultBox.value = "True ✅";
+      resultBox.classList.add("true");
+    } else {
+      resultBox.value = `False ❌ (Result: ${value.toFixed(6)})`;
+      resultBox.classList.add("false");
+emphasizeResult("identityResult");
+    }
+  } catch (e) {
+    showError("identityExpr", "identity-error", "Invalid expression format");
+  }
+}
+function clearAll() {
+    document.getElementById("identityExpr").value = "";
+    document.getElementById("identityResult").textContent = "";
+    document.getElementById("identityResult").style.color = "";
+}
+
+// Auto-clear when selection changes
+document.getElementById("identitySelect").addEventListener("change", function () {
+    clearAll();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angle & Unit Circle Solver</title>
+  <style>
+    * {
+      margin:0; 
+      padding:0; 
+      box-sizing:border-box; 
+      font-family:'Poppins',sans-serif; 
+      transition:background-color 0.3s, color 0.3s;
+    }
+    body {
+      height:100vh; 
+      display:flex;
+      flex-direction: column; 
+      justify-content:center; 
+      align-items:center; 
+      background:#1e1e1e; 
+      color:#fff;
+      margin: 0;
+      padding: 0;
+    }
+    .light {
+      background:#e0e0e0; 
+      color:#333;
+    }
+
+    /* Topbar */
+    .topbar {
+      width: 100%;
+      max-width: 460px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 40px;
+      margin-bottom: 20px;
+      font-size: 1.2em;
+      font-weight: bold;
+      background: linear-gradient(135deg, #3a3a3a, #1e1e1e);
+      color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      letter-spacing: 1px;
+    }
+    .light .topbar {
+      background:linear-gradient(135deg,#f1f1f1,#d8d8d8); 
+      color:#222;
+    }
+    /* Theme Toggle */
+    .switch {
+      width: 50px;
+      height: 28px;
+      background-color: #555;
+      box-shadow: 0 2px 6px rgba(255,255,255,0.15);
+      border-radius: 30px;
+      position: relative;
+      transition: background-c0lor 0.3s ease;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+    .slider {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translateX(0);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    body.light .switch {
+      background: #f0f0f0;
+      border: 1px solid #bbb;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+
+    body.light .switch .slider {
+      transform: translateX(20px);
+    }
+    /* Carousel */
+    .carousel-container {
+      width: 95%;
+      max-width: 420px;
+      height: 480px;
+      perspective: 1200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      margin: 20px auto;
+    }
+    .carousel {
+      width:100%; 
+      height:100%; 
+      position:relative; 
+      transform-style:preserve-3d;
+      transition:transform 0.8s;
+      transform: translateZ(-175px);
+    }
+    .card {
+      position:absolute; 
+      width:100%;       
+      height:100%; 
+      border-radius:30px; 
+      background:#2a2a2a;
+      box-shadow:8px 8px 18px rgba(0,0,0,0.6), 
+                -8px -8px 18px rgba(70,70,70,0.4);
+      padding: 30px 20px; 
+      display:flex; 
+      flex-direction:column; 
+      justify-content:center; 
+      align-items:center; 
+      backface-visibility:hidden; 
+      opacity:0.4; 
+      transition:opacity 0.4s ease;
+    }
+    .card.active {
+      opacity:1;
+    }
+    .light .card {
+      background:#e0e0e0; 
+      box-shadow:8px 8px 18px #b8b9be, 
+                -8px -8px 18px #ffffff;
+    }
+    .card h1 {
+      font-size:1.1em; 
+      letter-spacing: 1px;
+      margin-bottom:20px; 
+      text-align:center; 
+    }
+    .card h3 {
+      font-size:1.1em; 
+      display:flex; 
+      justify-content:center; 
+      align-items:center; 
+      gap:12px; 
+      margin: 15px auto;
+    }
+     
+    .card .input-four,
+    .card .result-field,
+    .card .buttons-row {
+      width: 90%;         
+      max-width: 400px;    
+      margin: 8px auto;     
+      display: flex;
+      justify-content: center;
+    }
+    
+    .input-group {
+        margin:10px 0; 
+        width:100%;
+    }
+    input {
+        width:100%; 
+        padding:10px; 
+        font-size:1.2em; 
+        text-align:center; 
+        border:none; 
+        outline:none; 
+        border-radius:15px;
+        box-shadow:inset 4px 4px 6px #141414, 
+                   inset -4px -4px 6px #3a3a3a; 
+        background:#3a3a3a; color:#fff;
+    }
+    .light input {
+        background:#f3f3f3; 
+        color:#222; 
+        box-shadow:inset 4px 4px 6px #b8b9be, 
+         inset -4px -4px 6px #ffffff;
+    }
+    input::placeholder {
+        color:#aaa;
+    }
+
+    
+    .buttons-row {
+        display:flex;
+        justify-content:center;
+        gap:15px; 
+        margin-top:15px;
+    }
+    button {
+        min-width:90px; 
+        flex:1; padding:12px; 
+        font-size:1.1em; 
+        border:none; 
+        border-radius:25px; 
+        cursor:pointer; 
+        background:#2a2a2a; 
+        color:inherit;
+        box-shadow:4px 4px 6px #141414, -4px -4px 6px #3a3a3a; 
+        transition:transform 0.2s;
+    }
+    .light button {
+      background:#e0e0e0; 
+      box-shadow:4px 4px 6px #b8b9be, 
+      -4px -4px 6px #ffffff;
+    }
+    button:hover {     
+      box-shadow:         
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+      
+    }
+    .light button:hover {
+      box-shadow: 
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+    }
+    button:active {
+      animation:bounce3D 0.4s ease forwards; 
+      box-shadow: 
+        0 0 12px rgba(79,172,254,0.9),
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+    }
+    .light button:active {
+      animation:bounce3D 0.4s ease forwards; box-shadow: 
+        0 0 12px rgba(79,172,254,0.9),
+        inset 3px 3px 6px rgba(0,0,0,0.6),
+        inset -3px -3px 6px rgba(255,255,255,0.1);
+    }
+    button .btn-clr {
+      grid-column: span 3;
+      font-size: 1rem;
+      padding: 8px;
+      height: 50px;
+      cursor: pointer;
+    }
+    .btn-clr:active {
+      box-shadow: 
+        0 0 12px rgba(255, 128, 128, 0.9),         
+        inset 3px 3px 6px rgba(0, 0, 0, 0.6),     
+        inset -3px -3px 6px rgba(255, 128, 128, 0.2) !important; 
+      animation: bounce3D 0.3s ease;
+    }
+  
+    .button-two {
+      display: flex;
+      width: 90%;
+      gap: 30px;
+      margin-top: 20px;
+    }
+
+    .button-two button {
+      flex: 1;
+    }
+     
+    @keyframes bounce3D {
+        0%{transform:scale(1);}
+        50%{transform:scale(1.08);}
+        100%{transform:scale(1);}
+    }
+
+    
+    .result-field {
+      margin-top:10px; 
+      width:100%; 
+      padding:10px; 
+      font-size:1.1em; 
+      border-radius:25px; 
+      border:1px solid #00c6ff;
+      box-shadow:0 0 7px #00bcd4;
+       color:#000; 
+      font-weight:bold;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      height:65px; 
+      background:#3a3a3a; color:#fff;
+      resize: none;
+    }
+    .light .result-field {
+      border:1px solid #00aaff;
+      color: black;
+      box-shadow:0 0 7px #00bcd4;
+      background:#f3f3f3;
+    }
+    .result {
+      overflow-x: auto;
+      white-space: no-wrap;
+    }
+    
+    .result-flash { 
+        font-weight:bold; 
+        border:2px solid #00c6ff; 
+        box-shadow:0 0 10px rgba(0, 255, 128, 0.7); 
+        animation:bounce3D 0.4s ease forwards;
+    }
+    
+    .light .result-flash { 
+      font-weight:bold; 
+      border:2px solid #00c6ff; 
+      box-shadow:0 0 10px rgba(0, 255, 128, 0.7);
+     }
+    
+    .controls {
+      position:absolute; 
+      bottom:-60px; 
+      width:100%; 
+      display:flex; 
+      justify-content:space-between;
+    }
+    .controls button {
+      width:50px; 
+      height:50px; 
+      border-radius:50%; 
+      font-size:1.5em;
+    }
+    .controls button:active {
+      animation: bounce3D 0.4s ease forwards;
+      box-shadow: 
+        0 0 12px rgba(0, 255, 128, 0.9),
+        inset 3px 3px 6px rgba(0, 0, 0, 0.6),
+        inset -3px -3px 6px rgba(0, 255, 128, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .input-error {
+      border:2px solid #ff6b6b !important; 
+      box-shadow:0 0 8px rgba(255,107,107,0.8); 
+    }
+    .light .input-error {
+      border:2px solid #ff6b6b !important; 
+      box-shadow:0 0 8px rgba(255,107,107,0.8); 
+    }
+    .error-message {
+      color:#ff6b6b ; 
+      font-size:0.80em; 
+      margin-top:4px; 
+      text-align:center; 
+      opacity:0; 
+      transition:opacity 0.3s;
+    }
+    .show-error {
+      opacity:1;
+    }
+    .shake {
+      animation:shake 0.3s;
+    }
+    @keyframes shake {
+        0%{transform:translateX(0);}
+        25%{transform:translateX(-5px);}
+        50%{transform:translateX(5px);}
+        75%{transform:translateX(-5px);}
+        100%{transform:translateX(0);}
+    }
+    input.input-error::placeholder {
+      color: #ff8a8a;
+    }
+
+    select {
+        background: #3a3a3a;
+        color: inherit;
+        border: none;
+        border-radius: 12px;
+        padding: 10px 17px;
+        font-size: 0.95em;
+        box-shadow: 
+            inset 4px 4px 6px #141414, 
+            inset -4px -4px 6px #3a3a3a;
+    }
+    .light select {
+        background: #f3f3f3;
+        color: #222;
+        box-shadow: inset 4px 4px 6px #b8b9be, inset -4px -4px 6px #ffffff;
+    }
+
+    .swap-btn {  
+      background:none; 
+      border:none; 
+      min-width:40px; 
+      height:40px; 
+      border-radius:20px; 
+      font-size:1em;
+      cursor:pointer; 
+      color:inherit;  
+      display:inline-flex; 
+      align-items:center; 
+      justify-content:center;
+      transition:transform 0.6s ease; 
+      transform:rotate(0deg);
+    }
+    .swap-btn:active {
+      background:rgba(255,255,255,0.1); 
+      transform:scale(0.95);
+    }
+    .swap-btn .arrow {
+      display:inline-block; 
+      transition:transform 0.6s ease;
+    }
+    .swap-btn.spin .arrow {
+      transform:rotate(360deg);
+    }
+    .input-three {
+        display: flex;
+        width: 90%;
+        align-items: center; 
+        justify-content: center;
+        gap: 15px; 
+        margin-top: 15px;
+        padding: 3px 10pxs;
+    }
+
+    .input-three input:focus {
+        border-color: #4a90e2;
+        box-shadow:inset 1px 1px 2px #00f2fe, inset -1px -1px 2px #00c6ff;
+    }
+
+    .input-three h2 {
+        margin: 0;
+        font-size: 1.7rem;
+        font-weight: bold;
+        color: #ffffff;
+        background: transparent;
+        user-select: none; 
+    }
+    .light .input-three h2 {
+        color: #000000;
+    }
+    .input-four {
+        display: flex;
+        gap: 10px;
+    }
+
+    .input-four input,
+    .input-four select {
+        padding: 10px 10px;
+        font-size: 1.2em;
+        border-radius: 13px; 
+        box-sizing: border-box;
+        flex: 1; 
+    }
+
+  </style>
+</head>
+<body class="dark">
+  <div class="topbar">
+    <div>Angle & Unit Circle Solver</div>
+    <div id="themeToggle" class="switch">
+     <div class="slider"></div>
+    </div>
+  </div>
+
+  <div class="carousel-container">
+    <div class="carousel" id="carousel">
+
+      <!-- Card 1: Angle Conversions -->
+<div class="card">
+  <h1>Angle Conversions</h1>
+   <h3>
+    <select id="angle-left" aria-label="From unit">
+      <option value="deg" selected>Degrees</option>
+      <option value="rad">Radians</option>
+      <option value="grad">Gradians</option>
+    </select>
+
+    <button class="swap-btn" onclick="swapAngleUnits()" title="Swap units">
+      <span class="arrow">→</span>
+    </button>
+
+    <select id="angle-right" aria-label="To unit">
+      <option value="deg">Degrees</option>
+      <option value="rad">Radians</option>
+      <option value="grad" selected>Gradians</option>
+    </select>
+   </h3>
+  <div class="input-three" >
+    <input type="text" id="angleConvInput" placeholder="Angle">
+   <h2>⇆</h2>
+    <input type="text" class="result" id="angleConvResult"  placeholder="Result" readonly>
+  </div>
+
+  <!-- Convert / Clear -->
+  <div class="button-two" >
+    <button onclick="convertAngle()">Convert</button>
+    <button class="btn-clr" onclick="clearAngleConv()">Clear</button>
+  </div>
+</div>
+<!-- Card 2: Unit Circle Solver -->
+<div class="card">
+  <h1>Unit Circle Solver</h1>
+
+  <!-- Input & result -->
+  <div class="input-four">
+    <input type="text" id="uc-angle" placeholder="Enter angle">
+     <!-- Select angle unit -->
+    <select id="uc-angle-unit" aria-label="Angle unit">
+      <option value="deg" selected>Degrees</option>
+      <option value="rad">Radians</option>
+      <option value="grad">Gradians</option>
+    </select>
+  </div>
+  
+<textarea id="uc-all-results" class="result-field" placeholder="Results:
+Coordinates"></textarea>
+  
+  <div class="buttons-row">
+          <button onclick="calculateTrig('sin')">sin</button>
+          <button onclick="calculateTrig('cos')">cos</button>
+          <button onclick="calculateTrig('tan')">tan</button>
+        </div>
+
+        <div class="buttons-row">
+          <button onclick="calculateTrig('cot')">cot</button>
+          <button onclick="calculateTrig('sec')">sec</button>
+          <button onclick="calculateTrig('csc')">csc</button>
+        </div>
+
+  <!-- Solve / Clear buttons -->
+  <div class="button-two" style="margin-top: 20px;">
+    <button onclick="solveUnitCircle()">Solve</button>
+    <button class="btn-clr" onclick="clearUnitCircle()">Clear</button>
+  </div>
+
+</div>
+
+    <!-- Carousel Controls -->
+    <div class="controls">
+      <button onclick="prevCard()">‹</button>
+      <button onclick="nextCard()">›</button>
+    </div>
+  </div>
+
+<script>
+/* Carousel */
+function updateCarouselLayout(){
+  const carousel=document.getElementById('carousel');
+  const cards=document.querySelectorAll('.card');
+  const numCards=cards.length;
+  const cardWidth=carousel.offsetWidth;
+  const translateZ=Math.round((cardWidth/2)/Math.tan(Math.PI/numCards));
+  const angleStep=360/numCards;
+  let currentIndex=window.carouselData?window.carouselData.currentIndex:0;
+  cards.forEach((card,index)=>{card.style.transform=`rotateY(${index*angleStep}deg) translateZ(${translateZ}px)`;});
+  window.carouselData={translateZ,angleStep,currentIndex,total:numCards};
+  const newAngle=-currentIndex*angleStep;
+  carousel.style.transform=`translateZ(-${translateZ}px) rotateY(${newAngle}deg)`;
+  cards.forEach((card,i)=>{card.classList.toggle('active',i===currentIndex);});
+}
+function nextCard(){rotateToIndex(window.carouselData.currentIndex+1);}
+function prevCard(){rotateToIndex(window.carouselData.currentIndex-1);}
+function rotateToIndex(index){
+  const {translateZ,angleStep,total}=window.carouselData;
+  window.carouselData.currentIndex=(index+total)%total;
+  const newAngle=-window.carouselData.currentIndex*angleStep;
+  document.getElementById('carousel').style.transform=`translateZ(-${translateZ}px) rotateY(${newAngle}deg)`;
+  const cards=document.querySelectorAll('.card');
+  cards.forEach((card,i)=>{card.classList.toggle('active',i===window.carouselData.currentIndex);});
+}
+window.addEventListener('load',updateCarouselLayout);
+window.addEventListener('resize',updateCarouselLayout);
+updateCarouselLayout();
+
+/* Theme Toggle */
+  themeToggle.addEventListener("click", () => {
+  document.body.classList.toggle("light");
+  });
+
+/* Helper: Error */
+function showError(inputId, msgId, msg) {
+  const input = document.getElementById(inputId);
+  input.classList.add('shake', 'input-error');
+
+  // Save the original placeholder
+  const originalPlaceholder = input.placeholder;
+
+  // Clear the value and show error inside input as placeholder
+  input.value = '';
+  input.placeholder = msg;
+
+  setTimeout(() => {
+    input.classList.remove('shake');
+  }, 500);
+
+  setTimeout(() => {
+    input.classList.remove('input-error');
+    input.placeholder = originalPlaceholder;
+  }, 3000);
+}
+
+/* Flash */
+function emphasizeResult(fieldId){
+  let field=document.getElementById(fieldId);
+  field.classList.remove("result-flash");
+  void field.offsetWidth;
+  field.classList.add("result-flash");
+}
+
+/* 1. Angle conversion helpers:
+   - deg <-> rad:  rad = deg * PI / 180
+   - deg <-> grad: grad = deg * 10/9  (1 grad = 0.9 deg)
+   - rad <-> grad: grad = rad * 200 / PI
+*/
+
+function toDegrees(value, unit) {
+  if (unit === 'deg') return value;
+  if (unit === 'rad') return value * (180 / Math.PI);
+  if (unit === 'grad') return value * 0.9; // 1 grad = 0.9 degrees
+  return NaN;
+}
+
+function fromDegrees(degValue, unit) {
+  if (unit === 'deg') return degValue;
+  if (unit === 'rad') return degValue * (Math.PI / 180);
+  if (unit === 'grad') return degValue * (10 / 9); // deg -> grad
+  return NaN;
+}
+
+function convertAngle() {
+  const inField = document.getElementById('angleConvInput');
+  const outField = document.getElementById('angleConvResult');
+  const fromUnit = document.getElementById('angle-left').value;
+  const toUnit = document.getElementById('angle-right').value;
+  const text = inField.value.trim();
+
+  if (text === '') {
+    showError('angleConvInput', '', 'Enter a value');
+    outField.value = '';
+    return;
+  }
+
+  // Accept decimal numbers, allow leading +/-, and scientific notation.
+  const parsed = parseFloat(text);
+  if (isNaN(parsed)) {
+    showError('angleConvInput', '', 'Invalid number');
+    outField.value = '';
+    return;
+  }
+
+  // Convert by normalizing to degrees first, then to target unit.
+  const deg = toDegrees(parsed, fromUnit);
+  if (!isFinite(deg)) {
+    showError('angleConvInput', '', 'Conversion error');
+    outField.value = '';
+    return;
+  }
+  const result = fromDegrees(deg, toUnit);
+
+
+  const formatted = formatFloatSmart(result, 3);
+
+  outField.value = `${formatted} ${unitLabel(toUnit)}`;
+  emphasizeResult('angleConvResult');
+}
+
+function clearAngleConv() {
+  const inField = document.getElementById('angleConvInput');
+  const outField = document.getElementById('angleConvResult');
+  
+  inField.value = '';
+  outField.value = '';
+  inField.placeholder = 'Enter value (from unit)';
+  inField.classList.remove('input-error');
+  outField.classList.remove('result-flash');
+}
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('angle-left').addEventListener('change', clearAngleConv);
+});
+
+function swapAngleUnits() {
+  clearAngleConv();
+
+  const left = document.getElementById('angle-left');
+  const right = document.getElementById('angle-right');
+  const inField = document.getElementById('angleConvInput');
+  const outField = document.getElementById('angleConvResult');
+  const swapBtn = document.querySelector('.swap-btn');
+
+  // Spin animation
+  swapBtn.classList.add('spin');
+  setTimeout(() => swapBtn.classList.remove('spin'), 600);
+
+  // swap selects
+  const tmpUnit = left.value;
+  left.value = right.value;
+  right.value = tmpUnit;
+
+  // swap values (strip old unit from inField)
+  const tmpVal = inField.value.replace(/\s*(°|rad|gon|grad)$/i, '');
+  inField.value = outField.value
+    ? outField.value.replace(/\s*(°|rad|gon|grad)$/i, '')
+    : '';
+  outField.value = tmpVal ? `${tmpVal} ${unitLabel(right.value)}` : '';
+
+  // update placeholder and append new unit to input
+  inField.placeholder = `Enter value (${unitLabel(left.value)})`;
+  if (inField.value) {
+    inField.value = `${inField.value} ${unitLabel(left.value)}`;
+  }
+}
+
+/* helper: smart float formatting */
+function formatFloatSmart(x, maxDecimals) {
+  if (!isFinite(x)) return String(x);
+  // If it's effectively an integer, show no decimals
+  if (Math.abs(x - Math.round(x)) < 1e-12) return String(Math.round(x));
+  // Otherwise limit decimals but remove trailing zeros
+  return Number.parseFloat(x.toFixed(maxDecimals)).toString();
+}
+
+function unitLabel(unit) {
+  if (unit === 'deg') return '°';
+  if (unit === 'rad') return 'rad';
+  if (unit === 'grad') return 'gon';
+  return '';
+}
+
+/* 2. Unit Circle Solver */
+
+function showError(inputId, message) {
+  const input = document.getElementById(inputId);
+  const resultField = document.getElementById("uc-all-results");
+
+  // Highlight and shake input
+  input.classList.add("input-error", "shake");
+
+  // Show error message in result field with fade-in
+  resultField.value = `⚠ ${message}`;
+  resultField.classList.add("show-error");
+
+  // Remove shake after animation
+  setTimeout(() => {
+    input.classList.remove("shake");
+  }, 300);
+
+  // Fade out after 1s
+  setTimeout(() => {
+    resultField.classList.remove("show-error");
+  }, 1000);
+
+  // Clear error styles
+  setTimeout(() => {
+    input.classList.remove("input-error");
+    resultField.value = "";
+  }, 1300);
+}
+
+/* Flash result field */
+function flashResult() {
+  const resultField = document.getElementById("uc-all-results");
+  resultField.classList.add("result-flash");
+  setTimeout(() => {
+    resultField.classList.remove("result-flash");
+  }, 400);
+}
+
+/* Convert to radians */
+function toRadians(value, unit) {
+  if (unit === "deg") return value * (Math.PI / 180);
+  if (unit === "grad") return value * (Math.PI / 200);
+  return value;
+}
+
+/* Format numbers */
+function formatNumber(num) {
+  if (Math.abs(num) > 1e10) return "∞";
+  return Math.abs(num) < 1e-10 ? 0 : parseFloat(num.toFixed(6));
+}
+
+/* Calculate single trig function */
+function calcTrig(func) {
+  const angleInputEl = document.getElementById("uc-angle");
+  const angleInput = angleInputEl.value.trim();
+  const unit = document.getElementById("uc-angle-unit").value;
+  const resultField = document.getElementById("uc-all-results");
+
+  if (angleInput === "" || isNaN(angleInput)) {
+    showError("uc-angle", "Please enter a valid angle.");
+    return;
+  }
+
+  const angleRad = toRadians(parseFloat(angleInput), unit);
+  let val;
+
+  switch (func) {
+    case "sin": val = Math.sin(angleRad); break;
+    case "cos": val = Math.cos(angleRad); break;
+    case "tan": val = Math.tan(angleRad); break;
+    case "csc": val = 1 / Math.sin(angleRad); break;
+    case "sec": val = 1 / Math.cos(angleRad); break;
+    case "cot": val = 1 / Math.tan(angleRad); break;
+  }
+
+  resultField.value = !isFinite(val) ? "Undefined" : `${func} = ${formatNumber(val)}`;
+  flashResult();
+}
+
+/* Solve full unit circle set */
+function solveUnitCircle() {
+  const angleInputEl = document.getElementById("uc-angle");
+  const angleInput = angleInputEl.value.trim();
+  const unit = document.getElementById("uc-angle-unit").value;
+  const resultField = document.getElementById("uc-all-results");
+
+  if (angleInput === "" || isNaN(angleInput)) {
+    showError("uc-angle", "Please enter a valid angle.");
+    return;
+  }
+
+  const angleRad = toRadians(parseFloat(angleInput), unit);
+  const sinVal = Math.sin(angleRad);
+  const cosVal = Math.cos(angleRad);
+  const tanVal = Math.tan(angleRad);
+
+  const results = 
+`Coordinates (x, y): (${formatNumber(cosVal)}, ${formatNumber(sinVal)})
+sin: ${formatNumber(sinVal)}
+cos: ${formatNumber(cosVal)}
+tan: ${!isFinite(tanVal) ? "Undefined" : formatNumber(tanVal)}
+csc: ${!isFinite(1/sinVal) ? "Undefined" : formatNumber(1/sinVal)}
+sec: ${!isFinite(1/cosVal) ? "Undefined" : formatNumber(1/cosVal)}
+cot: ${!isFinite(1/tanVal) ? "Undefined" : formatNumber(1/tanVal)}`;
+
+  resultField.value = results;
+  flashResult();
+}
+
+/* Clear inputs */
+function clearUnitCircle() {
+  document.getElementById("uc-angle").value = "";
+  document.getElementById("uc-all-results").value = "";
+}
+</script>
+</body>
+</html>
