@@ -369,9 +369,7 @@ body.chapter .card-grid > .glass-card :last-child:nth-child(odd) {
   body.chapter .glass-card {
     padding: 1rem;
   }
-  .glass-card h2 {
-    white-space: nowrap;
-  }
+  
   body.chapter .card-grid > .glass-card :last-child:nth-child(odd) {
     grid-column: 1 / -1;
     justify-self: center;
@@ -389,4 +387,5 @@ body.chapter .card-grid > .glass-card :last-child:nth-child(odd) {
     justify-self: center;
   }
 }
+
 
