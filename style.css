@@ -76,7 +76,7 @@ body {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -234,7 +234,7 @@ body.chapter .container {
 }
 
 body.chapter h1 {
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(1.9rem, 4vw, 3rem);
   font-weight: 700;
   letter-spacing: 1px;
   margin: 2.5rem auto;
@@ -271,7 +271,7 @@ body.chapter .glass-card {
   text-align: center;
   border: 1px solid #ffd166;
   background: rgba(255, 209, 102, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
   width: 100%;
   max-width: 180px;
 }
@@ -362,14 +362,18 @@ body.chapter .card-grid > .glass-card :last-child:nth-child(odd) {
 
 /* Responsive tweaks */
 @media (max-width: 768px) {
+  body,
   body.chapter {
     padding: 1rem;
   }
-
+  .glass-card,
   body.chapter .glass-card {
-    padding: 1rem;
+    padding: 0.8rem;
   }
-  
+  body.chapter .card-grid > .glass-card :last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
   body.chapter .card-grid > .glass-card :last-child:nth-child(odd) {
     grid-column: 1 / -1;
     justify-self: center;
