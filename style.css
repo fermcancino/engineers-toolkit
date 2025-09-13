@@ -85,7 +85,7 @@ body {
 
 .glass-card img {
   width: clamp(60px, 30%, 110px);
-  margin-bottom: 0.7rem;
+  margin: 0.7rem auto;
   filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.35))
           drop-shadow(0 0 3px #ffffff)
           drop-shadow(0 0 2px #000000);
@@ -391,4 +391,5 @@ body.chapter .card-grid > .glass-card :last-child:nth-child(odd) {
     justify-self: center;
   }
 }
+
 
