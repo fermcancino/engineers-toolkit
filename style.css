@@ -230,7 +230,7 @@ body.chapter .container {
   align-items: center;
   width: 100%;
   margin: 0;
-  padding: 1rem;
+  padding: 0;
 }
 
 body.chapter h1 {
@@ -364,7 +364,7 @@ body.chapter .card-grid > .glass-card :last-child:nth-child(odd) {
 @media (max-width: 768px) {
   body,
   body.chapter {
-    padding: 1rem;
+    padding: 0.5rem;
   }
   .glass-card,
   body.chapter .glass-card {
@@ -384,6 +384,7 @@ body.chapter .card-grid > .glass-card :last-child:nth-child(odd) {
   body.chapter .card-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
+    padding: 1.5rem;
   }
 
   body.chapter .card-grid > .glass-card :last-child:nth-child(odd) {
@@ -391,8 +392,3 @@ body.chapter .card-grid > .glass-card :last-child:nth-child(odd) {
     justify-self: center;
   }
 }
-
-
-
-
-
