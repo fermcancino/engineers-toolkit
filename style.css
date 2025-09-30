@@ -50,18 +50,36 @@ body {
   justify-content: center;
 }
 
-@media (max-width: 600px) {
-  .card-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
 @media (min-width: 1024px) {
   .card-grid {
     grid-template-columns: repeat(4, 250px);
     justify-content: center;
   }
 }
+@media (max-width: 768px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  body {
+    padding: 1rem;
+  }
+
+  .glass-card {
+    padding: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+  }
+
+  .glass-card {
+    padding: 1rem;
+  }
+} 
 
 /* Glass card */
 .glass-card {
@@ -392,3 +410,4 @@ body.chapter .card-grid > .glass-card :last-child:nth-child(odd) {
     justify-self: center;
   }
 }
+
