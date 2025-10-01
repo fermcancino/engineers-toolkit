@@ -66,7 +66,10 @@ body {
   }
 
   .glass-card {
-    padding: 1.2rem;
+    padding: 1rem;
+  }
+  .glass-card img {
+    margin-bottom: 0.4rem;
   }
 }
 
@@ -77,7 +80,7 @@ body {
   }
 
   .glass-card {
-    padding: 1rem;
+    padding: 0.8rem;
   }
 } 
 
@@ -396,6 +399,9 @@ body.chapter .card-grid > .glass-card :last-child:nth-child(odd) {
     grid-column: 1 / -1;
     justify-self: center;
   }
+  body.chapter .glass-card img {
+    margin-bottom: 0.3rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -410,4 +416,5 @@ body.chapter .card-grid > .glass-card :last-child:nth-child(odd) {
     justify-self: center;
   }
 }
+
 
