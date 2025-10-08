@@ -1,4 +1,4 @@
-🧰 All-in-One Engineer’s Toolkit
+# 🧰 All-in-One Engineer’s Toolkit
 
 🚀 91 Calculators in One Hub
 
@@ -6,7 +6,7 @@ A complete HTML, CSS, and JavaScript project built to help students, engineers, 
 
 ---
 
-🧩 Key Features
+# 🧩 Key Features
 
 🔢 Arithmetic & Basic Math
 
@@ -34,7 +34,7 @@ Derivative • Integral • Limit • Series Expansion
 
 ---
 
-💻 Tech Stack
+# 💻 Tech Stack
 
 Frontend: HTML, CSS, JavaScript
 
@@ -42,12 +42,12 @@ Design: Clean, responsive, and offline-friendly
 
 ---
 
-🌐 Live Demo
+# 🌐 Live Demo
 https://fermcancino.github.io/engineers-toolkit/
 
 ---
 
-💡 Future Plans
+# 💡 Future Plans
 
 Add Python backend (SymPy for symbolic math)
 
@@ -57,6 +57,6 @@ Premium ad-free version
 
 ---
 
-👨‍🔧 About the Developer
+# 👨‍🔧 About the Developer
 
 Created by Fermina Cancino, an engineer who loves math, organization, and creating tools that make problem-solving easier.
